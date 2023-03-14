@@ -1,0 +1,58 @@
+﻿@model AdwardSoft.Web.Inside.Models.RoleConfigViewModel
+
+<form class="form-validate-jquery" asp-controller="Role" asp-action="CreateConfig" method="post" callbackfn="callbackSuccess()">
+    <div class="modal-header">
+        @if (Model.RoleId == 0)
+        {
+            <h5 class="modal-title">Thêm mới</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">Điều chỉnh</h5>
+            <input type="text" hidden value="@Model.RoleId" asp-for="@Model.RoleId" />
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="form-group col-md-12">
+            <label asp-for="PwdRegex" class="clear-fix font-weight-semibold"></label>
+            <div class="d-flex">
+                <input type="text" asp-for="@Model.PwdRegex" value="@Model.PwdRegex" class="form-control" />
+                <button type="button" id="copy-text" class="btn ml-1 btn-sm mr-0">Sao chép <i class="icon-copy3"></i></button>
+            </div>
+            <span asp-validation-for="@Model.PwdRegex" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="VerificationMethod" class="clear-fix font-weight-semibold"></label>
+            <select asp-for="@Model.VerificationMethod" asp-items="Html.GetEnumSelectList<ERoleConfigVerification>()" class="form-control select"></select>
+            <span asp-validation-for="@Model.VerificationMethod" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="IsLogging" class="clear-fix font-weight-bold"></label>
+            <div class="form-check form-check-switch form-check-switch-left">
+                <input asp-for="IsLogging" type="checkbox" data-off-color="danger" data-on-text="ON" data-off-text="OFF" class="form-check-input-switchery_config_@Model.RoleId">
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="javascript:void(0);" data-dismiss="modal" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+        <button type="button" id="btn_save" class="btn btn-success ml-1 btn-sm mr-0">Cập nhật <i class="fa fa-check ml-1"></i></button>
+    </div>
+</form>
+
+<script>
+    $(function () {
+        var switchery = new Switchery(document.querySelector('.form-check-input-switchery_config_@Model.RoleId'));
+
+        rebindValidation();
+        $("#btn_save").on("click", (function () {
+            $form = $(this).parents("form:first");
+            if ($form.valid()) {
+                $form.submit();
+            }
+        }));
+        $("#copy-text").on("click", function () {
+            document.getElementById("PwdRegex").select();
+            document.execCommand("copy");
+        });
+    })
+</script>

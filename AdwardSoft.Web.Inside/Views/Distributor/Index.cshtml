@@ -1,0 +1,315 @@
+﻿@model CustomerDatatableViewModel
+
+@{
+    ViewData["Title"] = "Distributor";
+    var type = Model.Type == 0 ? @ECustomerType.Personal.Description() : @ECustomerType.Organization.Description();
+    var status = Model.Status == 0 ? @EStatus.Unavailable.Description() : @EStatus.Available.Description();
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Thông tin nhà phân phối</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <a href="@Url.Action("_Form","Distributor")" checkvalidate="true" modal-size="modal-lg" class="btn btn-medium btn-primary modal-link" callbackfn="DistributorSuccess()">
+                                <i class="icon-pencil7 mr-1"></i><span class="hidden-xs">Cập nhật thông tin</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                 <form class="form-validate-jquery form-content" id="info-form">
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Tên nhà phân phối</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control">
+                                    <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Email</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Email" value="@Model.Email" class="form-control">
+                                    <span asp-validation-for="@Model.Email" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-mail5"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Số GPKD</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.IdentityCode" value="@Model.IdentityCode" class="form-control">
+                                    <span asp-validation-for="@Model.IdentityCode" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-newspaper"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Số điện thoại</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Phone" value="@Model.Phone" class="form-control">
+                                    <span asp-validation-for="@Model.Phone" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-phone2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Địa chỉ</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Address" value="@Model.Address" class="form-control">
+                                    <span asp-validation-for="@Model.Address" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-location4"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Loại</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Type" value="@type" class="form-control">
+                                    <span asp-validation-for="@Model.Type" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-users"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Nhóm khách hàng</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.CustomerGroupId" value="@Model.CustomerGroupName" class="form-control">
+                                    <span asp-validation-for="@Model.CustomerGroupId" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-users"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Kho hàng</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.StockId" value="@Model.StockName" class="form-control">
+                                    <span asp-validation-for="@Model.StockId" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-home2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Hình thức thanh toán</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.PaymentMethodId" value="@Model.PaymentMethodName" class="form-control">
+                                    <span asp-validation-for="@Model.PaymentMethodId" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-cash"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Ngày sinh</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.DoBStr" value="@Model.DoBStr" class="form-control daterange" />
+                                    <span asp-validation-for="@Model.DoBStr" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-calendar"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Tag</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Tag" value="@Model.Tag" class="form-control">
+                                    <span asp-validation-for="@Model.Tag" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-price-tag2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Hạn mức tín dụng</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.CreditLimit" value="@String.Format("{0:#,##0.##}", Model.CreditLimit)" class="form-control format-Currency" />
+                                    <span asp-validation-for="@Model.CreditLimit" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-credit-card"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Người đại diện</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Representative" value="@Model.Representative" class="form-control">
+                                    <span asp-validation-for="@Model.Representative" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Số điện thoại</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.RepPhone" value="@Model.RepPhone" class="form-control" />
+                                    <span asp-validation-for="@Model.RepPhone" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-phone2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Người điều hành</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.Operator" value="@Model.Operator" class="form-control">
+                                    <span asp-validation-for="@Model.Operator" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-user"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Số điện thoại</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.OpePhone" value="@Model.OpePhone" class="form-control" />
+                                    <span asp-validation-for="@Model.OpePhone" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-phone2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>Hạn thanh toán</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input type="text" asp-for="@Model.PaymentTerm" value="@Model.PaymentTerm" class="form-control">
+                                    <span asp-validation-for="@Model.PaymentTerm" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-calendar"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Trạng thái</label>
+                                <div class="form-group-feedback">
+                                    <input type="text" asp-for="@Model.Status" value="@status" class="form-control" />
+                                    <span asp-validation-for="@Model.Status" class="validation-invalid-label"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Ghi chú</label>
+                                <div class="form-group-feedback">
+                                    <textarea cols="3" disabled="disabled" asp-for="@Model.Note" value="@Model.Note" class="form-control"></textarea>
+                                    <span asp-validation-for="@Model.Note" class="validation-invalid-label"></span>
+                                </div>
+                               
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label>Bản đồ</label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <div class="mapouter">
+                                        <div class="gmap_canvas">
+                                            @if (String.IsNullOrEmpty(Model.Map)) {
+                                                <iframe width="100%" height="100%" id="gmap_canvas" src="https://maps.google.com/maps?q=Ho Chi Minh&t=&z=11&ie=UTF8&iwloc=&output=embed" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                                            } 
+                                            @Html.Raw(Model.Map)
+                                            <style>
+                                                .mapouter{position:relative;text-align:right;height:100vh;width:100%;}
+                                            </style>
+                                            <style>
+                                                .gmap_canvas {overflow:hidden;background:none!important;height:100%;width:100%;}
+                                            </style>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </form>
+            </div>
+            
+        </div>
+    </div>
+</div>
+@section Scripts {
+
+    <script>
+
+        $(document).ready(function () {
+            $('.select').select2();
+            $("input").prop('disabled', true);
+            setTimeout(rebindValidation, 500)
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+            $('.select-search').select2()
+            $('.daterange').daterangepicker({
+                singleDatePicker: true,
+                timePicker: false,
+                minDate: '01-01-1910',
+                maxDate: new Date(),
+                locale: {
+                    format: 'DD/MM/YYYY'
+                },
+                yearPicker: true
+            })
+            
+        }
+
+        var DistributorSuccess = function () {
+            setTimeout(function () { location.reload(); }, 500)
+        };
+    </script>
+}

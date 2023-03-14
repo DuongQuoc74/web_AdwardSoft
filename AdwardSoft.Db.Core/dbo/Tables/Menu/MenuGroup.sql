@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[MenuGroup]
+(
+	[Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY, 
+    [Name] NVARCHAR(150) NOT NULL, 
+    [Position] TINYINT NOT NULL 
+)

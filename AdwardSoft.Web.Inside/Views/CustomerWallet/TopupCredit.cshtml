@@ -1,0 +1,236 @@
+﻿@model CustomerWalletDatatableViewModel
+
+@{
+	ViewData["Title"] = "Cấp tín dụng";
+	var Customers = ViewBag.Customers;
+}
+
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h5 class="card-title">Danh sách cấp tín dụng</h5>
+				<div class="card-header header-elements-md-inline">
+					<div class="row">
+						<div class="col-md-auto float-right">
+							<label class="clear-fix font-weight-semibold">Từ ngày - đến ngày</label>
+							<div class="form-group-feedback form-group-feedback-left ">
+								<input type="text" id="date-filter" class="form-control">
+								<div class="form-control-feedback">
+									<i class="icon-calendar22"></i>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-auto float-right">
+							<label class="clear-fix font-weight-semibold">Nhà phân phối</label>
+							<select id="customer-filter" class="form-control select-search" asp-items="Customers">
+								<option value="0" selected>Tất cả</option>
+							</select>
+						</div>
+						<div class="col-md-auto float-right">
+							<label class="clear-fix font-weight-semibold">Số tiền từ</label>
+							<div class="form-group-feedback form-group-feedback-left ">
+								<input type="text" id="amount-from" class="form-control format-Currency">
+								<div class="form-control-feedback">
+									<i class="icon-coin-dollar"></i>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-auto float-right">
+							<label class="clear-fix font-weight-semibold">đến</label>
+							<div class="form-group-feedback form-group-feedback-left ">
+								<input type="text" id="amount-to" class="form-control format-Currency">
+								<div class="form-control-feedback">
+									<i class="icon-coin-dollar"></i>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card-header header-elements-md-inline">
+				<div class="row">
+					<div class="col-md-auto">
+						<a href="@Url.Action("_FormTopupCredit","CustomerWallet")" checkvalidate="true" modal-size="modal-lg" class="btn btn-medium btn-primary modal-link" callbackfn="CustomerWalletSuccess()">
+							<i class="icon-plus22 mr-1"></i><span class="hidden-xs">Cấp tín dụng</span>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
+				<table id="CustomerWalletTable" class="table datatable-save-state w-100">
+					<thead>
+						<tr>
+							<th>
+								<label asp-for="Date"></label>
+							</th>
+							<th>
+								<label asp-for="CustomerName"></label>
+							</th>
+							<th>
+								<label asp-for="Amount"></label>
+							</th>
+							<th>
+								<label asp-for="Note"></label>
+							</th>
+							<th>
+								<label asp-for="Status"></label>
+							</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script id="CustomerWalletAction" type="text/x-jsrender">
+		<div class="list-icons">
+			<div class="list-icons-item dropdown">
+				<a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+				<div class="dropdown-menu dropdown-menu-right">
+		@* -- Edit -- *@
+					<a href='@Url.Action("_FormTopupCredit","CustomerWallet")' checkvalidate="true" class="dropdown-item modal-link" modal-size="modal-lg" data-params='{"id":"{{:id}}"}' callbackfn="CustomerWalletSuccess()">
+						<i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.GetDescription()" ></i>
+		@EText.Edit.GetDescription()
+					</a>
+		@* -- Remove -- *@
+					<a data-action="/CustomerWallet/Delete" callbackfn="CustomerWalletSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+						<i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+		@EText.Remove.GetDescription()
+					</a>
+				</div>
+			</div>
+		</div>
+	</script>
+	<script>
+		$(document).ready(function () {
+			setTimeout(rebindValidation, 500);
+		})
+		var rebindValidation = function () {
+			$('form').each(function (i, f) {
+				$form = $(f);
+				$form.removeData('validator');
+				$form.removeData('unobtrusiveValidation');
+				$.validator.unobtrusive.parse($form);
+			});
+
+			$('.select-search').select2();
+			$('.form-check-input-switch').bootstrapSwitch();
+			$('.daterange-single').daterangepicker({
+				singleDatePicker: true,
+				timePicker: false,
+				minDate: '01-01-1910',
+				maxDate: new Date(),
+				locale: {
+					format: 'DD-MM-YYYY'
+				},
+				autoclose: true,
+				yearPicker: true,
+			});
+
+		};
+		
+		var $DateFilter = $('#date-filter');
+		var $CustomerFilter = $('#customer-filter');
+		var $AmountFrom = $('#amount-from');
+		var $AmountTo = $('#amount-to');
+		$DateFilter.daterangepicker({
+			applyClass: 'bg-slate-600',
+			cancelClass: 'btn-light',
+			singleDatePicker: false,
+			timePicker: false,
+			autoclose: true,
+			opens: 'right',
+			startDate: moment().subtract(3, 'months'),
+			minDate: '01-01-1910',
+			maxDate: new Date(),
+			locale: {
+				format: 'DD/MM/YYYY'
+			}
+		})
+		var $CustomerWalletTable
+		var CustomerWalletAction = $.templates("#CustomerWalletAction");
+		$CustomerWalletTable = $("#CustomerWalletTable").DataTable({
+			ajax: function (data, callback, settings) {
+				$.ajax({
+					url: "@Url.Action("ReadTopupCredit", "CustomerWallet")",
+					data: {
+						"date": $DateFilter.val(),
+						"amountFrom": $AmountFrom.val(),
+						"amountTo": $AmountTo.val(),
+						"customerId": $CustomerFilter.val()
+					},
+					method: "POST",
+					success: function (response) {
+						callback({ data: response })
+					},
+					error: function (error) {
+						console.log(error)
+					}
+				})
+			},
+			pageLength: 10,
+			paging: true,
+			cache: false,
+			lengthChange: false,
+			filter: false,
+			search: false,
+			columns: [
+				{
+					data: "date",
+					render: (data, type, row) => moment(data).format('DD/MM/YYYY')
+				},
+				{ data: "customerName" },
+				{
+					data: "amount",
+					render: (data, type, row) => FormatCurrency(data)
+				},
+				{ data: "note" },
+				{
+					data: "status",
+					render: (data, type, row) => data === 0 ? '<p class="text-danger">@ECustomerWalletStatus.Processing.Description()</p>' : data === 1 ? '<p class="text-danger">@ECustomerWalletStatus.Succeed.Description()</p>' : '<p class="text-success">@ECustomerWalletStatus.Denied.Description()</p>'
+				},
+				{
+					data: "id",
+					render: function (data, type, row) {
+						return row.status === 0 ? (CustomerWalletAction.render({ id: data })) : "";
+					}
+				},
+			],
+			dom: 'Bfrtip',
+			buttons: [
+				{
+					extend: 'excel',
+					text: 'Xuất excel',
+					className: 'btn btn-medium btn-primary'
+				}
+			],
+			language: {
+				info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+				paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+				processing: "",
+				infoEmpty: "",
+				emptyTable: "Không có dữ liệu ..."
+			}
+		});
+
+		var CustomerWalletSuccess = function () {
+			$CustomerWalletTable.ajax.reload();
+		};
+		$AmountFrom.on('change input', function (e) {
+			$CustomerWalletTable.ajax.reload()
+		})
+		$AmountTo.on('change input', function (e) {
+			$CustomerWalletTable.ajax.reload()
+		})
+		$DateFilter.on('change', function (e) {
+			$CustomerWalletTable.ajax.reload()
+		})
+		$CustomerFilter.on('change', function (e) {
+			$CustomerWalletTable.ajax.reload()
+		})
+	</script>
+}

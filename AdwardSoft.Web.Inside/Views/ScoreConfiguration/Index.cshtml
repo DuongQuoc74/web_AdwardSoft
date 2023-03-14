@@ -1,0 +1,199 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-4">
+        <div class="card" id="formScoreConfiguration">
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">ScoreConfiguration's List</h5>
+                <div class="float-right">
+                    <div class="row">
+                        <div class="form-group">
+                            <label class="clear-fix font-weight-semibold">Status</label>
+                            <select id="status-select" class="form-control select">
+                                <option value="0" selected>All</option>
+                                <option value="1">Valid</option>
+                                <option value="2">Exppired</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table style="text-align:center" id="ScoreConfigurationTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th width="30%" class="text-center">Effective Date</th>
+                            <th width="30%" class="text-center">Conversion Amount</th>
+                            <th width="30%" class="text-center">Conversion Points</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var $statusSelect = $('#status-select')
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+        $(document).ready(function () {
+            $(function () {
+                $("#titlePage").text('ScoreConfiguration')
+            });
+            var ScoreConfigurationAction = $.templates("#ScoreConfigurationAction");
+
+
+
+            var $ScoreConfigurationTable
+            $ScoreConfigurationTable= $("#ScoreConfigurationTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "model": data,
+                            "status": $statusSelect.val()
+                        },
+                        url: "@Url.Action("Read", "ScoreConfiguration")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                 },
+                pageLength: 10,
+                 paging: true,
+                 serverSide: true,
+                 cache: false,
+                 lengthChange: false,
+                 filter: true,
+                 search: true,
+                 columns: [
+                     {
+                         data: "effectiveDate",
+                         render: function (data, type, row) {
+                             return data === null ? "N/A" : moment(data).format("DD/MM/YYYY");
+
+                         }
+                     },
+                     {
+                         data: null,
+                         render: function (data, type, row) {
+                             return '<label class="text-muted">' + data.fromAmount + '</label> - <label>' + data.toAmount+'</lable>';
+                         }
+                     },
+                     {
+                         data: null,
+                         render: function (data, type, row) {
+                             return '<label class="text-muted"">' + data.fromPoint + '</label> - <label>' + data.toPoint+'</lable>';
+                         }
+                     },
+                     {
+                         data: null,
+                         render: function (data, type, row) {
+                             console.log(new Date());
+                             console.log(new Date(data.effectiveDate));
+                             if (new Date() > new Date(data.effectiveDate)) {
+                                 return ""
+                             }
+                             else {
+
+                                 return (ScoreConfigurationAction.render({ data: data }));
+                             }
+
+                             
+                         }
+                     }
+                 ],
+                 language: {
+                     search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                     searchPlaceholder: 'Search...',
+                     info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                     paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                     processing: "",
+                     infoEmpty: "",
+                     emptyTable: "No data",
+                     zeroRecords: "No data",
+                     infoFiltered: "",
+                     processing: "Waiting for me!!!",
+                 }
+
+
+             });
+            $('#newScoreConfiguration').on('click', function () {
+                 ReadById(0);
+             });
+            $('#status-select').on('change', function () {
+                $ScoreConfigurationTable
+            });
+
+             ReadById(0);
+         });
+          function ReadById(id) {
+                $.ajax({
+                    url: "@Url.Action("_Form", "ScoreConfiguration")",
+                    method: "GET",
+                    data: {
+                        "id": id
+                    },
+                    success: function (data) {
+                        $("#formScoreConfiguration").empty();
+                        $("#formScoreConfiguration").html(data);
+                        setTimeout(rebindValidation, 500);
+                    }
+                });
+        }
+        var ScoreConfigurationSuccess = function () {
+            $('#ScoreConfigurationTable').DataTable().ajax.reload();
+            ReadById(0);
+        }
+        $(document).on('change', '#status-select', function (e) {
+            $('#ScoreConfigurationTable').DataTable().ajax.reload();
+        })
+        var ScoreConfigurationUpdateSucess = function () {
+            var tmp = $("#ScoreConfigurationTable").DataTable().page();
+            $('#ScoreConfigurationTable').DataTable().ajax.reload();
+            $('#ScoreConfigurationTable').DataTable().page(tmp).draw('page');
+            ReadById(0);
+        }
+
+    </script>
+    <script id="ScoreConfigurationAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div id="item" class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a onclick="ReadById('{{:data.id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="Edit"></i>
+                        Edit
+                    </a>
+                    <a href="#" class="dropdown-item remove-item" data-action="/ScoreConfiguration/Delete" callbackfn="ScoreConfigurationSuccess()" data-params='{"id":"{{:data.id}}"}'>
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        Remove
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+    </script>
+}
+

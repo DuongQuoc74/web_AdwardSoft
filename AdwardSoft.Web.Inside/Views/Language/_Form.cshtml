@@ -1,0 +1,66 @@
+﻿@model AdwardSoft.Web.Inside.Models.LanguageViewModel
+
+<form class="form-validate-jquery form-content" id="_FormView" callbackfn="LanguageSuccess()" method="@ViewBag.ActionMethod">
+    <div class="modal-header">
+        @if (string.IsNullOrWhiteSpace(Model.Code))
+        {
+            <h5 class="modal-title">Thêm mới </h5>
+        }
+        else
+        {
+            <h5 class="modal-title">Điều chỉnh </h5>
+            <input type="text" hidden value="@Model.Code" asp-for="@Model.Code" />
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="form-group col-md-12">
+            <label asp-for="Code" class="clear-fix font-weight-semibold"></label>
+            @if (@ViewBag.ActionMethod == "PUT")
+            {
+                <input type="text" asp-for="@Model.Code" value="@Model.Code" class="form-control" disabled="disabled" />
+            }
+            else
+            {
+                <input type="text" asp-for="@Model.Code" value="@Model.Code" class="form-control" style="text-transform: uppercase" />
+            }
+            <span asp-validation-for="@Model.Code" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="Name" class="clear-fix font-weight-semibold"></label>
+            <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label class="clear-fix font-weight-semibold" style="margin:auto 0">Mặc định &nbsp;</label>
+            <div class="form-check form-check-switch form-check-switch-left">
+                <label class="form-check-label d-flex align-items-center">
+                    <input asp-for="@Model.IsDefault" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadByCode('')" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+        @if (string.IsNullOrWhiteSpace(Model.Code))
+        {
+            <button type="button" onclick="submitForm('Create')" style="margin-right:0" class="btn btn-success ml-1 btn-sm">Thêm mới <i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <button type="button" onclick="submitForm('Update')" style="margin-right:0" class="btn btn-success ml-1 btn-sm">Cập nhật<i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+
+<script>
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'))
+
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html)
+    })
+
+    function submitForm(str) {
+        $("#_FormView").attr("action", "/Language/" + str)
+        $("#_FormView").submit()
+    }
+</script>

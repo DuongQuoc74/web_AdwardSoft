@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[PaymentMethod]
+(
+	[Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY, 
+    [Name] NVARCHAR(32) NOT NULL, 
+    [Icon] VARCHAR(2048) NOT NULL
+)

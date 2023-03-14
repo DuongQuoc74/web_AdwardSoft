@@ -1,0 +1,272 @@
+﻿@model ServiceDisplayDataViewModel
+@{ ViewData["Title"] = "ServiceDisplay"; var Suppliers = @ViewBag.Suppliers; }
+
+<div class="row">
+    <div class="col-3">
+        <div class="card" id="_Form">
+
+        </div>
+    </div>
+    <div class="col-9">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Service Display's list</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Status</label>
+                            <select id="status-select" class="form-control select">
+                                <option value="0" selected>Available</option>
+                                <option value="1">Expired</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Suppliers</label>
+                            <select id="supplier-select" class="form-control select-search" asp-items="Suppliers">
+                                <option value="0" selected>-- All --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Date</label>
+                            <div class="form-group-feedback form-group-feedback-left ">
+                                <input type="text" id="date-filter" class="form-control">
+                                <div class="form-control-feedback">
+                                    <i class="icon-calendar22"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="ServiceDisplayTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="DateFrom"></label>
+                            </th>
+                            <th>
+                                <label asp-for="DateTo"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Supplier"></label>
+                            </th>
+                            <th>
+                                <label asp-for="PaymentPeriod"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Fee"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Description  "></label>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script id="ServiceDisplayAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @* -- Edit -- *@
+                    <a onclick="ReadById('{{:data.id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="Edit"></i>
+                        @EText.Edit
+                    </a>
+                    @* -- Remove -- *@
+                    <a data-action="/ServiceDisplay/Delete" callbackfn="ServiceDisplaySuccess()" data-params='{"id":"{{:data.id}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        @EText.Remove
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var $SupplierSelect = $('#supplier-select')
+        var $DateFilter = $('#date-filter')
+        var $StatusSelect = $('#status-select')
+        var $ServiceDisplayTable
+        var ServiceDisplayAction = $.templates("#ServiceDisplayAction");
+
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500);
+            ReadById(0)
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+            $('.select-search').select2();
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.daterange').daterangepicker({
+                applyClass: 'bg-slate-600',
+                cancelClass: 'btn-light',
+                singleDatePicker: true,
+                timePicker: false,
+                autoclose: true,
+                opens: 'right',
+                locale: {
+                    format: 'DD/MM/YYYY'
+                }
+            });
+        };
+
+        $DateFilter.daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: false,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            minDate: new Date(new Date().getFullYear(), 0, 1),
+            maxDate: new Date(new Date().getFullYear(), 11, 31),
+            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        })
+
+
+        $ServiceDisplayTable = $("#ServiceDisplayTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "date": $DateFilter.val(),
+                        "supplierId": $SupplierSelect.val(),
+                        "status": $StatusSelect.val(),
+                    },
+                    url: "@Url.Action("Read", "ServiceDisplay")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            order: false,
+            columns: [
+                {
+                    data: "dateFrom",
+                    render: (data, type, row) => moment(data).format('DD/MM/YYYY')
+                },
+                {
+                    data: "dateTo",
+                    render: (data, type, row) => moment(data).format('DD/MM/YYYY')
+                },
+                {
+                    data: "supplier",
+                    render: (data, type, row) => data
+                },
+                {
+                    data: "paymentPeriod",
+                    render: function (data, type, row) {
+                        if (Number(data) == 0) {
+                            return "<span class='text-success'>@EPaymentPeriod.Month.Description()</span>";
+                        }
+                        else if (Number(data) == 1) {
+                            return "<span class='text-primary'>@EPaymentPeriod.Quater.Description()</span>";
+                        }
+                        else {
+                            return "<span class='text-warning'>@EPaymentPeriod.Year.Description()</span>";
+                        }
+                    }
+                },
+                {
+                    data: "fee",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "description",
+                    render: (data, type, row) => data.trunc(25)
+                },
+                {
+                    data: {},
+                    render: function (data, type, row) {
+                        return (ServiceDisplayAction.render({ data: data }));
+                    }
+                }
+            ],
+            language: {
+                search: '<div class="row">_INPUT_</div>',
+                searchPlaceholder: 'search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        })
+
+        String.prototype.trunc =
+            function (n) {
+                return this.substr(0, n - 1) + (this.length > n ? '&hellip;' : '');
+            };
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "ServiceDisplay")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#_Form").empty();
+                    $("#_Form").html(data);
+                    rebindValidation();
+                }
+            });
+        };
+
+        var ServiceDisplaySuccess = function () {
+            var tmp = $ServiceDisplayTable.page();
+            $ServiceDisplayTable.ajax.reload();
+            $ServiceDisplayTable.page(tmp).draw('page');
+            ReadById(0)
+        };
+    </script>
+
+    @* ------ Events ------ *@
+
+    <script>
+        $DateFilter.on('change', function (e) {
+            $ServiceDisplayTable.ajax.reload()
+        })
+
+        $SupplierSelect.on('change', function (e) {
+            $ServiceDisplayTable.ajax.reload()
+        })
+
+        $StatusSelect.on('change', function (e) {
+            $ServiceDisplayTable.ajax.reload()
+        })
+    </script>
+}
+

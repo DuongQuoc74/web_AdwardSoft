@@ -1,0 +1,90 @@
+﻿@model BranchViewModel
+<form class="form-validate-jquery form-content" callbackfn="BranchSuccess()" id="@("_FormView-" + Model.Id)">
+    @if (Model.Id == 0)
+    {
+        <h5 class="modal-Name">Thêm mới </h5>
+        <div class="col-md-12">
+            <label asp-for="@Model.Name" class="clear-fix font-weight-bold ads-control"></label>
+            <input type="text" class="form-control" asp-for="Name" value="@Model.Name" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Address" class="clear-fix font-weight-bold ads-control"></label>
+            <input type="text" class="form-control" asp-for="Address" value="@Model.Address" />
+            <span asp-validation-for="@Model.Address" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Tel" class="clear-fix font-weight-bold ads-control"></label>
+            <input type="text" class="form-control" asp-for="Tel" value="@Model.Tel" />
+            <span asp-validation-for="@Model.Tel" class="validation-invalid-label "></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Email" class="clear-fix font-weight-bold ads-control"></label>
+            <input type="text" class="form-control" asp-for="Email" value="@Model.Email" />
+            <span asp-validation-for="@Model.Email" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="ParentId" class="clear-fix font-weight-bold"></label>
+            <select class="form-control" asp-for="ParentId">
+                <option value="0">-- Chọn --</option>
+            </select>
+        </div>
+        <div class="col-md-12">
+            <div class="d-flex justify-content-end align-items-center clear-fix">
+                <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fas fa-times mr-1"></i></a>
+                <button type="button" onclick="Submit('Create', @Model.Id)" style="margin-right:0" class="btn btn-success ml-1 btn-sm">Create <i class="fa fa-check ml-1"></i></button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row" style="margin: 0 1.375rem">
+            <input asp-for="Id" type="hidden" value="@Model.Id">
+            <div class="col-md-6">
+                <label asp-for="@Model.Name" class="clear-fix font-weight-bold"></label>
+                <input type="text" class="form-control" asp-for="Name" value="@Model.Name" />
+                <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="@Model.Address" class="clear-fix font-weight-bold"></label>
+                <input type="text" class="form-control" asp-for="Address" value="@Model.Address" />
+                <span asp-validation-for="@Model.Address" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="@Model.Tel" class="clear-fix font-weight-bold"></label>
+                <input type="text" class="form-control" asp-for="Tel" value="@Model.Tel" />
+                <span asp-validation-for="@Model.Tel" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="@Model.Email" class="clear-fix font-weight-bold"></label>
+                <input type="text" class="form-control" asp-for="Email" value="@Model.Email" />
+                <span asp-validation-for="@Model.Email" class="validation-invalid-label"></span>
+            </div>
+            <div class="clear-fix"></div>
+        </div>
+        <div class="form-footer row col-md-12">
+            <div class="col-md-2" style="padding-left:2.5rem;">
+                <a data-action="/Branch/Delete" data-params='{"id": @Model.Id}' class="remove-item" callbackfn="BranchSuccess()"><i class="icon-trash"></i> Xóa</a>
+            </div>
+
+            <div class="col-md-10">
+                <div class="d-flex justify-content-end align-items-center">
+                    <button type="button" onclick="Submit('Update', @Model.Id)" style="margin-right:0" class="btn btn-success ml-1 btn-sm">Cập nhật<i class="fa fa-check ml-1"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="clear-fix"></div>
+    }
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.select-search').select2();
+        $('.form-check-input-switch').bootstrapSwitch();
+        setTimeout(rebindValidation, 500);
+        Select2MultiLv("Branch", "ParentId");
+    });
+</script>

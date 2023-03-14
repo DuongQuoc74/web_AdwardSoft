@@ -1,0 +1,129 @@
+﻿@model MenuViewModel 
+    <form class="form-validate-jquery form-content" callbackfn="MenuSuccess()" id="@("_FormView-" + Model.Id)">
+        @if (Model.IsNew)
+        {
+            <div class="row col-12">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.LanguageCode" class="clear-fix font-weight-bold"></label>
+                    <input type="text" class="form-control" value="@ViewBag.LanguageName" disabled />
+                    <input type="hidden" class="form-control" asp-for="LanguageCode" value="@Model.LanguageCode" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.MenuGroupId" class="clear-fix font-weight-bold"></label>
+                    <select asp-for="@Model.MenuGroupId" asp-items="@ViewBag.MenuGroups" class="form-control select">
+                        <option value="0">-- Choose --</option>
+                    </select>
+                    <span asp-validation-for="@Model.MenuGroupId" class="validation-invalid-label"></span>
+                </div>
+            </div>
+            <div class="row col-12">
+                <div class="col-md-12">
+                    <label asp-for="@Model.NavigationLabel" class="clear-fix font-weight-bold"></label>
+                    <input type="text" class="form-control" asp-for="NavigationLabel" value="@Model.NavigationLabel" />
+                    <span asp-validation-for="@Model.NavigationLabel" class="validation-invalid-label"></span>
+                </div>
+            </div>
+            <div class="row col-12">
+                <div class="form-group col-md-12">
+                    <label asp-for="@Model.URL" class="clear-fix font-weight-bold"></label>
+                    <input type="text" asp-for="@Model.URL" value="@Model.URL" class="form-control" />
+                    <span asp-validation-for="@Model.URL" class="validation-invalid-label"></span>
+                </div>
+            </div>
+            <div class="row col-12">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.Type" class="clear-fix font-weight-bold"></label>
+                    <select asp-for="@Model.Type" asp-items="Html.GetEnumSelectList<EMenuType>()" class="form-control select"></select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.ParentId" class="clear-fix font-weight-bold"></label>
+                    <select asp-for="@Model.ParentId" asp-items="@ViewBag.Menus" class="form-control select">
+                        <option value="0">-- Choose --</option>
+                    </select>
+                    <span asp-validation-for="@Model.ParentId" class="validation-invalid-label"></span>
+                </div>
+            </div>
+            
+            <div class="col-md-12">
+                <div class="d-flex justify-content-end align-items-center clear-fix">
+                    <a href="#" onclick="loadFindId(0)" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+                    <button type="button" onclick="Submit('Create', 'POST' ,@Model.Id)" style="margin-right:0" class="btn btn-success ml-1 btn-sm">Thêm mới <i class="fa fa-check ml-1"></i></button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row" style="margin: 0 1.375rem">
+                <input asp-for="Id" type="hidden" value="@Model.Id">
+                <div class="form-groups col-md-6">
+                    <label class="clear-fix font-weight-bold" asp-for="LanguageCode"></label>
+                    <select class="form-control select" asp-for="LanguageCode" asp-items="@ViewBag.Languages"></select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.MenuGroupName" class="clear-fix font-weight-bold"></label>
+                    <input type="text" class="form-control" value="@Model.MenuGroupName" disabled />
+                </div>
+                <div class="clear-fix"></div>
+            </div>
+            <div class="row" style="margin: 0 1.375rem">
+                <div class="col-md-6">
+                    <label asp-for="@Model.NavigationLabel" class="clear-fix font-weight-bold"></label>
+                    <input type="text" class="form-control" asp-for="NavigationLabel" value="@Model.NavigationLabel" />
+                    <span asp-validation-for="@Model.NavigationLabel" class="validation-invalid-label"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="@Model.URL" class="clear-fix font-weight-bold"></label>
+                    <input type="text" class="form-control" asp-for="URL" value="@Model.URL" />
+                    <span asp-validation-for="@Model.URL" class="validation-invalid-label"></span>
+                </div>
+                <div class="clear-fix"></div>
+            </div>
+            <div class="row" style="margin: 0 1.375rem">
+                <div class="form-group col-md-6">
+                    <label asp-for="@Model.Type" class="clear-fix font-weight-bold"></label>
+                    <select asp-for="@Model.Type" class="form-control select" asp-items="Html.GetEnumSelectList<EMenuType>()"></select>
+                </div>
+            </div>
+            <div class="form-footer row col-md-12">
+                <div class="col-md-2" style="padding-left:2.5rem;">
+                    <a data-action="/Menu/Delete" data-params='{"id": @Model.Id}' class="remove-item" callbackfn="MenuSuccess()"><i class="icon-trash"></i> Xóa</a>
+                </div>
+
+                <div class="col-md-10">
+                    <div class="d-flex justify-content-end align-items-center">
+                        <button type="button" onclick="Submit('Update','PUT', @Model.Id)" style="margin-right:0" class="btn btn-success ml-1 btn-sm">Cập nhật<i class="fa fa-check ml-1"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="clear-fix"></div>
+        }
+    </form>
+
+<script>
+    $(() => {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        })
+
+        $('.select-search').select2()
+
+        $('.form-check-input-switch').bootstrapSwitch()
+
+        setTimeout(rebindValidation, 500)
+
+        $("#_FormView-" + @Model.Id + " select#LanguageCode").on("change", function () {
+            $.ajax({
+                url: "Menu/_Form",
+                data: {
+                    id: $("#_FormView-" + @Model.Id + " #Id").val(),
+                    languageCode: $(this).val()
+                },
+                method: "GET",
+                success: function (data) {
+                    $("#_FormView-" + @Model.Id).remove();
+                    $($("li.mn-item[data-id='" + @Model.Id + "'] .mn-handle-details")[0]).html(data);
+                }
+            })
+        })
+    });
+</script>

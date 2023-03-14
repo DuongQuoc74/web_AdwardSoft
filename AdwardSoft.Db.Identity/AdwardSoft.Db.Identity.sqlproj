@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>AdwardSoft.Db.Identity</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{86126e0a-0ed7-413e-b48f-8161a5dc472a}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>AdwardSoft.Db.Identity</RootNamespace>
+    <AssemblyName>AdwardSoft.Db.Identity</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo" />
+    <Folder Include="dbo\DataType" />
+    <Folder Include="dbo\Funtions" />
+    <Folder Include="dbo\Scripts" />
+    <Folder Include="dbo\StoreProcedures" />
+    <Folder Include="dbo\Tables" />
+    <Folder Include="dbo\StoreProcedures\User" />
+    <Folder Include="dbo\StoreProcedures\Role" />
+    <Folder Include="dbo\StoreProcedures\Permission" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\DataType\IntList.sql" />
+    <Build Include="dbo\Funtions\f_ConvertString.sql" />
+    <Build Include="dbo\Funtions\ufn_Date2String.sql" />
+    <Build Include="dbo\Funtions\ufn_SplitString.sql" />
+    <Build Include="dbo\Tables\Claim.sql" />
+    <Build Include="dbo\Tables\Permission.sql" />
+    <Build Include="dbo\Tables\Role.sql" />
+    <Build Include="dbo\Tables\RoleClaim.sql" />
+    <Build Include="dbo\Tables\RolePermission.sql" />
+    <Build Include="dbo\Tables\UserLogin.sql" />
+    <Build Include="dbo\Tables\UserRole.sql" />
+    <Build Include="dbo\Tables\UserToken.sql" />
+    <Build Include="dbo\Tables\User.sql" />
+    <Build Include="dbo\Tables\UserCipher.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_Create.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_Read.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_ReadByNormalizedEmail.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_ReadByNormalizedUserName.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_Update.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_UpdatePassword.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_RolePermission_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_RolePermission_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_RolePermission_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_ReadByEmail.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_ReadByUser.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_UserRole_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_UserRole_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_UserRole_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_UserRoles_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_CheckExist.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_CheckUse.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_FindById.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_Update.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_ReadByUserType.sql" />
+    <Build Include="dbo\Tables\RoleConfig.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_RoleConfig_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_RoleConfig_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_RoleConfig_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_RoleConfig_ReadByDefaultType.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_User_ReadUserIsNotReferenceToMerchant.sql" />
+    <Build Include="dbo\Tables\UserInfoHistory.sql" />
+    <Build Include="dbo\StoreProcedures\Role\usp_Role_ReadByUserId.sql" />
+    <Build Include="dbo\StoreProcedures\User\usp_Select_ReadEmployeeUser.sql" />
+    <Build Include="dbo\StoreProcedures\Permission\usp_Permission_ReadById.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="dbo\Scripts\Script.PostDeployment.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="AdwardSoft.Db.Identity.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AdwardSoft.Db.Identity.publish.xml" />
+  </ItemGroup>
+</Project>

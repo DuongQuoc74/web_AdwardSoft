@@ -1,0 +1,247 @@
+﻿@model BeginingStockExcelViewModel
+
+@{
+    var Stocks = @ViewBag.Stocks;
+}
+
+<form 
+    id="fCreateExcel"
+    asp-action="CreateExcel" 
+    asp-controller="BeginingStock" 
+    class="form-validate-jquery"
+    method="POST" 
+    callbackfn="BeginingStockSuccess()"
+>
+    <div class="modal-header">
+        <h5 class="modal-title">Nhập từ Excel</h5>
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <label for="File" class="clear-fix font-weight-bold">Tệp</label>
+                <div class="input-group">
+                    <input type="text" id="FileShow" class="form-control" readonly>
+                    <div class="input-group-btn">
+                        <span class="fileUpload btn btn-info">
+                            <span class="upl" id="upload">Chọn tệp</span>
+                            <input type="file" class="upload up" accept=".xlsx, .xls" asp-for="@Model.File" />
+                        </span>
+                    </div>
+                </div>
+                <span asp-validation-for="File" class="validation-invalid-label"></span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="StockId" class="clear-fix font-weight-semibold">Mã kho</label>
+                    <select id="stock-select-excel" asp-for="@Model.StockId" class="form-control select-search" asp-items="Stocks">
+                        <option value="0" selected>Tất cả</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="Year" class="clear-fix font-weight-semibold">Năm <span class="text-danger">*</span></label>
+                    @*<input type="text" id="year-stocktaking" asp-for="@Model.Year" class="form-control daterange-single" />*@
+
+                    <input 
+                        id="year-stocktaking"
+                        name="Year" 
+                        type="text"
+                        class="yearpicker form-control daterange-single"
+                        value=""
+                    >
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button id="btn-sync" type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Sync.Description() <i class="fa fa-check ml-1"></i></button>
+        <a data-dismiss="modal" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+    </div>
+
+    <div id="alert-footer" class="modal-footer d-flex flex-column"></div>
+</form>
+
+@* ---- Custom Year Picker ---- *@
+<script>
+    var $YearStocking = $('#year-stocktaking');
+
+    $YearStocking.yearpicker({
+        // Set Current Value Is Current Year
+        year: new Date().getFullYear(),
+        startYear: 1910,
+        endYear: new Date().getFullYear(),
+        itemTag: 'li',
+        selectedClass: 'selected',
+        disabledClass: 'disabled',
+        hideClass: 'hide',
+        template: `<div class="yearpicker-container">
+                        <div class="yearpicker-header">
+                            <div class="yearpicker-prev" data-view="yearpicker-prev">&lsaquo;</div>
+                            <div class="yearpicker-current" data-view="yearpicker-current">SelectedYear</div>
+                            <div class="yearpicker-next" data-view="yearpicker-next">&rsaquo;</div>
+                        </div>
+                        <div class="yearpicker-body">
+                            <ul class="yearpicker-year" data-view="years">
+                            </ul>
+                        </div>
+                    </div>`,
+    });
+</script>
+
+@* ---- Handle Main Business Logic ---- *@
+<script>
+    var $StockSelectExcel = $('#stock-select-excel');
+
+    var AlertFooter = {
+        obj: $('#alert-footer'),
+        _addAlert: function (year, stock) {
+            this.obj.append(
+                `<div class="alert alert-warning alert-styled-left alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+                    <span class="font-weight-semibold">Cảnh báo!</span> Số liệu này từ năm <b>${year}</b> và kho <b>${stock}</b> đã bị khóa.
+                </div>`)
+        },
+        _empty: function () {
+            this.obj.empty()
+        }
+    }
+
+    var SyncButton = {
+        btn: $('#btn-sync'),
+        _disable: function () {
+            this.btn.addClass('disabled')
+            this.btn.attr('disabled', true)
+        },
+        _able: function () {
+            this.btn.removeClass('disabled')
+            this.btn.removeAttr('disabled')
+        }
+    };
+
+    $('.select-search').select2()
+
+    $(document).on("change", "#File", function (e) {
+        $("#FileShow").val(e.target.files[0].name);
+    });
+
+    function _Form_CheckIsLock() {
+        $.getJSON('@Url.Action("CheckIsLock", "BeginingStock")', {
+            "stockId": $StockSelectExcel.val(),
+            "year": $YearStocking.val()
+        }, function (data) {
+            _handeLock(data)
+        })
+    }
+
+    function _handeLock(isLock) {
+
+        if (isLock > 0) {
+            // => is lock
+            SyncButton._disable()
+            // => Show alert
+            AlertFooter._addAlert($YearStocking.val(), $StockSelectExcel.find('option:selected').text())
+        } else {
+            // => is not lock
+            SyncButton._able()
+            // => Empty alert
+            AlertFooter._empty()
+        }
+    }
+
+    $(document).ready(function () {
+        _Form_CheckIsLock()
+    })
+
+</script>
+
+@* ---- Validate Form ---- *@
+<script>
+    $(function () {
+        const $CreateExcel = $("#fCreateExcel");
+
+        $CreateExcel.validate({
+            rules: {
+                File: { required: true },
+                StockId: { required: true },
+                Year: { required: true },
+            },
+            messages: {
+                File: {
+                    required: "Vui lòng chọn tệp"
+                },
+                StockId: {
+                    required: "Vui lòng chọn kho"
+                },
+                Year: {
+                    required: "Vui lòng chọn năm"
+                },
+            },
+        });
+
+
+        $CreateExcel.submit(function (event) {
+            event.preventDefault();
+
+            if ($CreateExcel.valid()) {
+                console.log("Run Here");
+                const url = $CreateExcel.attr('action');
+
+                const formData = new FormData($("#fCreateExcel")[0]);
+
+                $.ajax({
+                    url: url,
+                    method: "POST",
+                    processData: false,
+                    contentType: false,
+                    displaysetings: {
+                        success: false,
+                        error: true,
+                        showIndicator: true,
+                        hideIndicator: true
+                    },
+                    data: formData,
+                    success: function (response) {
+                        console.log(response);
+
+                        let displayClass = 'bg-danger border-danger';
+
+                        if (response.succeeded) {
+                            displayClass = 'bg-success border-success';
+                            BeginingStockSuccess();
+                        }
+
+                        new PNotify({
+                            title: 'Thông báo',
+                            text: response.customMessage,
+                            addclass: displayClass,
+                        });
+                    }, 
+                    error: function (error) {
+                        console.log(error);
+                    },
+                });
+            }
+        });
+    });
+</script>
+
+@* ---- Events ---- *@
+<script>
+    $YearStocking.on('change', function (e) {
+        _Form_CheckIsLock()
+    })
+
+    $StockSelectExcel.on('change', function (e) {
+        _Form_CheckIsLock()
+    })
+</script>

@@ -1,0 +1,493 @@
+﻿@model BeginingStockDataViewModel
+
+@{
+    var Stocks = @ViewBag.Stocks;
+    var Units = @ViewBag.Units;
+}
+
+<div>
+    <div class="modal-header">
+        <h5 class="modal-title">Import from Barcode</h5>
+    </div>
+
+    <div class="modal-body row">
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body">
+                    <fieldset class="clear-fix">
+                        <legend class="font-weight-semibold text-uppercase font-size-sm">
+                            <i class="icon-search4 mr-2"></i>
+                            Scan
+                        </legend>
+                        <div class="row">
+                            <div class="col-8">
+                                <label class="font-weight-semibold clear-fix">Code</label>
+                                <input type="text" id="productCode" class="form-control" />
+                            </div>
+                            <div class="col-2">
+                                <label class="font-weight-semibold clear-fix">Quantity</label>
+                                <input id="quantity-textbox" type="number" class="form-control" placeholder="Quantity" value="1" min="1">
+                            </div>
+                            <div class="col-2">
+                                <div class="input-group">
+                                    <label class="font-weight-semibold clear-fix">Auto submit</label>
+                                    <span class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <input id="auto-submit-checkbox" type="checkbox" class="form-control-styled" name="input-addon-checkbox" data-fouc>
+                                        </div>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="alert-search" class="d-flex flex-column mt-4">
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <fieldset class="clear-fix">
+                        <legend class="font-weight-semibold text-uppercase font-size-sm">
+                            <i class="fas fa-list-ul mr-2"></i>
+                            List
+                            <a id="btn-clear-list_product" href="#" class="btn btn-outline-info float-right">
+                                <i class="fas fa-ban" data-toggle="tooltip" title="Clear list product"></i>
+                            </a>
+                        </legend>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col" width="10%">No</th>
+                                    <th scope="col" width="50%">Product</th>
+                                    <th scope="col" width="10%">Quantity</th>
+                                    <th scope="col" width="20%">Unit</th>
+                                    <th scope="col" width="10%">#</th>
+                                </tr>
+                            </thead>
+                            <tbody id="list-product">
+                            </tbody>
+                        </table>
+                    </fieldset>
+                </div>
+                <div class="card-footer">
+                    <a data-dismiss="modal" class="btn btn-light ml-1 btn-sm float-right">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+                    <button id="btn-sync" type="submit" class="btn btn-success ml-1 btn-sm mr-0 float-right">@EText.Sync.Description() <i class="fa fa-check ml-1"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body">
+                    <fieldset class="clear-fix">
+                        <legend class="font-weight-semibold text-uppercase font-size-sm">
+                            <i class="fas fa-info mr-2"></i>
+                            Info
+                        </legend>
+                        <div class="row">
+                            <div class="col-md-6">               
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="clear-fix font-weight-semibold">Date <span class="text-danger">*</span></label>
+                                    <input type="text" id="date-barcode" class="form-control daterange-single" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="clear-fix font-weight-semibold">Stock</label>
+                                    <select id="stock-select-barcode" asp-for="@Model.StockId" class="form-control select-search" asp-items="Stocks">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="clear-fix font-weight-semibold">Unit</label>
+                                    <select id="unit-select-barcode" class="form-control select-search" asp-items="Units">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="alert-filter" class="modal-footer d-flex flex-column">
+
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="ProductList" type="text/x-jsrender">
+    <tr>
+        <th scope="row">{{:data.index}}</th>
+        <td><div class="d-flex align-items-center">
+                <div>
+                    <a href="#" class="text-default font-weight-semibold letter-icon-title">{{:data.name}}</a>
+                    <div class="text-muted font-size-sm">{{:data.code}}</div>
+                </div>
+            </div>
+        </td>
+        <td><input style="text-align: right;" oninput="ListProduct._update('{{:data.productId}}', '{{:data.unitId}}', this.value)" type="text" class="form-control format-number" value="{{:data.quantity}}"></td>
+        <td>{{:data.unit}}</td>
+        <td><button type="button" onclick="ListProduct._delete('{{:data.productId}}', '{{:data.unitId}}')" class="btn btn-danger ml-1 btn-sm mr-0">@EText.Delete.Description() <i class="fa fa-remove ml-1"></i></button></td>
+    </tr>
+</script>
+
+@* ----- Core ----- *@
+<script>
+    $btnClearListProduct = $('#btn-clear-list_product')
+
+    var AlertFilter = {
+        obj: $('#alert-filter'),
+        _addAlert: function (year, stock) {
+            this.obj.append(
+                `<div class="alert alert-warning alert-styled-left alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+                    <span class="font-weight-semibold">Warning!</span> this content in <b> year ${year}</b> and <b>${stock}</b> have been locking.
+                </div>`)
+        },
+        _empty: function () {
+            this.obj.empty()
+        }
+    }
+    var AlertSearch = {
+        obj: $('#alert-search'),
+        _addAlert: function (code) {
+            this.obj.append(
+                `<div class="alert alert-warning alert-styled-left alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+                    <span class="font-weight-semibold">Warning!</span> the product code '<b>${code}</b>' is not found .
+                </div>`)
+        },
+        _empty: function () {
+            this.obj.empty()
+        }
+    }
+    var SyncButton = {
+        btn: $('#btn-sync'),
+        _disable: function () {
+            this.btn.addClass('disabled')
+            this.btn.attr('disabled', true)
+        },
+        _able: function () {
+            this.btn.removeClass('disabled')
+            this.btn.removeAttr('disabled')
+        }
+    }
+
+    $('.select-search').select2()
+    $('.daterange-single').daterangepicker({
+        singleDatePicker: true,
+        timePicker: false,
+        minDate: '01-01-1910',
+        maxDate: new Date(),
+        locale: {
+            format: 'DD/MM/YYYY'
+        },
+        yearPicker: true
+    })
+    $('.form-control-styled').uniform()
+</script>
+
+<script>
+    var AutoSubmitCheckbox = {
+        obj: $('#auto-submit-checkbox'),
+        _check: () => AutoSubmitCheckbox.obj.prop("checked")
+    }
+
+    var QuantityTextbox = {
+        obj: $('#quantity-textbox'),
+        _disable: function () {
+            this.obj.attr('disabled', true)
+        },
+        _able: function () {
+            this.obj.removeAttr('disabled')
+        }
+    }
+
+    var StockSelectBarcode = {
+        obj: $('#stock-select-barcode')
+    }
+
+    var DateFilterBarcode = {
+        obj: $('#date-barcode')
+    }
+
+    var UnitSelectBarcode = {
+        obj: $('#unit-select-barcode')
+    }
+
+    var CodeInput = {
+        obj: $('#productCode'),
+        _disable: function () {
+            this.obj.attr('disabled', true)
+        },
+        _able: function () {
+            this.obj.removeAttr('disabled')
+        },
+        _getValue: function () {
+            return this.obj.val()
+        },
+        _empty: function () {
+            this.obj.val('')
+        },
+        _focus: function () {
+            this.obj.focus()
+        }
+    }
+
+    var ListProduct = {
+        obj: $('#list-product'),
+        template: $.templates("#ProductList"),
+        _LOCAL_STORAGE_KEY: 'hhMart.BeginingStock.listProduct',
+        data: [],
+        _render: function () {
+            let htmlOutput = ''
+
+            var template = $.templates("#ProductList")
+
+            this.data.forEach(function (item, index) {
+                item['index'] = index + 1
+                htmlOutput += template.render({ data: item })
+            })
+
+            this.obj.html(htmlOutput)
+        },
+        _empty: function () {
+            this.data = []
+        },
+        _add: function (product) {         
+            this.data.push(product)
+            this._group()
+            localStorage.setItem(this._LOCAL_STORAGE_KEY, JSON.stringify(this.data))
+        },
+        _update: function (productId, unitId, quantity) {
+
+            objIndex = this.data.findIndex((obj => obj.productId == productId && obj.unitId == unitId));
+            this.data[objIndex].quantity = quantity;
+
+            localStorage.setItem(this._LOCAL_STORAGE_KEY, JSON.stringify(this.data))
+        },
+        _delete: function (productId, unitId) {          
+            objIndex = this.data.findIndex((obj => obj.productId == productId && obj.unitId == unitId)); 
+          
+            if (objIndex > -1) {                
+                this.data.splice(objIndex, 1);
+            }
+          
+            this._group()
+            this._render()
+            localStorage.setItem(this._LOCAL_STORAGE_KEY, JSON.stringify(this.data))
+        },
+        _group: function () {         
+            var result = [];           
+            this.data.reduce((total, value) => {     
+                var key = value.productId + '-' + value.unitId;
+                if (!total[key]) {
+                    total[key] = { productId: value.productId, code: value.code, name: value.name, unitId: value.unitId, unit: value.unit, quantity: 0 };
+                    result.push(total[key])
+                }
+                total[key].quantity = Number(total[key].quantity) + Number(value.quantity);
+                return total;
+            }, {});
+
+            this.data = result;
+        },
+        _initStorage: function () {
+            // => Check is existing
+            if (localStorage.getItem(this._LOCAL_STORAGE_KEY) === null) {
+                var array = []
+                localStorage.setItem(this._LOCAL_STORAGE_KEY, JSON.stringify(array))
+            }
+        },
+        _clearStorage: function () {
+            var array = []
+            this._empty()
+            localStorage.setItem(this._LOCAL_STORAGE_KEY, JSON.stringify(array))
+        },
+        _init: function () {
+            // => init storage
+            this._initStorage()
+            // Get data from local storage
+            this.data = JSON.parse(localStorage.getItem(this._LOCAL_STORAGE_KEY))
+            // => Render
+            this._render()
+        }
+    }
+
+    $(document).ready(function (e) {
+        ListProduct._init()
+    })
+
+</script>
+
+@* ----- Lock Events ----- *@
+<script>
+
+    $(document).ready(function () {
+        _handlerBarcodeLockEvent()
+    })
+
+    DateFilterBarcode.obj.on("change", function (e) {
+        _handlerBarcodeLockEvent()
+    })
+
+    StockSelectBarcode.obj.on("change", function (e) {
+        _handlerBarcodeLockEvent()
+    })
+
+    function _checkIsLockBarcode() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '@Url.Action("CheckIsLock", "BeginingStock")',
+                method: "GET",
+                data: {
+                    "stockId": StockSelectBarcode.obj.val(),
+                    "date": DateFilterBarcode.obj.val()
+                },
+                success: function (data) {
+                    resolve(data > 0)
+                },
+                error: function (error) {
+                    reject(error)
+                },
+            })
+        })
+    }
+
+    async function _handlerBarcodeLockEvent() {
+        var isLock = await _checkIsLockBarcode()
+
+        if (isLock) {
+            AlertFilter._addAlert(
+                DateFilterBarcode.obj.val().split('/')[2],
+                StockSelectBarcode.obj.find('option:selected').text()
+            )
+
+            CodeInput._disable()
+            SyncButton._disable()
+            QuantityTextbox._disable()
+        } else {
+            AlertFilter._empty()
+            CodeInput._able()
+            SyncButton._able()
+        }
+    }
+
+</script>
+
+@* ----- Barcode ----- *@
+<script>
+    $(document).ready(function (e) {
+        CodeInput._focus()
+    })
+
+    CodeInput.obj.on('keypress', async function (e) {
+
+        if (e.keyCode == 13) {
+            var code = CodeInput._getValue()
+            CodeInput._empty()
+
+            // => go check product is existing
+            var data = await _ReadProductCode(code)           
+
+            var product = {
+                productId: data.id,
+                code: data.code,
+                name: data.name,
+                quantity: parseInt(QuantityTextbox.obj.val()),
+                unit: UnitSelectBarcode.obj.select2('data')[0].text,
+                unitId: UnitSelectBarcode.obj.val()
+            }
+            
+            if (data.id !== 0) {
+                // show error
+                ListProduct._add(product)
+                ListProduct._render()
+            } else {
+
+                AlertSearch._addAlert(code)
+            }
+
+            // => forcus
+            CodeInput._focus()
+
+            if (AutoSubmitCheckbox._check()) {
+                SyncButton.btn.click();
+            }
+        }
+    })
+
+    function _ReadProductCode(productCode) {
+         return new Promise((resolve, reject) => {
+            $.ajax({
+                url: '@Url.Action("Search", "Product")',
+                method: "GET",
+                data: {
+                    "code": productCode
+                },
+                success: function (data) {
+                    resolve(data)
+                },
+                error: function (error) {
+                    reject(error)
+                },
+            })
+        })
+    }
+
+    $btnClearListProduct.on('click', function (e) {
+        e.preventDefault()
+        ListProduct._clearStorage()
+        ListProduct._render()
+    })
+
+    SyncButton.btn.on('click', function (e) {
+        e.preventDefault()
+        if (AutoSubmitCheckbox._check()) {
+            _submitStock();
+        } else {
+            // => Swal
+            swal({
+                title: 'Are you sure ?',
+                text: `Are you want to sync stock '${StockSelectBarcode.obj.find('option:selected').text()}' in year '${DateFilterBarcode.obj.val().split('/')[2]}'.`,
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Confirm!',
+                cancelButtonText: 'Back'
+            }).then(function (check) {
+                if (check.value) {
+                    _submitStock();
+                }
+            })
+        }
+
+
+    })
+
+    function _submitStock() {
+        $.ajax({
+            url: '@Url.Action("Create", "BeginingStock")',
+            method: "POST",
+            data: {
+                "model": ListProduct.data,
+                "dateStr": DateFilterBarcode.obj.val(),
+                "stockId": StockSelectBarcode.obj.val()
+            },
+            success: function (data) {
+                // => Clear
+                ListProduct._clearStorage()
+                ListProduct._render()
+                // => Reload datatable
+                $BeginingStockTable.ajax.reload()
+                // => Check
+                _handlerBarcodeLockEvent()
+                _handlerLockEvent()
+            }
+        })
+    }
+
+
+</script>

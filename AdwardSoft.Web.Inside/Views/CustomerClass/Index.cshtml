@@ -1,0 +1,122 @@
+﻿@model CustomerClassDatatableViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Customer groups list</h5>
+                <div class="form-group"></div>
+                <div class="row">
+                    <div class="col-md-auto float-right">
+                        <label class="clear-fix font-weight-semibold">Date</label>
+                        <div class="form-group-feedback form-group-feedback-left ">
+                            <input type="text" id="date-filter" class="form-control">
+                            <div class="form-control-feedback">
+                                <i class="icon-calendar22"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="CustomerClassTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="CustomerName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="CustomerPhone"></label>
+                            </th>
+                            <th>
+                                <label asp-for="CustomerType"></label>
+                            </th>
+                            <th>
+                                <label asp-for="CustomerGroupName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="OldMembershipClassName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="UpdateMembershipClassName"></label>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var $CustomerClassTable
+        var $DateFilter = $('#date-filter')
+
+        $DateFilter.daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: false,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        })
+
+        $CustomerClassTable = $("#CustomerClassTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    url: "@Url.Action("Read", "CustomerClass")",
+                    data: {
+                        "model": data,
+                        "date": $DateFilter.val()
+                    },
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal })
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            order: false,
+            columns: [
+                { data: "customerName" },
+                { data: "customerPhone" },
+                { data: "customerType" },
+                { data: "customerGroupName" },
+                { data: "oldMembershipClassName" },
+                { data: "updateMembershipClassName" },
+            ],
+            language: {
+                search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        });
+
+        
+
+    </script>
+}

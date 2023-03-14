@@ -1,0 +1,17 @@
+﻿CREATE PROCEDURE [dbo].[usp_RolePermission_Delete]
+	@Id INT
+AS
+BEGIN 
+	BEGIN TRY
+		BEGIN TRAN
+			DELETE	[dbo].[RolePermission]
+			WHERE	[RoleId] = @Id
+		COMMIT
+		RETURN 1
+	END TRY
+	BEGIN CATCH
+		RETURN 0
+		ROLLBACK TRAN
+		THROW
+	END CATCH	
+END

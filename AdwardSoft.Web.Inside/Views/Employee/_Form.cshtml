@@ -1,0 +1,230 @@
+﻿@model AdwardSoft.Web.Inside.Models.EmployeeViewModel
+@{ bool isNew = Model.Id == 0 ? true : false;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+    var positions = ViewBag.Positions;
+    var genders = ViewBag.Genders; }
+
+<form class="form-validate-jquery" asp-action="@action" asp-controller="Employee" callbackfn="EmployeeSuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (isNew)
+        {
+<h5 class="modal-title">@EText.Create.Description() </h5> }
+            else
+            {
+<h5 class="modal-title">@EText.Update.Description() </h5>}
+    </div>
+    <div class="modal-body row">
+        <input type="hidden" asp-for="@Model.Id" value="@Model.Id">
+        <input type="hidden" asp-for="@Model.Avatar" value="@Model.Avatar">
+        <input type="hidden" asp-for="@Model.LeavingDate" value="@Model.LeavingDate">
+        <div class="col-md-4">
+            <label class="clear-fix font-weight-semibold">Ảnh đại diện</label>
+            <div class="card">
+                <div class="card-body bg-indigo-400 text-center card-img-top card-img-actions" style="background-color: #fff; background-size: contain;">
+                    <label for="img" class="card-img-actions d-inline-block mb-3">
+                        @if (string.IsNullOrEmpty(Model.Avatar))
+                        {
+                            <img id="avatar-preview" alt="Ảnh đại diện" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_17374739f96%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_17374739f96%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.421875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" class="img-fluid" width="100%" height="100px;"> }
+                        else
+                        {
+                            <img id="avatar-preview" alt="Responsive image" src="@Model.Avatar" class="img-fluid" width="100%" height="100px">}
+                    </label>
+                    <div class="card-img-actions-overlay">
+                        <a href="#" class="btn btn-outline bg-white text-white btn-icon ml-2">
+                            <i class="icon-image4">
+                                <span class="fileUpload">
+                                    <span class="upl" id="upload"></span>
+                                    <input id="img" type="file" class="upload up" value="@Model.AvatarFile" accept="image/*" asp-for="@Model.AvatarFile" />
+                                    <input type="hidden" id="AvatarShow" asp-for="@Model.AvatarFile" value="@Model.AvatarFile" class="form-control" readonly>
+                                </span>
+                            </i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row col-md-8">
+            <div class="col-md-6">
+                <label asp-for="@Model.StartingDate" class="clear-fix font-weight-semibold ads-control"></label>
+                <div class="form-group-feedback form-group-feedback-left">
+                    <input type="text" asp-for="@Model.StartingDateStr" value="@Model.StartingDate.ToString("dd/MM/yyyy")" class="form-control daterange">
+                    <div class="form-control-feedback">
+                        <i class="icon-calendar22"></i>
+                    </div>
+                </div>
+            </div>
+            @if (Model.Id > 0)
+            {
+                <div class="col-md-6">
+                    <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Status"></label>
+                    <select asp-for="Status" class="form-control select" asp-items="@Html.GetEnumSelectList<EEmployeeStatus>()">
+                    </select>
+                    <span asp-validation-for="@Model.Status" class="validation-invalid-label"></span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" asp-for="@Model.Status" value="@Model.Status">
+                <div class="col-md-6">
+                </div>
+            }
+            <div class="col-md-6">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.PositionId"></label>
+                <select asp-for="PositionId" class="form-control select" asp-items="positions">
+                </select>
+                <span asp-validation-for="@Model.PositionId" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.DepartmentId"></label>
+                <select asp-for="DepartmentId" class="form-control">
+                </select>
+                <span asp-validation-for="@Model.DepartmentId" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Code"></label>
+                <input asp-for="@Model.Code" placeholder="Self-generated code" type="text" class="form-control"  readonly/>
+                <span asp-validation-for="@Model.Code" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Name"></label>
+                <input asp-for="@Model.Name" placeholder="Nguyễn văn a..." type="text" class="form-control" />
+                <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.GenderId"></label>
+                <select asp-for="GenderId" class="form-control select" asp-items="genders">
+                </select>
+                <span asp-validation-for="@Model.GenderId" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Religious"></label>
+                <select asp-for="Religious" class="form-control select" asp-items="@Html.GetEnumSelectList<EReligious>()">
+                </select>
+                <span asp-validation-for="@Model.Religious" class="validation-invalid-label"></span>
+            </div>
+        </div>
+        <div class="col-md-12 row">
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.IdentityCode"></label>
+                <input asp-for="@Model.IdentityCode" type="text" class="form-control" />
+                <span asp-validation-for="@Model.IdentityCode" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Phone"></label>
+                <input asp-for="@Model.Phone" type="text" class="form-control" />
+                <span asp-validation-for="@Model.Phone" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Email"></label>
+                <input asp-for="@Model.Email" type="text" class="form-control" />
+                <span asp-validation-for="@Model.Email" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="@Model.DoB" class="clear-fix font-weight-semibold ads-control"></label>
+                <div class="form-group-feedback form-group-feedback-left">
+                    <input type="text" asp-for="@Model.DoBStr" value="@Model.DoB.ToString("dd/MM/yyyy")" class="form-control daterange">
+                    <div class="form-control-feedback">
+                        <i class="icon-calendar22"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.PlaceOfBirth"></label>
+                <input asp-for="@Model.PlaceOfBirth" type="text" class="form-control" />
+                <span asp-validation-for="@Model.PlaceOfBirth" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Nationality"></label>
+                <input asp-for="@Model.Nationality" type="text" class="form-control" />
+                <span asp-validation-for="@Model.Nationality" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.Address"></label>
+                <input asp-for="@Model.Address" type="text" class="form-control" />
+                <span asp-validation-for="@Model.Address" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.PermanentAddress"></label>
+                <input asp-for="@Model.PermanentAddress" type="text" class="form-control" />
+                <span asp-validation-for="@Model.PermanentAddress" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="clear-fix font-weight-semibold ads-control" asp-for="@Model.CurrentAddress"></label>
+                <input asp-for="@Model.CurrentAddress" type="text" class="form-control" />
+                <span asp-validation-for="@Model.CurrentAddress" class="validation-invalid-label"></span>
+            </div>
+        </div>
+
+    </div>
+    <div class="modal-footer">
+        <a href="#" data-dismiss="modal" class="btn btn-light ml-1 btn-sm">Cancel <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm">Create<i class="fa fa-check ml-1"></i></button> 
+        }
+        else
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm">Update<i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+
+        Select2MultiLv("Department", "DepartmentId", $("DepartmentId").val());
+
+        var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'))
+        elems.forEach(function (html) {
+            var switchery = new Switchery(html)
+        })
+
+        $('.daterange').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: true,
+            timePicker: false,
+            minDate: '01-01-1910',
+            maxDate: new Date(),
+            autoclose: true,
+            opens: 'right',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    });
+
+    $(document).on("change", "#img", function (e) {
+        $("#AvatarShow").val(e.target.files[0].name)
+        GetImage($(this), $('#avatar-preview'))
+    })
+
+    var GetImage = ($file, $target) => {
+        let file = $file.get(0).files[0]
+
+        if (file) {
+            let fileType = file["type"]
+            PreviewImage(file, $target)
+        }
+    }
+
+    var PreviewImage = ($file, $target) => {
+        let reader = new FileReader
+        let image = new Image
+
+        reader.readAsDataURL($file)
+
+        reader.onload = (_file) => {
+            image.src = _file.target.result
+            image.onload = () => {
+                $target.attr('src', _file.target.result)
+            }
+        }
+    }
+</script>

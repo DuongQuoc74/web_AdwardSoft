@@ -1,0 +1,12 @@
+﻿CREATE TABLE [dbo].[InfoSetting]
+(
+	[Id] TINYINT NOT NULL PRIMARY KEY, 
+    [Name] NVARCHAR(150) NOT NULL, 
+    [Address] NVARCHAR(250) NOT NULL, 
+    [Tel] VARCHAR(50) NOT NULL, 
+    [Fax] VARCHAR(50) NOT NULL, 
+    [Email] VARCHAR(150) NOT NULL, 
+    [Website] VARBINARY(150) NOT NULL, 
+    [Logo] VARCHAR(2048) NOT NULL, 
+    [Slogan] NVARCHAR(80) NOT NULL
+)

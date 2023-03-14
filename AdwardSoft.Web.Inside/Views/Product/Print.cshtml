@@ -1,0 +1,302 @@
+﻿@model ProductDatatableViewModel
+@{ ViewData["Title"] = "Product - Print";
+
+    var CategorySelects = @ViewBag.Categories; }
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                @*<div class="form-group"></div>*@
+                <h5 class="card-title col-md-5">Product List</h5>
+                <div class="col-md-4">
+                    <label class="clear-fix font-weight-semibold">Category</label>
+                    <select id="category-select" multiple="multiple" asp-items="CategorySelects" class="form-control select" data-fouc">
+                        <option value="0" selected>All</option>
+                    </select>
+                </div>
+                <div class="col-md-1 float-right">
+                    <label class="clear-fix font-weight-semibold">Check all</label>
+                    <button type="button" id="btn-check-all" style="margin-right:0" class="btn btn-primary ml-1 btn-sm"><i class="fa fa-check ml-1"></i></button>
+                </div>
+                <div class="col-md-1 float-right">
+                    <label class="clear-fix font-weight-semibold">Uncheck all</label>
+                    <button type="button" id="btn-un-check-all" style="margin-right:0" class="btn btn-danger ml-1 btn-sm"><i class="fa fa-check ml-1"></i></button>
+                </div>
+                <div class="col-md-1 float-right">
+                    <label class="clear-fix font-weight-semibold">In barcode</label>
+                    <button type="button" id="btn-print" style="margin-right:0" class="btn btn-success ml-1 btn-sm">Print<i class="fa fa-print ml-1"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="ProductTable" style="text-align:center" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th width="10%"></th>
+                            <th width="15%" class="text-left">Code</th>
+                            <th width="50%" class="text-left">Name</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script id="CheckBoxPrintAction" type="text/x-jsrender">
+        <input data-id="{{:data.id}}" type="checkbox" class="form-check-print" data-fouc>
+    </script>
+    <script id="ProductAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="/Product/ReadPrintTemplate?id={{:data.id}}" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="Print"></i>
+                        @EText.Print
+                    </a>
+                    <a href="#" onclick="Print('{{:data.id}}')" class="dropdown-item">
+                        <i class="icon-printer" data-toggle="tooltip" title="Print"></i>
+                        @EText.Print
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var $CheckBoxPrintAction = $.templates('#CheckBoxPrintAction')
+        var ProductAction = $.templates("#ProductAction")
+        var $categorySelect = $('#category-select')
+        var $ProductTable
+        var ArrContractAlreadyToPrint = []
+
+        var CheckBoxPrint = {
+            objs: $('.form-check-print'),
+            _update: function () {
+                this.objs = $('.form-check-print')
+            },
+            _checkAll: function () {
+                $.each(this.objs, function (index, value) {
+                    $(value).prop('checked', true)
+                })
+                $.uniform.update()
+            },
+            _uncheckAll: function () {
+                $.each(this.objs, function (index, value) {
+                    $(value).prop('checked', false)
+                })
+                $.uniform.update()
+            },
+            _pushTo: function (arr) {
+                $.each(this.objs, function (index, value) {
+                    if ($(value).prop("checked") == true) {
+                        arr.push($(value).data('id'))
+                    }
+                })
+            }
+        }
+
+        $(document).on('change', '.form-check-print', function () {
+
+            ArrContractAlreadyToPrint = []
+
+            // => 
+            CheckBoxPrint._pushTo(ArrContractAlreadyToPrint)
+
+            BtnPrint._check(ArrContractAlreadyToPrint.length > 0)
+
+            //console.log(ArrContractAlreadyToPrint);
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+            ArrContractAlreadyToPrint = []
+            BtnPrint._disable()
+            CheckBoxPrint._uncheckAll()
+        }
+
+
+        var Print = function (id) {
+            $.ajax({
+                data: {
+                    "id": id
+                },
+                url: "@Url.Action("PrintTemplate", "Product")",
+                method: "GET",
+                success: function (response) {
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+        }
+
+        $ProductTable = $("#ProductTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "listCategory": $('#category-select').val()
+                    },
+                    url: "@Url.Action("ReadPrint", "Product")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal })
+
+                    }
+                })
+            },
+            scrollY: "400px",
+            scrollCollapse: true,
+            paging: false,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            columns: [
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return ($CheckBoxPrintAction.render({ data: data }))
+                    }
+                },
+                { data: "code" },
+                { data: "name" },
+                {
+                    data: { },
+                    render: function (data, type, row) {
+                        return (ProductAction.render({ data: data }))
+                    }
+                },
+            ],
+            language: {
+                search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            },
+            initComplete: function (settings, json) {
+                $('.form-check-print').uniform();
+                CheckBoxPrint._update()
+            },
+            drawCallback: function (settings) {
+                $('.form-check-print').uniform();
+                CheckBoxPrint._update()
+                ArrContractAlreadyToPrint = []
+                CheckBoxPrint._pushTo(ArrContractAlreadyToPrint)
+                BtnPrint._check(ArrContractAlreadyToPrint.length > 0)
+            }
+        })
+
+        var ProductSuccess = function () {
+            $ProductTable.ajax.reload()
+            ReadById(0)
+        }
+
+        var ProductUpdateSucess = function () {
+            var tmp = $ProductTable.page()
+            $ProductTable.ajax.reload()
+            $ProductTable.page(tmp).draw('page')
+            //ReadById(0)
+        }
+
+        $(document).ready(function () {
+
+            $(function () {
+                $("#titlePage").text('Product')
+            })
+
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+
+            //ReadById(0)
+        });
+    </script>
+
+    @*  --- Events ---  *@
+
+    <script>
+        $categorySelect.on('change', function (e) {
+            $ProductTable.ajax.reload()
+        })
+    </script>
+
+    @* ----- Events Button Print ----- *@
+    <script>
+            BtnPrint = {
+                obj: $('#btn-print'),
+                _able: function () {
+                    this.obj.removeAttr('disabled')
+                    this.obj.removeClass('disabled')
+                },
+                _disable: function () {
+                    this.obj.addClass('disabled')
+                    this.obj.attr('disabled', true)
+                },
+                _check: function (isTrue) {
+                    this._disable()
+                    if (isTrue)
+                        this._able()
+                }
+            }
+
+            $(document).ready(function () {
+                BtnPrint._check(ArrContractAlreadyToPrint.length > 0)
+            })
+
+            BtnPrint.obj.on('click', function () {
+                // => Get Type
+
+                $.ajax({
+                    url: "@Url.Action("Print", "Product")",
+                    method: "POST",
+                    data: {
+                        "ids": ArrContractAlreadyToPrint
+                    },
+                    success: function (response) {
+                        console.log(response)
+                    }
+                })
+
+            })
+
+        $('#btn-check-all').on('click', function () {
+            CheckBoxPrint._checkAll()
+
+            ArrContractAlreadyToPrint = []
+
+            CheckBoxPrint._pushTo(ArrContractAlreadyToPrint)
+
+            BtnPrint._check(ArrContractAlreadyToPrint.length > 0)
+        })
+
+
+        $('#btn-un-check-all').on('click', function () {
+            CheckBoxPrint._uncheckAll()
+
+            ArrContractAlreadyToPrint = []
+
+            CheckBoxPrint._pushTo(ArrContractAlreadyToPrint)
+
+            BtnPrint._check(ArrContractAlreadyToPrint.length > 0)
+        })
+
+    </script>
+}
+

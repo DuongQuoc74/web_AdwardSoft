@@ -1,0 +1,19 @@
+﻿CREATE PROCEDURE [dbo].[usp_UserBranch_Delete]
+	@UserId BIGINT
+AS BEGIN
+	SET NOCOUNT OFF;
+	SET TRANSACTION ISOLATION LEVEL READ COMMITTED
+	--------------------------------------------------
+	BEGIN TRY
+		BEGIN TRAN;
+			DELETE FROM [dbo].[UserBranch]
+			WHERE [UserId] = @UserId
+		COMMIT
+		SELECT 1
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRAN;
+		SELECT 0
+		THROW;
+	END CATCH	
+END

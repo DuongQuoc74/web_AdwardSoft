@@ -1,0 +1,387 @@
+﻿@model AdwardSoft.Web.Inside.Models.UserInsertViewModel
+<style>
+
+    #fileLoad {
+        height: 300px;
+        max-height: 300px;
+        overflow-y: scroll;
+        margin: 25px;
+    }
+
+    .it .btn-orange {
+        background-color: blue;
+        border-color: #777 !important;
+        color: #777;
+        text-align: left;
+        width: 100%;
+    }
+
+    .it input.form-control {
+        border: none;
+        margin-bottom: 0px;
+        border-radius: 0px;
+        border-bottom: 1px solid #ddd;
+        box-shadow: none;
+    }
+
+    .it .form-control:focus {
+        border-color: #ff4d0d;
+        box-shadow: none;
+        outline: none;
+    }
+
+    .fileUpload {
+        position: relative;
+        overflow: hidden;
+    }
+
+        .fileUpload input.upload {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 0;
+            padding: 0;
+            font-size: 20px;
+            cursor: pointer;
+            opacity: 0;
+            filter: alpha(opacity=0);
+        }
+</style>
+<form asp-action="Create" id="fUser" class="form-validate-jquery" enctype="multipart/form-data" asp-controller="User" callbackfn="UserSuccess()" method="post">
+    <div class="modal-header">
+        @if (Model.Id == 0)
+        {
+            <h5 class="modal-title">Create</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">Update</h5>
+        }
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="clear-fix"></div>
+    <div class="card">
+        <div id="loadFullName" class="card-body bg-indigo-400 text-center card-img-top" style="background-color: #fff; background-size: contain;">
+            <div class="card-img-actions d-inline-block mb-3">
+                <label>
+                    @if (Model.Id == 0 || String.IsNullOrEmpty(Model.Avatar))
+                    {
+                        <img id="Avatar_preview" src="~/images/user.png" class="rounded-circle" alt="Responsive image" width="140" height="140">
+                    }
+                    else
+                    {
+                        <img id="Avatar_preview" src="~/upload/Images/Avatar/@Model.Avatar" class="rounded-circle" alt="Responsive image" width="140" height="140">
+                    }
+                </label>
+                <div class="card-img-actions-overlay rounded-circle">
+                    <a href="#" class="btn btn-outline bg-white text-white border-white border-2 btn-icon rounded-round ml-2">
+                        <i class="icon-image4">
+                            <span class="fileUpload">
+                                <span class="upl" id="upload"></span>
+                                <input id="avatar_img" onchange="load()" type="file" class="upload up" value="@Model.FileImage" accept="image/*" asp-for="@Model.FileImage" />
+                                @if (Model.FileImage != null)
+                                {
+                                    <input type="hidden" id="AvatarShow" asp-for="@Model.FileImage" value="@Model.FileImage" class="form-control">
+                                }
+                                else
+                                {
+                                    <input type="hidden" id="AvatarShow" asp-for="@Model.FileImage" value="~/images/user.png" class="form-control">
+                                }
+                            </span>
+                        </i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0" style="color:#000; text-align:left">
+            <div class="modal-body row">
+                <input hidden asp-for="@Model.Avatar" />
+                <input asp-for="@Model.UserName" value="@Model.UserName" type="hidden" class="form-control">
+                <input asp-for="@Model.Type" value="@Model.Type" type="hidden" class="form-control">
+                <input hidden asp-for="@Model.Id" value="@Model.Id" type="text" class="form-control">
+                <input asp-for="@Model.NormalizedUserName" value="@Model.NormalizedUserName" type="hidden" class="form-control">
+                <input asp-for="@Model.NormalizedEmail" value="@Model.NormalizedEmail" type="hidden" class="form-control">
+                <div class="form-group col-md-12">
+                    <label asp-for="@Model.FullName" class="clear-fix font-weight-semibold"></label>
+                    <div class="form-group-feedback form-group-feedback-left">
+                        <input asp-for="@Model.FullName" type="text" class="form-control" />
+                        <span asp-validation-for="@Model.FullName" class="validation-invalid-label"></span>
+                        <div class="form-control-feedback">
+
+                            <i class="icon-user"></i>
+                        </div>
+                    </div>
+                </div>
+                @if (Model.Id != 0)
+                {
+                    <div class="col-md-6">
+                        <label asp-for="@Model.Status" class="clear-fix font-weight-semibold"></label>
+                        <select asp-for="@Model.Status" class="form-control select" asp-items="Html.GetEnumSelectList<EUserStatus>()"></select>
+                    </div>
+
+                }
+                else
+                {
+                    <input asp-for="@Model.Status" value="0" type="hidden" class="form-control" />
+                }
+                <div class="col-md-6">
+                    <label asp-for="@Model.Gender" class="clear-fix font-weight-semibold"></label>
+                    <select asp-for="@Model.Gender" class="form-control select" asp-items="Html.GetEnumSelectList<EGender>()"></select>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="@Model.Branchs" class="clear-fix font-weight-semibold"></label>
+                    <select asp-for="@Model.Branchs" multiple="multiple" class="form-control">
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <div class="row">
+
+                        @if (Model.Id == 0)
+                        {
+                            <div class="col-md-6 ">
+                                <label asp-for="@Model.Email" class="clear-fix font-weight-semibold"></label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input asp-for="@Model.Email" type="text" class="form-control" />
+                                    <span asp-validation-for="@Model.Email" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-envelop2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="@Model.PhoneNumber" class="clear-fix font-weight-semibold"></label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input asp-for="@Model.PhoneNumber" type="text" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                                    <span asp-validation-for="@Model.PhoneNumber" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-phone2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-md-6 ">
+                                <label asp-for="@Model.Email" class="clear-fix font-weight-semibold"></label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input asp-for="@Model.Email" readonly type="text" class="form-control" />
+                                    <div class="form-control-feedback">
+                                        <i class="icon-envelop2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="@Model.PhoneNumber" class="clear-fix font-weight-semibold"></label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input asp-for="@Model.PhoneNumber" readonly type="text" class="form-control" onkeypress="return event.charCode >= 48 && event.charCode <= 57" />
+                                    <span asp-validation-for="@Model.PhoneNumber" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-phone2"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+                @if (Model.Id == 0)
+                {
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6 ">
+                                <label asp-for="@Model.PasswordHash" class="clear-fix font-weight-semibold"></label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input asp-for="@Model.PasswordHash" type="password" class="form-control" />
+                                    <span asp-validation-for="@Model.PasswordHash" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-lock"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="@Model.PasswordConfirmed" class="clear-fix font-weight-semibold"></label>
+                                <div class="form-group-feedback form-group-feedback-left">
+                                    <input asp-for="@Model.PasswordConfirmed" type="password" class="form-control" />
+                                    <span asp-validation-for="@Model.PasswordConfirmed" class="validation-invalid-label"></span>
+                                    <div class="form-control-feedback">
+                                        <i class="icon-check"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <input hidden asp-for="@Model.PasswordHash" />
+                }
+
+                <div class="form-group " style="display:none">
+                    <label class="clear-fix font-weight-semibold">Repeat email</label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.EmailConfirmed" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switch">
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group " style="display:none">
+                    <label class="clear-fix font-weight-semibold">SecurityStamp</label>
+                    <input asp-for="@Model.SecurityStamp" type="text" class="form-control" rows="4" />
+                    <span asp-validation-for="@Model.SecurityStamp" class="validation-invalid-label"></span>
+                </div>
+                <div class="form-group " style="display:none">
+                    <label class="clear-fix font-weight-semibold">Xác thực lại số điện thoại</label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.PhoneNumberConfirmed" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switch">
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group " style="display:none">
+                    <label class="clear-fix font-weight-semibold">TwoFactorEnabled</label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.TwoFactorEnabled" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switch">
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group " style="display:none">
+                    <label class="clear-fix font-weight-semibold">LockoutEnabled</label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.LockoutEnabled" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switch">
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group " style="display:none">
+                    <label class="clear-fix font-weight-semibold">AccessFailedCount</label>
+                    <input asp-for="@Model.AccessFailedCount" type="text" class="form-control" rows="4" />
+                    <span asp-validation-for="@Model.AccessFailedCount" class="validation-invalid-label"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal-footer">
+
+        <a href="#" class="btn btn-light ml-1 btn-sm text-capitalize" data-dismiss="modal" aria-label="Close">Cancel <i class="fa fa-close mr-1"></i></a>
+        @if (Model.Id == 0)
+        {
+            <button type="button" onclick="checkValidate();" class="btn btn-success ml-1 btn-sm submitFormUser">Create <i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <button type="button" onclick="checkValidate();" class="btn btn-success ml-1 btn-sm submitFormUser">Update <i class="fa fa-check ml-1"></i></button>
+        }
+
+    </div>
+</form>
+@{await Html.RenderPartialAsync("_ValidationScripts");}
+<script>
+    $('.select').select2({
+        minimumResultsForSearch: Infinity
+    });
+    $('.select-search').select2();
+    $('.form-check-input-switch').bootstrapSwitch();
+
+    $(document).on("change", "#FileImage", function (e) {
+        $("#AvatarShow").val(e.target.files[0].name);
+    });
+    var GetImage = ($file, $target) => {
+        let file = $file.get(0).files[0]
+
+        if (file) {
+            let fileType = file["type"]
+            PreviewImage(file, $target)
+        }
+    }
+    $(document).on("change", "#avatar_img", function (e) {
+        $("#AvatarShow").val(e.target.files[0].name)
+        GetImage($(this), $('#Avatar_preview'))
+    })
+
+    var PreviewImage = ($file, $target) => {
+        let reader = new FileReader
+        let image = new Image
+
+        reader.readAsDataURL($file)
+
+        reader.onload = (_file) => {
+            image.src = _file.target.result
+            image.onload = () => {
+                $target.attr('src', _file.target.result)
+            }
+        }
+    }
+    function checkValidate() {
+        if ($("#fUser").valid()) {
+            if ($("#Id").val() == 0) {
+                $("#fUser").submit();
+            }
+            else {
+                $.ajax({
+                    url: "/User/Update",
+                    method: "POST",
+                    data: new FormData($('#fUser').get(0)),
+                    displaysetings: {
+                        success: true,
+                    },
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        //if (response.succeeded === true) {
+                        //    $("li.dropdown-user a img").attr("src", "/upload/Images/Avatar/" + response.response.avatar);
+                        //    $("li.dropdown-user a span").html(response.response.fullname);
+                        //    $(".sidebar-user img").attr("src", "/upload/Images/Avatar/" + response.response.avatar);
+                        //    $(".sidebar-user .media-body .media-title").html(response.response.fullname);
+                        //}
+                        location.reload(true);
+                    }
+                });
+            }
+        }
+    };
+
+    $(document).ready(function () {
+        setTimeout(rebindValidation, 500);
+
+        $.ajax({
+            url: "/User/GetListSelectBrand",
+            method: "GET",
+            data: {
+                userId: $("#Id").val()
+            },
+            dataType: "json",
+            success: function (data) {
+                $("#Branchs").select2({
+                    minimumResultsForSearch: -1,
+                    placeholder: '-- Select --',
+                    data: data.listSelect,
+                    formatSelection: function (item) {
+                        return item.text
+                    },
+                    formatResult: function (item) {
+                        return item.text
+                    },
+                    templateResult: formatResult,
+                });
+
+                var selectedValues = new Array();
+                var count = 0;
+                for (var k in data.listValue) {
+                    selectedValues[count] = data.listValue[k].value;
+                    count++;
+                }
+                $("#Branchs").val(selectedValues).change();
+
+            },
+            error: function (error) {
+            }
+        })
+
+    });
+
+</script>

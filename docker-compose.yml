@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  adwardsoft.api.search:
+    image: ${DOCKER_REGISTRY-}adwardsoftapisearch
+    build:
+      context: .
+      dockerfile: AdwardSoft.API.Search/Dockerfile

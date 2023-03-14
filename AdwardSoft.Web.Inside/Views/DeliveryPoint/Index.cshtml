@@ -1,0 +1,183 @@
+﻿@model DeliveryPointViewModel
+
+@{
+    var locations = ViewBag.Locations;
+    var locationId = ViewBag.LocationId;
+    ViewData["Title"] = "Delivery Points";
+}
+
+<div class="row">
+    <div class="col-3">
+        <div class="card" id="_Form">
+
+        </div>
+    </div>
+    <div class="col-9">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Danh sách điểm giao hàng</h5>
+                <div class="col-md-auto float-right">
+                    <label asp-for="LocationId" class="clear-fix font-weight-semibold">Khu vực</label>
+                    <select id="location-select" class="form-control select" asp-items="locations">
+                        <option value="0" selected>Tất cả</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="DeliveryPointTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="Code"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Name"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Rate"></label>
+                            </th>
+                            <th>
+                                <label asp-for="LocationId"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Status"></label>
+
+                            <th class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@*DeliveryPoint*@
+@section Scripts {
+    <script id="DeliveryPointAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @* -- Edit -- *@
+                    <a onclick="ReadById('{{:id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="Edit"></i>
+                        @EText.Edit.Description()
+                    </a>
+                    @* -- Remove -- *@
+                    <a data-action="/DeliveryPoint/Delete" callbackfn="DeliveryPointSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        @EText.Remove.Description()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var $locationSelect = $('#location-select')
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500);
+            ReadById(0)
+        })
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+
+            $('.select-search').select2();
+            $('.form-check-input-switch').bootstrapSwitch();
+            $('.daterange-single').daterangepicker({
+                singleDatePicker: true,
+                timePicker: false,
+                locale: {
+                    format: 'MM-DD-YYYY'
+                },
+                autoclose: true,
+                yearPicker: true,
+            });
+
+        };
+
+
+
+        var $DeliveryPointTable
+        var DeliveryPointAction = $.templates("#DeliveryPointAction");
+        $DeliveryPointTable = $("#DeliveryPointTable").DataTable({
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        url: "@Url.Action("Read", "DeliveryPoint")",
+                        data: {
+                            "location": $locationSelect.val()
+                        },
+                        method: "GET",
+                        success: function (response) {
+                            callback({ data: response })
+                        }
+                    })
+            },
+            processing: true,
+            responsive: true,
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            columns: [
+                { data: "code" },
+                { data: "name" },
+                { data: "rate" },
+                { data: "locationName" },
+                {
+                    data: "status",
+                    render: (data, type, row) => data === 0 ? '<p class="text-danger">@EStatus.Unavailable.Description()</p>' : '<p class="text-success">@EStatus.Available.Description()</p>'
+                },
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return (DeliveryPointAction.render({ id: data }));
+                    }
+                },
+            ],
+            columnDefs: [
+                {
+                    targets: [4],
+                    visible: @locationId !== 0 ? true : false,
+                    searchable: false,
+                }
+            ],
+            language: {
+                search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "No data ..."
+            }
+        });
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "DeliveryPoint")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#_Form").empty();
+                    $("#_Form").html(data);
+                    rebindValidation()
+                }
+            });
+        };
+        var DeliveryPointSuccess = function () {
+            $DeliveryPointTable.ajax.reload();
+            ReadById(0)
+        };
+    </script>
+    <script>
+        $locationSelect.on('change', function (e) {
+            $DeliveryPointTable.ajax.reload();
+        })
+    </script>
+}

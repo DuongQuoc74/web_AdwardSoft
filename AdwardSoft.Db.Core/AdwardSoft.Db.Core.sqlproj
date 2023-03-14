@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>AdwardSoft.Db.Core</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{7f764584-5b64-4062-ba95-eade4e5d8515}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>AdwardSoft.Db.Core</RootNamespace>
+    <AssemblyName>AdwardSoft.Db.Core</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <TargetDatabase>AdwardSoft.Db.Core</TargetDatabase>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo" />
+    <Folder Include="dbo\DataType" />
+    <Folder Include="dbo\Funtions" />
+    <Folder Include="dbo\Scripts" />
+    <Folder Include="dbo\StoreProcedures" />
+    <Folder Include="dbo\Tables" />
+    <Folder Include="Scripts\" />
+    <Folder Include="dbo\StoreProcedures\Module" />
+    <Folder Include="dbo\Tables\Error" />
+    <Folder Include="dbo\StoreProcedures\Error" />
+    <Folder Include="dbo\StoreProcedures\Language" />
+    <Folder Include="dbo\StoreProcedures\Post" />
+    <Folder Include="dbo\StoreProcedures\Position" />
+    <Folder Include="dbo\Tables\Menu" />
+    <Folder Include="dbo\StoreProcedures\Contact" />
+    <Folder Include="dbo\Tables\Page" />
+    <Folder Include="dbo\StoreProcedures\Menu" />
+    <Folder Include="dbo\StoreProcedures\IPAccess" />
+    <Folder Include="dbo\StoreProcedures\NotificationTemplate" />
+    <Folder Include="dbo\Tables\MailServer" />
+    <Folder Include="dbo\StoreProcedures\MailServer" />
+    <Folder Include="dbo\StoreProcedures\MailServer" />
+    <Folder Include="dbo\Tables\MailServer" />
+    <Folder Include="dbo\StoreProcedures\MenuGroup" />
+    <Folder Include="dbo\Tables\Module" />
+    <Folder Include="dbo\Tables\Post" />
+    <Folder Include="dbo\StoreProcedures\DataTablePostInfor" />
+    <Folder Include="dbo\StoreProcedures\PrivacyPolicy" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\DataType\IntList.sql" />
+    <Build Include="dbo\Funtions\ufn_SplitString.sql" />
+    <Build Include="dbo\Funtions\ufn_Date2String.sql" />
+    <None Include="Scripts\ScriptsIgnoredOnImport.sql" />
+    <Build Include="dbo\Funtions\f_ConvertString.sql" />
+    <Build Include="dbo\Tables\Category.sql" />
+    <Build Include="dbo\Tables\Language.sql" />
+    <Build Include="dbo\Tables\CategoryTranslation.sql" />
+    <Build Include="dbo\Tables\Tag.sql" />
+    <Build Include="dbo\Tables\GeneralSetting.sql" />
+    <Build Include="dbo\Tables\InfoSetting.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_Module_ReadByUser.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_Module_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_Module_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_Module_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_Module_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_ModuleSort_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_Module_SortById.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_Module_Update.sql" />
+    <Build Include="dbo\Tables\Error\HandleError.sql" />
+    <Build Include="dbo\Tables\Error\HandleErrorTrans.sql" />
+    <Build Include="dbo\StoreProcedures\Error\usp_HandleError_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Error\usp_HandleError_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Error\usp_HandleError_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Error\usp_HandleError_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Error\usp_HandleError_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Error\usp_HandleError_ReadByCode.sql" />
+    <Build Include="dbo\StoreProcedures\Language\usp_Language_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Language\usp_Language_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Language\usp_Language_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Language\usp_Language_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Language\usp_Language_Read.sql" />
+    <Build Include="dbo\Tables\Contact.sql" />
+    <Build Include="dbo\Tables\Menu\MenuGroup.sql" />
+    <Build Include="dbo\Tables\Menu\Menu.sql" />
+    <Build Include="dbo\Tables\Menu\MenuTranslation.sql" />
+    <Build Include="dbo\StoreProcedures\Contact\usp_Contact_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Contact\usp_Contact_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Contact\usp_Contact_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Contact\usp_Contact_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Contact\usp_Contact_Update.sql" />
+    <Build Include="dbo\Tables\Page\Page.sql" />
+    <Build Include="dbo\Tables\Page\PageSEO.sql" />
+    <Build Include="dbo\Tables\Page\PageSocial.sql" />
+    <Build Include="dbo\Tables\Page\PageTranslation.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_ReadByIdLang.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_PositionSort_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_PositionTrans_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_PositionTrans_ReadByIdLang.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostCommentDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostComment_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostComment_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostComment_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostComment_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostCommentStatus_Update.sql" />
+    <Build Include="dbo\Tables\IPAccess.sql" />
+    <Build Include="dbo\StoreProcedures\IPAccess\usp_IPAccess_Create.sql" />
+    <Build Include="dbo\StoreProcedures\IPAccess\usp_IPAccess_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\IPAccess\usp_IPAccess_Update.sql" />
+    <Build Include="dbo\StoreProcedures\IPAccess\usp_IPAccess_Read.sql" />
+    <Build Include="dbo\StoreProcedures\IPAccess\usp_IPAccess_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\IPAccess\usp_IPAccess_Check.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_Read.sql" />
+    <Build Include="dbo\Tables\NotificationTemplate.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_Create.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_Update.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_ReadByAction.sql" />
+    <Build Include="dbo\Tables\Slider.sql" />
+    <Build Include="dbo\Tables\MailServer\MailServer.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Create.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Update.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_ReadEmailIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Create.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_ReadEmailIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServer_Update.sql" />
+    <Build Include="dbo\Tables\MailServer\MailServer.sql" />
+    <Build Include="dbo\StoreProcedures\MenuGroup\usp_MenuGroup_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MenuGroup\usp_MenuGroup_Create.sql" />
+    <Build Include="dbo\StoreProcedures\MenuGroup\usp_MenuGroup_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\MenuGroup\usp_MenuGroup_Update.sql" />
+    <Build Include="dbo\StoreProcedures\MenuGroup\usp_MenuGroup_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_MenuJson_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_MenuTranslation_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\MailServer\usp_MailServerDetail_ReadByAction.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_Read.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_Read.sql" />
+    <Build Include="dbo\StoreProcedures\NotificationTemplate\usp_NotificationTemplate_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MenuGroup\usp_MenuGroupSort_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_ReadPageByMenu.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_ReadPostByMenu.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_ReadCategoryByMenu.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_MenuTranslation_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Menu\usp_Menu_ReadByLanguage.sql" />
+    <Build Include="dbo\Tables\Module\Module.sql" />
+    <Build Include="dbo\Tables\Module\ModuleType.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_ModuleType_Create.sql" />
+    <Build Include="dbo\StoreProcedures\PrivacyPolicy\usp_PrivacyPolicyRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\PrivacyPolicy\usp_PrivacyPolicyTypeRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Module\usp_SelectLevels_ReadModule.sql" />
+    <Build Include="dbo\StoreProcedures\Language\usp_Language_ReadByDefault.sql" />
+    <Build Include="dbo\Tables\Post\Post.sql" />
+    <Build Include="dbo\Tables\Post\PostComment.sql" />
+    <Build Include="dbo\Tables\Post\PostGallery.sql" />
+    <Build Include="dbo\Tables\Post\PostSEO.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_Post_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_Post_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_Post_ReadPagination.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_Post_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostDetail_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostGallery_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostGallery_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostGallery_ReadByPostId.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_PostSEO_Update.sql" />
+    <Build Include="dbo\StoreProcedures\DataTablePostInfor\usp_DataTablePostInfor_ReadPagination.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_DataTablePostInfor_ReadInfoBasic.sql" />
+    <Build Include="dbo\StoreProcedures\Post\usp_DataTablePostInfor_ReadDetails.sql" />
+    <Build Include="dbo\StoreProcedures\PrivacyPolicy\usp_PrivacyPolicyTypeRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\PrivacyPolicy\usp_PrivacyPolicyRedis_Read.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="AdwardSoft.Db.Core.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AdwardSoftCore.publish.xml" />
+    <None Include="AdwardSoft.Db.Core.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="dbo\Scripts\Script.PostDeployment.sql" />
+  </ItemGroup>
+</Project>

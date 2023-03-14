@@ -1,0 +1,206 @@
+﻿@model NotificationTemplateViewModel
+@{
+    ViewData["Title"] = "Mẫu thông báo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section StyleSheet {
+    <style>
+        .dataTables_filter label::after {
+            content: '';
+        }
+    </style>
+}
+
+<div class="row">
+    @*<div class="col-md-5">
+            <div class="card" id="_Form"></div>
+        </div>*@
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header ">
+                <h5 class="card-title">
+                    Danh sách mẫu thông báo
+                </h5>
+                <div class="clear-fix"></div>
+                <div class="row col-md-12">
+                    <div class="col-md-2" style="margin-top:3px">
+                        <a id="newNotificationTemplate" asp-action="_Form" asp-controller="NotificationTemplate" data-params='{"actions" : 0}' checkvalidate="true" modal-size="modal-md" callbackfn="NotificationTemplatePage.success()" class="btn btn-sm btn-primary modal-link"><i class="fa fa-plus mr-1"></i>Thêm mới</a>
+                    </div>
+                    <div class="col-md-8"></div>
+                    <div class="col-md-2 float-right" style="margin-top:3px">
+                        <select class="form-control select-table" id="ActionSelection" asp-items="@Html.GetEnumSelectList<ENotificationTemplateAction>()"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="ads-table" class="table datatable-save-state" data-id="1" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th width="10%" class="text-center"><label asp-for="Type"></label></th>
+                            <th width="15%" class="text-center"><label asp-for="Title"></label></th>
+                            <th width="55%" class="text-center"><label asp-for="Content"></label></th>
+                            <th width="10%" class="text-center"><label asp-for="IsActive"></label></th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script id="Action" type="text/x-jsrender">
+        <div class="list-icons">
+            <a data-toggle="tooltip" title="Điều chỉnh" href="/NotificationTemplate/_Form" modal-size="modal-md" checkvalidate="true" data-params='{ "id": {{:data.id}}}' callbackfn="NotificationTemplatePage.success()" class="list-icons-item modal-link"><i class="icon-pencil7" ></i></a>
+            <a data-toggle="tooltip" title="Xóa" href="#" class="list-icons-item"><i class="icon-trash remove-item" callbackfn="NotificationTemplatePage.success()" data-action="/NotificationTemplate/Delete" data-params='{"id":"{{:data.id}}"}'></i></a>
+        </div>
+    </script>
+
+
+
+    <script>
+        var NotificationTemplate = (function (rqdata) {
+
+            var Table = function (rqdata) {
+                var d = $.Deferred();
+                $.ajax({
+                    url: "@Url.Action("Read", "NotificationTemplate")",
+                    method: "GET",
+                    data: rqdata,
+                    success: function (result) {
+                        d.resolve(result);
+                    },
+                    error: function () {
+                        d.reject();
+                    }
+                });
+                return d.promise();
+            }
+
+            return {
+                table: Table
+            }
+
+        })()
+
+        var NotificationTemplatePage = (function (NotificationTemplate) {
+
+            var rqdata = {}
+            var adsTable
+            var Action = $.templates("#Action");
+
+
+            var DisplayTable = function () {
+                    adsTable = $("#ads-table").DataTable({
+                        processing: true,
+                        responsive: true,
+                        ajax: function (data, callback, settings) {
+                            NotificationTemplate.table({ 'actions': $("#ActionSelection").val() }).done(function (data) {
+                                callback({ data: data });
+                            })
+                        },
+                        searching: true,
+                        pageLength: 5,
+                        paging: true,
+                        cache: false,
+                        lengthChange: false,
+                        columns: [
+                            {
+                                data: "type",
+                                render: function (data, type, row) {
+                                    switch (data) {
+                                        case 0: return "Email"; break;
+                                        case 1: return "SMS"; break;
+                                        case 2: return "Mobile"; break;
+                                    } 
+                                },
+                            },
+                            {
+                                data: "title"
+                            },
+                            {
+                                data: "content",
+                                render: function (data, type, row) {
+                                    console.log(data.length)
+                                    if (data.length > 100) {
+                                        return data.split(' ').slice(0, 33).join(' ') + ".....";
+                                    }
+                                    else return data;
+                                }
+                            },
+                            {
+                                data: "isActive",
+                                render: (data, type, row) => {
+                                    if (data) {
+                                        return '<i class="icon-checkmark3"></i>'
+                                    } else {
+                                        return ""
+                                    }
+                                }
+                            },                           
+                            {
+                                data: {},
+                                render: function (data, type, row) {
+                                    return (Action.render({ data: data }));
+                                },
+                                orderable : false
+                            },
+                        ],
+                        order: [[1, "asc"]],
+                        language: {
+                            search: `<div class="row col-md-12>"><div class="col-md-12"><span class="icon-data-table"></span>_INPUT_</div></div>`,
+                            searchPlaceholder: 'Gõ để tìm kiếm...',
+                            infoFiltered: "",
+                            info: "Trang _PAGE_ của _PAGES_",
+                            paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                            processing: "",
+                            infoEmpty: "",
+                            emptyTable: "Không có dữ liệu",
+                            zeroRecords: "Không có dữ liệu",
+                            infoFiltered: ""
+                        }
+                    });
+            }
+
+
+
+            var success = function () {
+                $("#ads-table").DataTable().ajax.reload();
+                validate();
+            }
+
+            var initEvent = function () {
+                $(document).on("change", "#ActionSelection", function () {
+                    console.log($("#ActionSelection").val())
+                    $("#newNotificationTemplate").attr("data-params", `{ "actions": ${$('#ActionSelection').val()} }`)
+                    $("#ads-table").DataTable().ajax.reload();
+                })
+            }
+
+            var validate = function () {
+                $('.select-table').select2()
+            }
+
+            var init = function () {
+                DisplayTable(rqdata);
+                initEvent();
+                validate();
+            }
+
+            return {
+                DisplayTable: DisplayTable,
+                init: init,
+                success: success,
+                validate : validate
+            }
+
+        })(NotificationTemplate)
+
+        NotificationTemplatePage.init();
+
+    </script>
+
+}

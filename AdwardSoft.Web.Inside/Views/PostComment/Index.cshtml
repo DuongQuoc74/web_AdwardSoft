@@ -1,0 +1,171 @@
+﻿@inject AdwardSoft.Provider.Common.IUserSession _userSession;
+@{
+    ViewData["Title"] = "Bình luận";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Bình luận bài viết</h5>
+                <div class="float-right">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <select class="form-control select" id="Type">
+                                <option value="0">Bình luận mới nhất</option>
+                                <option value="1">Tất cả</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="ads-table" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th class="text-center" width="40%">Tiêu đề</th>
+                            <th class="text-center" width="25%">Số bình luận</th>
+                            <th class="text-center" width="25%">Số bình luận chưa duyệt</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script id="Action" type="text/x-jsrender">
+        <div class="list-icons">
+            <a data-toggle="tooltip" title="Điều chỉnh" href="/PostComment/_Form" data-params='{"Id":{{:data.id}}}' class="list-icons-item modal-link" checkvalidate="true" modal-size="modal-lg" callbackfn="PostCommentListPage.success()"><i class="icon-pencil7"></i></a>
+        </div>
+    </script>
+    <script>
+        var PostCommentList = (function (rqdata) {
+            var Table = function (rqdata) {
+                var d = $.Deferred();
+                $.ajax({
+                    url: "@Url.Action("Read", "PostComment")",
+                    data: rqdata,
+                    method: "POST",
+                    success: function (response) {
+                        if (response != undefined && response != false) {
+
+                            d.resolve(response);
+                        }
+                    },
+                    error: function () {
+                        d.reject();
+                    }
+                });
+                return d.promise();
+            }
+      
+            return {
+                table: Table
+            }
+
+        })()
+
+        var PostCommentListPage = (function (PostCommentList) {
+
+            var rqdata = {}
+            var adsTable
+            var Action = $.templates("#Action");
+            var ActionSort = $.templates("#ActionSort");
+
+            var DisplayTable = function () {
+                    adsTable = $("#ads-table").DataTable({
+                        processing: true,
+                        responsive: true,
+                        ajax: function (data, callback, settings) {
+                            //data.search.value = $(".ads-search-value").val();
+                            rqdata['model'] = data;
+                            rqdata['type'] = $("#Type").val();
+                            PostCommentList.table(rqdata).done(function (response) {
+                                callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                            })
+                        },
+                        serverSide: true,
+                        responsive: true,
+                        processing: true,
+                        filter: true,
+                        pageLength: 5,
+                        paging: true,
+                        cache: false,
+                        lengthChange: false,
+                        columns: [
+                            { data: "title" },
+                            { data: "comment" },
+                            { data: "commentNA" },                         
+                            {
+                                data: {},
+                                render: function (data, type, row) {                                 
+                                    return (Action.render({ data : data}))
+                                },
+                                orderable: false
+                            }
+                        ],
+                        language: {
+                            search: '<div class="row"><div class="col-md-12"><span class="icon-search"></span> _INPUT_</div></div>',
+                            searchPlaceholder: 'Tìm kiếm...',
+                            info: "Trang _PAGE_ trên _PAGES_</span>",
+                            paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                            processing: "",
+                            infoEmpty: "",
+                            emptyTable: "Không có dữ liệu",
+                            zeroRecords: "Không tìm thấy",
+                            infoFiltered: "",
+                            processing: "Xin vui lòng chờ ít phút",
+                        }
+                    });
+            }
+
+
+            var success = function () {
+                $("#ads-table").DataTable().ajax.reload();
+                validate();
+            }
+
+            var initEvent = function () {
+                $(document).on("change", "#Type", function (e) {
+                    $("#ads-table").DataTable().ajax.reload();
+                });
+            }
+
+            var validate = function () {
+                $('form').each(function (i, f) {
+                    $form = $(f);
+                    $form.removeData('validator');
+                    $form.removeData('unobtrusiveValidation');
+                    $.validator.unobtrusive.parse($form);
+                });
+
+                $('.select').select2({minimumResultsForSearch: -1})
+
+                $('.select-search').select2();
+            }        
+
+            var init = function () {
+                validate();
+                DisplayTable();
+                initEvent();
+            }
+
+            return {
+                DisplayTable: DisplayTable,
+                init: init,
+                validate: validate,
+                success: success
+            }
+
+        })(PostCommentList)
+
+        PostCommentListPage.init();
+
+    </script>
+}
+
+

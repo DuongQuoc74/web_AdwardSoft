@@ -1,0 +1,153 @@
+﻿@model AdwardSoft.Web.Inside.Models.EmployeeShiftViewModel
+@{ bool isNew = Model.IsNew;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";  
+}
+
+<form class="form-validate-jquery form-content" asp-action="@action" asp-controller="EmployeeShift" callbackfn="EmployeeShiftSuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5> 
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+        }
+    </div>
+    <div class="modal-body row">
+        @if (!isNew)
+        {
+            <div class="col-md-12">
+                <label asp-for="@Model.ShiftId" class="clear-fix font-weight-semibold"></label>
+                <select class="form-control select" asp-items="@(new SelectList(ViewBag.Shifts, "Id", "Text"))" disabled>
+                </select>
+                <span asp-validation-for="@Model.ShiftId" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-12">
+                <label asp-for="@Model.EmployeeId" disabled class="clear-fix font-weight-semibold"></label>
+                <select class="form-control select" disabled>
+                    <option>@Model.Employee</option>
+                </select>
+            </div>
+             <input hidden asp-for="@Model.EmployeeId" type="hidden" value="@Model.EmployeeId">
+             <input hidden asp-for="@Model.ShiftId" type="hidden" value="@Model.ShiftId">
+        }
+        else
+        {
+            <div class="col-md-12">
+                <label asp-for="@Model.ShiftId" class="clear-fix font-weight-semibold"></label>
+                <select class="form-control select" asp-items="@(new SelectList(ViewBag.Shifts, "Id", "Text"))" asp-for="ShiftId">
+                </select>
+                <span asp-validation-for="@Model.ShiftId" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-12">
+                <label asp-for="@Model.EmployeeId" class="clear-fix font-weight-semibold"></label>
+                <select class="form-control EmployeeId" asp-for="EmployeeId">
+                </select>
+                <span asp-validation-for="@Model.EmployeeId" class="validation-invalid-label"></span>
+            </div>
+        }
+
+        <div class="col-md-12">
+            <label asp-for="@Model.Year" class="clear-fix font-weight-semibold"></label>
+            <select class="form-control select" asp-for="Year">
+                <option value="2021">2021</option>
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+            </select>
+            <span asp-validation-for="@Model.Year" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Month" class="clear-fix font-weight-semibold"></label>
+            <select class="form-control select" asp-items="@Html.GetEnumSelectList<EMonth>()" asp-for="Month">
+            </select>
+            <span asp-validation-for="@Model.Month" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Type" class="clear-fix font-weight-semibold"></label>
+            <select class="form-control select" onchange="showCheckoutCounterDiv()" asp-for="Type">
+                <option value="0">Shop Assistant</option>
+                <option value="1">Cashier</option>
+            </select>
+            <span asp-validation-for="@Model.Type" class="validation-invalid-label"></span>
+        </div>
+        <div id="CheckoutCounterDiv" class="col-md-12">
+            <label asp-for="@Model.CheckoutCounterId" class="clear-fix font-weight-semibold"></label>
+            <select class="form-control select" asp-items="@(new SelectList(ViewBag.CheckoutCounters, "Id", "Text"))" asp-for="CheckoutCounterId">
+            </select>
+            <span asp-validation-for="@Model.CheckoutCounterId" class="validation-invalid-label"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadById()" class="btn btn-light ml-1 btn-sm">Cancel <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button  type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button> 
+        }
+    </div>
+</form>
+<script>
+    var $CheckoutCounterDiv = $("#CheckoutCounterDiv");
+
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+        showCheckoutCounterDiv();
+    });
+
+    
+
+    var showCheckoutCounterDiv = function () {
+        if (Number($("#Type").val()) == 0) {
+            $CheckoutCounterDiv.hide();
+        } else {
+            $CheckoutCounterDiv.show();
+        }
+    }
+
+    $('.EmployeeId').select2(
+        {
+            ajax: {
+                delay: 150,
+                url: '@Url.Action("Search", "Employee")',
+                dataType: 'json',
+                data: function (params) {
+                    params.page = params.page || 1;
+                    return {
+                        searchTerm: params.term,
+                        pageSize: 10,
+                        pageNumber: params.page,
+                    };
+                },
+
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: $.map(data.items, function (obj) {
+                            return {
+                                id: obj.id,
+                                text: obj.text
+                            };
+                        }),
+                        pagination: {
+                            more: (params.page * 10) < data.total
+                        }
+                    };
+                },
+                cache: true
+            },
+            placeholder: "-- Select --",
+            minimumInputLength: 0,
+            allowClear: true,
+        }
+    );
+
+</script>
+

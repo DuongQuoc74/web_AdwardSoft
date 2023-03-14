@@ -1,0 +1,141 @@
+﻿@model CustomerReportViewModel
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";                
+    ViewData["Title"] = "Sales by Customer";               
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Sales by Customer - Lunar Calendar</h5>
+            </div>
+            <div class="card-body">
+                <table id="dataTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="CustomerName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="CustomerPhone"></label>
+                            </th>
+                            <th>
+                                <label asp-for="TotalPoint"></label>
+                            </th>
+                            <th>
+                                <label asp-for="TotalAmount"></label>
+                            </th>
+                            <th>
+                                <label asp-for="ExchangePoint"></label>
+                            </th>
+                            <th>
+                                <label asp-for="ExchangeAmount"></label>
+                            </th>
+                            <th>
+                                <label asp-for="BalancePoint"></label>
+                            </th>
+                            <th>
+                                <label asp-for="BalanceAmount"></label>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var $ReportServiceDisplayTable
+
+        $(document).ready(function () {
+            $(function () {
+                $("#titlePage").text('Sales by Customer')
+            });
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.select-search').select2();
+        });
+
+
+        $ReportServiceDisplayTable = $("#dataTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data
+                    },
+                    url: "@Url.Action("ReadCustomerReport", "Report")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                    }
+                })
+            },
+            lengthMenu: [10, 25, 50, 75, 100],
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: true,
+            filter: true,
+            search: true,
+            order: false,
+            columns: [
+                {
+                    data: "customerName",
+                    render: (data, type, row) => data
+                },
+                {
+                    data: "customerPhone",
+                    render: (data, type, row) => data
+                },
+                {
+                    data: "totalPoint",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "totalAmount",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "exchangePoint",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "exchangeAmount",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "balancePoint",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "balanceAmount",
+                    render: (data, type, row) => FormatCurrency(data)
+                }
+            ],
+            //dom: 'Blfrtip',
+            language: {
+                search: '<div class="row">_INPUT_</div>',
+                searchPlaceholder: 'search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        })
+
+        String.prototype.trunc =
+            function (n) {
+                return this.substr(0, n - 1) + (this.length > n ? '&hellip;' : '');
+            };
+    </script>
+}

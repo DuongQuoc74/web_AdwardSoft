@@ -1,0 +1,71 @@
+﻿@model CategoryViewModel
+@*<style>
+        #form-control-img {
+            position: absolute;
+            border: 1px solid #ccc;
+            background: #333;
+            padding: 5px;
+            display: none;
+            color: #fff;
+        }
+    </style>*@
+
+@{ 
+    var isNew = Model.Id == default(int);
+    var methodAction = isNew ? "Post" : "Put";
+}
+
+<form class="form-validate-jquery form-content" asp-action="@ViewBag.Action" asp-controller="Category" callbackfn="CategorySuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (ViewBag.Action == "Create")
+        {
+            <h5 class="modal-title">@EText.Create.Description()</h5> 
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description()</h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <input asp-for="@Model.Id" type="hidden" value="@Model.Id">
+        <div class="col-md-12">
+            <label asp-for="@Model.Name" class="clear-fix font-weight-semibold ads-control"></label>
+            <input asp-for="@Model.Name" value="@Model.Name" type="text" class="form-control">
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="@Model.Description" class="clear-fix font-weight-semibold ads-control"></label>
+            <textarea asp-for="@Model.Description" value="@Model.Description" rows="5" cols="3" class="form-control"></textarea>
+            <span asp-validation-for="@Model.Description" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="Status" class="clear-fix font-weight-semibold"></label>
+            <select class="form-control select" asp-for="@Model.Status" asp-items="@Html.GetEnumSelectList<EStatus>()">
+            </select>
+            <span asp-validation-for="@Model.Status" class="validation-invalid-label"></span>
+        </div>
+        
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+        @if (ViewBag.Action == "Create")
+        {
+            <button type="submit" style="margin-right:0" class="btn btn-success ml-1 btn-sm">@EText.Create.Description()<i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <button type="submit" style="margin-right:0" class="btn btn-success ml-1 btn-sm">@EText.Update.Description()<i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+</script>

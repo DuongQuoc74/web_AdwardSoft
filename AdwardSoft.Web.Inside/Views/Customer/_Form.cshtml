@@ -1,0 +1,164 @@
+﻿@model CustomerViewModel
+
+@{
+    var isNew = Model.Id == default(int);
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+
+    var customerGroups = ViewBag.CustomerGroups;
+    var paymentMethods = ViewBag.PaymentMethods;
+    var genders = ViewBag.Genders;
+
+
+    var membershipClass = new List<SelectDefault>();
+    var membershipClassDefault = new List<SelectListItem>();
+    membershipClass = ViewBag.MembershipClasses;
+
+    if (isNew)
+    {
+        var defaultId = 0;
+        membershipClassDefault = membershipClass.Where(x => x.IsDefault).Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Text, Selected = true }).ToList();
+
+        Int32.TryParse(membershipClassDefault.Select(x => x.Value).FirstOrDefault(), out defaultId);
+    }
+    else
+    {
+        membershipClassDefault = membershipClass.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.Text }).ToList();
+    }
+
+}
+
+<form asp-controller="Customer" asp-action="@action" class="form-validate-jquery" id="_FormView" callbackfn="CustomerSuccess()" method="@methodAction">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+            <input type="text" hidden value="@Model.Id" asp-for="@Model.Id" />
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="form-group col-md-6">
+            <label asp-for="Name" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="PaymentMethodId" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" asp-for="@Model.PaymentMethodId" asp-items="paymentMethods">
+            </select>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="CustomerGroupId" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" asp-for="@Model.CustomerGroupId" asp-items="customerGroups">
+            </select>
+        </div>
+       @* <div class="form-group col-md-6">
+            <label asp-for="MembershipClassId" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" hidden value="@Model.MembershipClassId" asp-for="@Model.MembershipClassId" />
+            <select disabled class="form-control select" id="membership-select" asp-for="@Model.MembershipClassId" asp-items="membershipClassDefault">
+            </select>
+        </div>*@
+        <div class="form-group col-md-6">
+            <label asp-for="IdentityCode" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.IdentityCode" value="@Model.IdentityCode" class="form-control" />
+            <span asp-validation-for="@Model.IdentityCode" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Phone" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Phone" value="@Model.Phone" class="form-control" />
+            <span asp-validation-for="@Model.Phone" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Email" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Email" value="@Model.Email" class="form-control" />
+            <span asp-validation-for="@Model.Email" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Address" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Address" value="@Model.Address" class="form-control" />
+            <span asp-validation-for="@Model.Address" class="validation-invalid-label"></span>
+        </div>
+     @*   <div class="form-group col-md-6">
+            <label asp-for="Type" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" asp-for="@Model.Type" asp-items="@Html.GetEnumSelectList<ECustomerType>()">
+            </select>
+        </div>*@
+       @* <div class="form-group col-md-6">
+            <label asp-for="GenderId" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" id="gender-select" asp-for="@Model.GenderId" asp-items="genders">
+            </select>
+        </div>*@
+       @* <div class="form-group col-md-6">
+            <label asp-for="DoB" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.DoBStr" value="@Model.DoBStr" class="form-control daterange" />
+            <span asp-validation-for="@Model.DoBStr" class="validation-invalid-label"></span>
+        </div>*@
+        <div class="form-group col-md-12">
+            <label asp-for="Note" class="clear-fix font-weight-semibold ads-control"></label>
+            <textarea cols="3" asp-for="@Model.Note" value="@Model.Note" class="form-control" />
+            <span asp-validation-for="@Model.Note" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <div class="row">
+                <div class=" col-md-6">
+                    <label asp-for="IsInvoice" class="clear-fix font-weight-semibold"></label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.IsInvoice" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                        </label>
+                    </div>
+                </div>
+                <div class=" col-md-6">
+                    <label asp-for="IsDefault" class="clear-fix font-weight-semibold"></label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.IsDefault" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="Status" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" asp-for="@Model.Status" asp-items="@Html.GetEnumSelectList<EStatus>()">
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-end align-items-center clear-fix">
+                <a href="#" data-dismiss="modal" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+                @if (isNew)
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'))
+
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html)
+    })
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+</script>

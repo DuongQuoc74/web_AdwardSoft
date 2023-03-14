@@ -1,0 +1,113 @@
+﻿@model AdwardSoft.Web.Inside.Models.PromotionViewModel
+@{ bool isNew = (Model.Id == 0) ? true : false;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";  
+}
+
+<form class="form-validate-jquery form-content" asp-action="@action" asp-controller="Promotion" callbackfn="PromotionSuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5> 
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <input asp-for="@Model.Id" type="hidden" value="@Model.Id">
+        <div class="col-md-12">
+            <label asp-for="@Model.Name" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.Name" type="text" class="form-control">
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Type" class="clear-fix font-weight-semibold"></label>
+            <select class="form-control select" asp-items="@Html.GetEnumSelectList<EPromotionType>()" asp-for="Type">
+            </select>
+            <span asp-validation-for="@Model.Type" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.EffectiveDate" class="clear-fix font-weight-semibold"></label>
+            <div class="form-group-feedback form-group-feedback-left">
+                <input type="text" asp-for="@Model.EffectiveDateStr" value="@Model.EffectiveDate.ToString("dd/MM/yyyy")" class="form-control daterange">
+                <div class="form-control-feedback">
+                    <i class="icon-calendar22"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.ExpiryDate" class="clear-fix font-weight-semibold"></label>
+            <div class="form-group-feedback form-group-feedback-left">
+                <input type="text" asp-for="@Model.ExpiryDateStr" value="@Model.ExpiryDate.ToString("dd/MM/yyyy")" class="form-control daterange">
+                <div class="form-control-feedback">
+                    <i class="icon-calendar22"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button onclick="checkDateValid();" type="button" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button> 
+        }
+        else
+        {
+            if (DateTime.Now.Date > Model.EffectiveDate.Date)
+            {
+                 <button onclick="checkDateValid();" type="button" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+            }         
+        }
+        <button id="btnPromotion" hidden type="submit" class="btn btn-success ml-1 btn-sm mr-0"><i class="fa fa-check ml-1"></i></button>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+
+        $('.daterange').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: true,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    });
+
+    function checkDateValid() {
+        $.ajax({
+            url: "/Promotion/CheckDate",
+            method: "POST",
+            data: {
+                "id": $("#Id").val(),
+                "type": $("#Type").val(),
+                "expiryDateStr": $("#ExpiryDateStr").val(),
+                "effectiveDateStr": $("#EffectiveDateStr").val()
+            },
+            success: function (data) {
+                console.log(data);
+                if (data) {
+                    $("#btnPromotion").click();
+                } else {
+                    swal({
+                        title: "Lỗi!",
+                        text: "Thời gian không phù hợp",
+                        type: "warning"
+                    })
+                }
+            }
+        });
+    }
+</script>
+

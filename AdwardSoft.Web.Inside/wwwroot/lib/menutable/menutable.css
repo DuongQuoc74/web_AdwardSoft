@@ -1,0 +1,397 @@
+﻿/**
+ * menutable
+ */
+
+.mn-search {
+    margin-bottom: 5px;
+    display: block;
+    position: relative;
+}
+
+    .mn-search input {
+        height: 2.5rem;
+    }
+
+.mn-tree {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    height: 26rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.mn {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mn-list {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+}
+
+    .mn-list .mn-list {
+        padding-left: 30px;
+    }
+
+/*.mn-collapsed .mn-list {
+    display: none;
+
+}*/
+
+.mn-item,
+.mn-empty,
+.mn-placeholder {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    min-height: 20px;
+    margin: 5px 0;
+}
+
+.mn-handle {
+    display: block;
+    color: #333;
+    min-height: 2.5rem;
+    line-height: 1.75rem;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    background: -webkit-linear-gradient(top, #fafafa 0%, #eee 100%);
+    background: -moz-linear-gradient(top, #fafafa 0%, #eee 100%);
+    background: linear-gradient(top, #fafafa 0%, #eee 100%);
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    cursor: move;
+}
+
+    .mn-handle:hover span {
+        color: #2ea8e5;
+    }
+
+.mn-handle-details {
+    -webkit-transition: max-height 0.25s;
+    -moz-transition: max-height 0.25s;
+    -ms-transition: max-height 0.25s;
+    -o-transition: max-height 0.25s;
+    transition: max-height 0.25s;
+    overflow: hidden;
+    max-height: 0;
+}
+
+    .mn-handle-details.show {
+        max-height: 20rem;
+        border-bottom-left-radius: 3px !important;
+        border-bottom-right-radius: 3px !important;
+        border: 1px solid #ccc;
+        background: #fafafa;
+        background: -webkit-linear-gradient(top, #fafafa 0%, #eee 100%);
+        background: -moz-linear-gradient(top, #fafafa 0%, #eee 100%);
+        background: linear-gradient(top, #fafafa 0%, #eee 100%);
+    }
+
+.mn-handle span {
+    line-height: 2.4rem;
+    margin-left: 2.5rem;
+    font-size: 14px;
+}
+
+.mn-item > button, .mn-search > button {
+    display: block;
+    cursor: pointer;
+    float: left;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    text-indent: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    border: 0;
+    background: transparent;
+    font-size: 12px;
+    line-height: 1;
+    text-align: center;
+    font-weight: bold;
+    outline: none;
+    position: absolute !important;
+    transition: all ease-in-out .15s;
+}
+
+    .mn-item > button:before, .mn-search > button:before {
+        font-family: 'icomoon' !important;
+        width: 100%;
+        text-align: center;
+        text-indent: 0;
+        display: block;
+    }
+
+    .mn-item > button:after {
+        content: '';
+        display: unset
+    }
+
+    .mn-item > button[data-action="show"]:before {
+        content: '\e9b8';
+    }
+
+    .mn-item > button[data-action="hidden"]:before {
+        content: '\e9b7';
+    }
+
+    .mn-item > button[data-action="removed"]:before {
+        content: "\ed6a";
+    }
+
+    .mn-search > button[data-action='search'], .mn-item > button[data-action="detail"] {
+        top: 0;
+        right: 0;
+    }
+
+    .mn-item > button[data-action="removed"] {
+        top: 0;
+        right: 1.5rem;
+    }
+
+    .mn-item > button[data-action="detail"]:before {
+        content: '\e9cb';
+    }
+
+    .mn-item > button[data-action="detail-base"] {
+        top: 0;
+        right: 40px;
+    }
+
+        .mn-item > button[data-action="detail-base"]:before {
+            content: '\e914';
+        }
+
+    .mn-item > button[data-action="detail-lang"] {
+        top: 0;
+        right: 80px;
+    }
+
+        .mn-item > button[data-action="detail-lang"]:before {
+            content: '\ec93';
+        }
+
+.mn-search > button {
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    border-bottom-right-radius: .1875rem;
+    border-top-right-radius: .1875rem;
+}
+
+    .mn-search > button[data-action='search']:before {
+        content: '\e98e';
+    }
+
+.mn-placeholder,
+.mn-empty {
+    margin: 5px 0;
+    padding: 0;
+    min-height: 30px;
+    background: #f2fbff;
+    border: 1px dashed #b6bcbf;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+.mn-empty {
+    border: 1px dashed #bbb;
+    min-height: 100px;
+    background-color: #e5e5e5;
+    background-image: -webkit-linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), -webkit-linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
+    background-image: -moz-linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), -moz-linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
+    background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+}
+
+.mn-dragel {
+    position: absolute;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+    .mn-dragel > .mn-item .mn-handle {
+        margin-top: 0;
+    }
+
+    .mn-dragel .mn-handle {
+        -webkit-box-shadow: 2px 4px 6px 0 rgba(0,0,0,.1);
+        box-shadow: 2px 4px 6px 0 rgba(0,0,0,.1);
+    }
+
+@media only screen and (min-width: 700px) {
+
+    .mn {
+        float: left;
+        width: 98%;
+    }
+
+        .mn + .mn {
+            margin-left: 2%;
+        }
+}
+
+.mn-hover > .mn-handle {
+    background: #2ea8e5 !important;
+}
+
+.non-border-bottom {
+    border-bottom-left-radius: 0;
+    transition: border-bottom-left-radius 0.25s;
+    border-bottom-right-radius: 0;
+    transition: border-bottom-right-radius 0.25s;
+}
+
+
+.mark, mark {
+    background-color: yellow;
+    padding: unset !important;
+}
+
+.mn-chk-tree {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 15rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 10px;
+}
+
+.mn-chk {
+    position: relative;
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mn-chk-list {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+}
+
+    .mn-chk-list .mn-chk-list {
+        padding-left: 5px;
+    }
+
+.mn-chk-item {
+    display: block;
+    position: relative;
+    padding: 0 1rem;
+    min-height: 20px;
+    margin: 5px 0;
+}
+
+.mn-item-check {
+    display: block;
+    position: relative;
+    padding-left: 1.5rem;
+    cursor: pointer;
+    font-size: 15px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+    .mn-item-check input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+.mn-item-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    border: 1px solid #000;
+    border-radius: 2px;
+    padding: 2px;
+}
+
+.mn-item-check .fa.fa-check {
+    display: none;
+}
+
+.mn-item-check .mn-item-title-active {
+    width: 5px;
+    height: 10px;
+    display: block !important;
+}
+
+.mn-chk-footer {
+    width: 100%;
+    height: 2rem;
+    position: relative;
+}
+
+    .mn-chk-footer a {
+    }
+
+    .mn-chk-footer .btn {
+        float: right;
+    }
+
+    .mn-chk-footer a, .mn-item-check {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        position: relative;
+        position: relative;
+    }
+
+.mn-chk-btn {
+    cursor: pointer;
+    position: relative;
+    padding: .3125rem .75rem;
+    font-size: .75rem;
+    line-height: 1.6667;
+    border-radius: .125rem;
+    border: 1px solid;
+}
+
+.mn-chk-btn-right {
+    float: right;
+}
+
+.mn-chk-btn-light {
+    background-color: #fafafa;
+    border-color: #ddd;
+}
+
+.mn-chk-select {
+    position: absolute;
+    top: 0.4rem;
+    cursor: pointer;
+}

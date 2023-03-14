@@ -1,0 +1,108 @@
+﻿@model BeginingStockDataTableViewModel
+
+<form 
+    onsubmit="updateQuantity(event)" 
+    asp-action="UpdateQuantity" 
+    asp-controller="BeginingStock" 
+    callbackfn="BeginingStockSuccess()" 
+    class="form-validate-jquery" 
+    method="PUT"
+>
+    <div class="modal-header">
+        <h5 class="modal-title">Chỉnh sửa số lượng</h5>
+
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+
+        <input hidden type="text" asp-for="@Model.Year" value="@Model.Year" class="form-control" />
+        <input hidden type="text" asp-for="@Model.ProductId" value="@Model.ProductId" class="form-control" />
+        <input hidden type="text" asp-for="@Model.StockId" value="@Model.StockId" class="form-control" />
+        <input hidden type="text" asp-for="@Model.UnitId" value="@Model.UnitId" class="form-control" />
+    </div>
+
+    <div class="modal-body row">
+        <div class="col-md-6">
+            <label class="clear-fix font-weight-semibold">Đơn vị tính</label>
+            <input 
+                type="text" 
+                disabled="true" 
+                asp-for="@Model.UnitName" 
+                value="@Model.UnitName" 
+                class="form-control format-number" 
+                />
+        </div>
+        <div class="col-md-6">
+            <label for="Quantity" class="clear-fix font-weight-semibold">Số lượng tồn</label>
+            <input 
+                type="number" 
+                min="0"
+                step="1"
+                asp-for="@Model.Quantity" 
+                value="@String.Format("{0:#,##0.##}", Model.Quantity)" 
+                class="form-control format-number" 
+                />
+            <span asp-validation-for="@Model.Quantity" class="validation-invalid-label"></span>
+        </div>
+    </div>
+        
+    @*<div class="alert"></div>*@
+
+    <div class="modal-footer">
+        <button
+            type="submit" 
+            class="btn btn-success ml-1 btn-sm mr-0"
+        >
+            @EText.Update.Description() 
+            <i class="fa fa-check ml-1"></i>
+        </button>
+        <a 
+            data-dismiss="modal" 
+            class="btn btn-light ml-1 btn-sm">
+            @EText.Cancel.Description() 
+            <i class="fas fa-times mr-1"></i>
+        </a>
+    </div>
+</form>
+
+<script>
+    //Handle On Submit Event
+    function updateQuantity(event) {
+        event.preventDefault();
+
+        const form = $(event.target);
+
+        const url = form.attr('action');
+        const data = form.serializeArray();
+
+        $.ajax({
+            method: "PUT",
+            data: data,
+            url: url,
+            success: function(response) {
+                console.log(response);
+
+                // const alert = form.find(".alert");
+
+                let displayClass = 'bg-danger border-danger';
+
+                if (response.succeeded) {
+                    displayClass = 'bg-success border-success';
+                    BeginingStockSuccess();
+                }
+
+                new PNotify({
+                    title: 'Thông báo',
+                    text: response.customMessage,
+                    addclass: displayClass,
+                });
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        }); 
+    }
+</script>

@@ -1,0 +1,73 @@
+﻿@model List<MenuViewModel>
+
+@if (Model.Any())
+{
+    <div class="mn-chk-tree mn-chk-scroll">
+        <div class="mn-chk">
+            <ol id="list-page" data-type="2" class="mn-chk-list">
+                @foreach (var item in Model)
+                {
+                    <li class="mn-chk-item">
+                        @if (item.IsInMenu)
+                        {
+                            <label class="mn-item-check text-muted">
+                                @item.NavigationLabel
+                                <input checked type="checkbox" data-label="@item.NavigationLabel" data-id="@item.ReferenceId" data-type="@item.Type" data-url="@item.URL" data-inMenu=@item.IsInMenu>
+                                <span class="mn-item-title">
+                                    <i class="fa fa-check d-block"></i>
+                                </span>
+                            </label>
+                        }
+                        else
+                        {
+                            <label class="mn-item-check">
+                                @item.NavigationLabel
+                                <input type="checkbox" data-label="@item.NavigationLabel" data-id="@item.ReferenceId" data-type="@item.Type" data-url="@item.URL" data-inMenu=@item.IsInMenu>
+                                <span class="mn-item-title">
+                                    <i data-inMenu=@item.IsInMenu class="fa fa-check"></i>
+                                </span>
+                            </label>
+                        }
+                    </li>
+                }
+            </ol>
+        </div>
+    </div>
+
+    <div class="mn-chk-footer">
+        <a class="mn-chk-select" id="select_all-pages">Chọn hết</a>
+        <a class="mn-chk-btn mn-chk-btn-right mn-chk-btn-light" id="add-pages">
+            <i class="fa fa-plus mr-1"></i> Thêm vào Menu
+        </a>
+    </div>
+}
+else
+{
+    <h4 class="text-center">Không có dữ liệu ...</h4>
+}
+
+<script>
+    $(() => {
+        $(document).on("click", ".mn-item-check", function (e) {
+            checkToMenu($(this), e)
+
+            let strParentId = $(this).parent().parent().attr('id')
+
+            strParentId = '#' + strParentId
+
+            checkSelectAll(strParentId, 'select_all-pages')
+
+            e.stopImmediatePropagation()
+        })
+
+        $('#select_all-pages').on('click', function () {
+            checkAllToMenu($(this), $('#list-page'))
+        })
+
+
+        $('#add-pages').on('click', function () {
+            addToMenu($('#list-page'))
+        })
+    })
+
+</script>

@@ -1,0 +1,167 @@
+﻿<div class="modal-header">
+    <h5 class="modal-title">Supplier Contact</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body" id="fSupplierContact"></div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Supplier Contact's List</h5>
+                    <input hidden id="PId" value="@ViewBag.SupplierId">
+                </div>
+                <div class="card-body">
+                    <table id="SupplierContactTable" class="table datatable-save-state w-100">
+                        <thead>
+                            <tr>
+                                <th width="30%" class="text-center">Name</th>
+                                <th width="20%" class="text-center">Phone</th>
+                                <th width="30%" class="text-center">Position</th>
+                                <th width="10%" class="text-center">Default</th>
+                                <th width="10%"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            var SupplierContactAction = $.templates("#SupplierContactAction");
+            var $SupplierContactTable = $("#SupplierContactTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "supplierId": @ViewBag.supplierId
+                        },
+                        url: "@Url.Action("Read", "SupplierContact")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                pageLength: 10,
+                paging: true,
+                serverSide: false,
+                cache: false,
+                lengthChange: false,
+                filter: true,
+                search: true,
+                columns: [
+                    {
+                        data: "name",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "phone",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "position",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "isDefault",
+                        render: (data, type, row) => data === false ? '' : "<p class='text-info'>@Html.Raw(EText.IsDefault.Description())</p>"
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return SupplierContactAction.render({ data: data })
+                        }
+                    },
+                ],
+                columnDefs: [
+                    {
+                        className: "text-center", targets: [3,4]
+                    }
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+            ReadContactById(0);
+        });
+
+
+        var SupplierContactSuccess = function () {
+            $('#SupplierContactTable').DataTable().ajax.reload();
+            ReadContactById(0);
+        }
+
+        var SupplierContactUpdateSucess = function () {
+            var tmp = $("#SupplierContactTable").DataTable().page();
+            $('#SupplierContactTable').DataTable().ajax.reload();
+            $('#SupplierContactTable').DataTable().page(tmp).draw('page');
+            ReadContactById(0);
+        }
+
+
+        function ReadContactById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "SupplierContact")",
+                method: "GET",
+                data: {
+                    "idx": id,
+                    "supplierId": $("#PId").val()
+                },
+                success: function (data) {
+                    $("#fSupplierContact").empty();
+                    $("#fSupplierContact").html(data);
+                },
+                error: function (data) {
+                },
+            });
+        }
+
+</script>
+<script id="SupplierContactAction" type="text/x-jsrender">
+    <div class="list-icons">
+        <div class="list-icons-item dropdown">
+            <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a callbackfn="SupplierContactSuccess()" onclick="ReadContactById('{{:data.idx}}')" class="dropdown-item">
+                    <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                    @EText.Edit
+                </a>
+                <a href="#" class="dropdown-item remove-item" data-action="/SupplierContact/Delete" callbackfn="SupplierContactSuccess()" data-params='{"supplierId":"{{:data.supplierId}}","idx":"{{:data.idx}}"}'>
+                    <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                    @EText.Remove
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+

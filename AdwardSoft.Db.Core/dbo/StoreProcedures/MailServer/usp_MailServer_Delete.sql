@@ -1,0 +1,20 @@
+﻿CREATE PROCEDURE [dbo].[usp_MailServer_Delete]
+	@Id INT
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SET TRANSACTION ISOLATION LEVEL READ COMMITTED
+	--------------------------------------------------
+	BEGIN TRY
+		BEGIN TRAN;
+			DELETE FROM [dbo].[MailServer]
+			WHERE [Id] = @Id
+		COMMIT	
+		SELECT 1
+	END TRY
+	BEGIN CATCH
+		ROLLBACK;
+		SELECT 0
+		THROW;
+	END CATCH
+END

@@ -1,0 +1,212 @@
+﻿@model ReportReceivingViewModel
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";                
+    ViewData["Title"] = "Report Receiving";               
+    var Suppliers = @ViewBag.Suppliers; 
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Report Receiving</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Suppliers</label>
+                            <select id="supplier-select" class="form-control select-search" asp-items="Suppliers">
+                                <option value="0" selected>-- All --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Date</label>
+                            <div class="form-group-feedback form-group-feedback-left ">
+                                <input type="text" id="date-filter" class="form-control">
+                                <div class="form-control-feedback">
+                                    <i class="icon-calendar22"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="ReportReceivingTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="Date"></label>
+                            </th>
+                            <th>
+                                <label asp-for="No"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Supplier"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Address"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Phone"></label>
+                            </th>
+                            <th>
+                                <label asp-for="TotalQuantity"></label>
+                            </th>
+                            <th>
+                                <label asp-for="TotalAmount"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Status"></label>
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script id="ReportReceivingAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="/Report/SellingPrice?receivingReportId={{:data.id}}"  class="dropdown-item">
+                        <i class="icon-eye" data-toggle="tooltip" title=" @EText.Detail.Description()"></i>
+                        @EText.Detail.Description()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var $SupplierSelect = $('#supplier-select')
+        var $DateFilter = $('#date-filter')
+        var $ReportReceivingTable
+        var ReportReceivingAction = $.templates("#ReportReceivingAction")
+
+        $(document).ready(function () {
+            $(function () {
+                $("#titlePage").text('Report Receiving')
+            });
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.select-search').select2();
+        });
+
+        $DateFilter.daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: false,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            minDate: new Date(new Date().getFullYear(), 0, 1),
+            maxDate: new Date(new Date().getFullYear(), 11, 31),
+            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        })
+
+        $ReportReceivingTable = $("#ReportReceivingTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "date": $DateFilter.val(),
+                        "supplierId": $SupplierSelect.val()
+                    },
+                    url: "@Url.Action("ReadReceiving", "Report")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                    }
+                })
+            },
+            lengthMenu: [10, 25, 50, 75, 100],
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: true,
+            filter: true,
+            search: true,
+            order: false,
+            columns: [
+                {
+                    data: "date",
+                    render: (data, type, row) => moment(data).format('DD/MM/YYYY')
+                },
+                { data: "no" },
+                { data: "supplier" },
+                { data: "address" },
+                { data: "phone" },
+                {
+                    data: "totalQuantity",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "totalAmount",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "status",
+                    render: function (data, type, row) {
+                        if (Number(data) == 0) {
+                            return "<span class='text-warning'>@EReportReceivingStatus.Wating.Description()</span>";
+                        }
+                        else if (Number(data) == 1) {
+                            return "<span class='text-primary'>@EReportReceivingStatus.Approved.Description()</span>";
+                        }
+                        else {
+                            return "<span class='text-danger'>@EReportReceivingStatus.Trash.Description()</span>";
+                        }
+                    }
+                },
+                {
+                    data: {},
+                    render: function (data, type, row) {
+                        return (ReportReceivingAction.render({ data: data }));
+                    }
+                }
+            ],
+            //dom: 'Blfrtip',
+            language: {
+                search: '<div class="row">_INPUT_</div>',
+                searchPlaceholder: 'search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        })
+    </script>
+
+    @* ------ Events ------ *@
+
+    <script>
+        $DateFilter.on('change', function (e) {
+            $ReportReceivingTable.ajax.reload()
+        })
+
+        $SupplierSelect.on('change', function (e) {
+            $ReportReceivingTable.ajax.reload()           
+        })
+    </script>
+}

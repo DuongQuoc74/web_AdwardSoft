@@ -1,0 +1,110 @@
+﻿@model PaymentMethodViewModel
+
+@{ 
+    var isNew = Model.Id == default(int);
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+}
+
+<form asp-controller="PaymentMethod" asp-action="@action" class="form-validate-jquery form-content" id="_FormView" callbackfn="PaymentMethodSuccess()" method="@methodAction">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description()</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+            <input type="text" hidden value="@Model.Id" asp-for="@Model.Id" />
+        }
+    </div>
+    <div class="modal-body row">      
+        <div class="col-md-12">
+            <label asp-for="Name" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <input type="hidden" asp-for="@Model.Icon" value="@Model.
+                   " class="form-control" />
+            <label class="clear-fix font-weight-semibold" asp-for="@Model.Icon"></label>
+            <div class="card-img-actions d-inline-block mb-3">
+                <label for="img" style="width:100%;height:auto;overflow:hidden">
+                    @if (string.IsNullOrEmpty(Model.Icon))
+                    {
+                        <img id="Image-preview" alt="Responsive image" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_17374739f96%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_17374739f96%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2274.421875%22%20y%3D%22104.5%22%3E200x200%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" class="img-fluid" width="100%" height="100px;">
+                    }
+                    else
+                    {
+                        <img id="Image-preview" alt="Responsive image" src="@Model.Icon" class="img-fluid" width="100%" height="100px">
+                    }
+                </label>
+                <div class="card-img-actions-overlay">
+                    <a href="#" class="btn btn-outline bg-white text-white btn-icon ml-2">
+                        <i class="icon-image4">
+                            <span class="fileUpload">
+                                <span class="upl" id="upload"></span>
+                                <input id="img" type="file" class="upload up" value="@Model.IconFile" accept="image/*" asp-for="@Model.IconFile" />
+                                <input type="hidden" id="ImageShow" asp-for="@Model.IconFile" value="@Model.IconFile" class="form-control" readonly>
+                            </span>
+                        </i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-end align-items-center clear-fix">
+                <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+                @if (isNew)
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+
+    var GetImage = ($file, $target) => {
+        let file = $file.get(0).files[0]
+
+        if (file) {
+            let fileType = file["type"]
+            PreviewImage(file, $target)
+        }
+    }
+
+    var PreviewImage = ($file, $target) => {
+        let reader = new FileReader
+        let image = new Image
+
+        reader.readAsDataURL($file)
+
+        reader.onload = (_file) => {
+            image.src = _file.target.result
+            image.onload = () => {
+                $target.attr('src', _file.target.result)
+            }
+        }
+    }
+
+    $(document).on("change", "#img", function (e) {
+        $("#ImageShow").val(e.target.files[0].name)
+        GetImage($(this), $('#Image-preview'))
+    })
+
+</script>

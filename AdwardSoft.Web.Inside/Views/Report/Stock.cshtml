@@ -1,0 +1,176 @@
+﻿@model ReportStockViewModel
+@{ 
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Report Stock";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Report Stock</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+ 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Date</label>
+                            <div class="form-group-feedback form-group-feedback-left ">
+                                <input type="text" id="date-filter" class="form-control">
+                                <div class="form-control-feedback">
+                                    <i class="icon-calendar22"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="ReportStockTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="Barcode"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Name"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Unit"></label>
+                            </th>
+                            <th>
+                                <label asp-for="BeginingStock"></label>
+                            </th>
+                            <th>
+                                <label asp-for="ImportStock"></label>
+                            </th>
+                            <th>
+                                <label asp-for="ExportStock"></label>
+                            </th>
+                            <th>
+                                <label asp-for="EndingStock"></label>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var $DateFilter = $('#date-filter')
+        var $ReportStockTable
+
+        $(document).ready(function () {
+            $(function () {
+                $("#titlePage").text('Report Stock')
+            });
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.select-search').select2();
+        }); 
+
+        $DateFilter.daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: false,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            minDate: new Date(new Date().getFullYear(), 0, 1),
+            maxDate: new Date(new Date().getFullYear(), 11, 31),
+            startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+            endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        })
+
+        $ReportStockTable = $("#ReportStockTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "date": $DateFilter.val()
+                    },
+                    url: "@Url.Action("ReadStock", "Report")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                    }
+                })
+            },
+            lengthMenu: [10, 25, 50, 75, 100],
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: true,
+            filter: true,
+            search: true,
+            order: false,
+            columns: [
+
+                { data: "barcode" },
+                {
+                    data: {},
+                    render: function (data, type, row) {
+                        if (Number(data.endingStock) < 0 ) {
+                            return "<span class='text-danger'>" + data.name + "</span>";
+                        }
+                        else if (Number(data.endingStock) == 0) {
+                            return "<span class='text-warning'>" + data.name + "</span>";
+                        }
+                        else {
+                            return "<span class='text-primary'>" + data.name + "</span>";
+                        }
+                    }
+                },
+                { data: "unit" },
+                {
+                    data: "beginingStock",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "importStock",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: "exportStock",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: {},
+                    render: (data, type, row) => FormatCurrency(data.endingStock)
+                }
+            ],
+            //dom: 'Blfrtip',
+            language: {
+                search: '<div class="row">_INPUT_</div>',
+                searchPlaceholder: 'search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        })
+    </script>
+
+    @* ------ Events ------ *@
+
+    <script>
+        $DateFilter.on('change', function (e) {
+            $ReportStockTable.ajax.reload()
+        })
+    </script>
+}

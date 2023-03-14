@@ -1,0 +1,354 @@
+﻿@using AdwardSoft.Web.Inside.TagHelpers
+@model List<MenuViewModel>
+@{
+    ViewData["Title"] = "Menu";
+}
+
+@section StyleSheet{
+    <link href="~/lib/menutable/menutable.css" rel="stylesheet" />
+    <style>
+        .mn-handle-details.show {
+            max-height: 20rem;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-4">
+        @foreach (var item in ViewBag.Titles)
+        {
+            <div class="col-md-12">
+                <div class="card card-collapsed">
+                    <div class="card-header header-elements-inline bg-grey-300">
+                        <h6 class="card-title">@item</h6>
+                        <div class="header-elements">
+                            <div class="list-icons">
+                                <a class="list-icons-item" data-action="collapse"></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" id="view_@item" style="display: none;">
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-8">
+        <div class="card" style="margin-bottom: unset !important">
+            <div class="card-header header-elements-inline">
+                <h4 class="card-title">Danh sách menu - <b>@ViewBag.Language.Name</b></h4>
+                <input id="lang-code" hidden value="@ViewBag.Language.Code" />
+                <div class="form-group"></div>
+                <div class="row">
+                    <div class="col-md-auto float-right">
+                        <label class="clear-fix font-weight-semibold">Nhóm menu</label>
+                        <select id="menu-group-select" class="form-control select" asp-items="@ViewBag.MenuGroups">
+                            @if (ViewBag.MenuGroups == null)
+                            {
+                                <option value="0">-- Không có nhóm menu --</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="col-md-12" id="menu-Table" style="height: 26rem;">
+                    
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-end align-items-center">
+                    <a href="#" onclick="Sort()" class="btn btn-sm btn-success">Lưu thay đổi<i class="fa fa-check ml-1"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/menutable/jquery.menutable.js"></script>
+
+    <script>
+        let $menuGroupSelect = $('#menu-group-select')
+
+        $(() => {
+            loadBody($menuGroupSelect.val())
+
+            loadPage($menuGroupSelect.val())
+            loadPost($menuGroupSelect.val())
+            loadCategory($menuGroupSelect.val())
+            loadCustom($menuGroupSelect.val())
+
+
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.select-search').select2()
+            $('#menutable').menutable()
+        })
+
+        var rebindValidation = () => {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $('.select').select2({
+                    minimumResultsForSearch: Infinity
+                })
+                $('.select-search').select2()
+                $.validator.unobtrusive.parse($form)
+            });
+        }
+
+        let loadBody = (menuGroupId) => {
+            $.ajax({
+                url: "@Url.Action("_TagHelperBody", "Menu")",
+                method: "GET",
+                data: { "menuGroupId": menuGroupId },
+                success: function (data) {
+                    $("#menu-Table").empty()
+                    $("#menu-Table").html(data)
+
+                    $('#menutable').menutable()
+                },
+                error: function (data) {
+                    console.log("lỗi")
+                },
+            })
+        }
+
+        let loadPage = (menuGroupId) => {
+            $.ajax({
+                url: "@Url.Action("_Page", "Menu")",
+                method: "GET",
+                data: { "menuGroupId": menuGroupId },
+                success: function (data) {
+                    $('#view_Page').html(data)
+                },
+                error: function (data) {
+                    console.log("lỗi")
+                },
+            })
+        }
+
+        let loadPost = (menuGroupId) => {
+            $.ajax({
+                url: "@Url.Action("_Post", "Menu")",
+                method: "GET",
+                data: { "menuGroupId": menuGroupId },
+                success: function (data) {
+                    $('#view_Post').html(data)
+                },
+                error: function (data) {
+                    console.log("lỗi")
+                },
+            })
+        }
+
+        let loadCategory = (menuGroupId) => {
+            $.ajax({
+                url: "@Url.Action("_Category", "Menu")",
+                method: "GET",
+                data: { "menuGroupId": menuGroupId },
+                success: function (data) {
+                    $('#view_Category').empty()
+                    $('#view_Category').html(data)
+                },
+                error: function (data) {
+                    console.log("lỗi")
+                },
+            })
+        }
+
+        let loadCustom = (menuGroupId) => {
+            $.ajax({
+                url: "@Url.Action("_Custom", "Menu")",
+                method: "GET",
+                data: {
+                    "menuGroupId": menuGroupId
+                },
+                success: function (data) {
+                    $('#view_Custom').html(data)
+                },
+                error: function (data) {
+                    console.log("lỗi")
+                },
+            })
+        }
+
+        let Collapse = (id) => {
+            let div = $(".mn-handle-details[data-id='handleCollapse-" + id + "']")
+            div.removeClass("show");
+            div.one("transitionend", function () {
+                div.empty();
+            });
+        }
+
+        let Submit = (action, method, id) => {z
+            if ($("#_FormView-" + id).valid()) {
+                var data = $("#_FormView-" + id).serializeArray()
+                $.ajax({
+                    url: "Menu/" + action,
+                    method: method,
+                    displaysetings: {
+                        success: false,
+                        error: true,
+                        showIndicator: true,
+                        hideIndicator: true
+                    },
+                    data: data,
+                    success: function (data) {
+                        if (data.succeeded)
+                            setTimeout(function () { location.reload(); }, 500)
+                    }
+                })
+            }
+        }
+
+        let Sort = () => {
+            var json = $('.mn').menutable('serialize');
+            $.ajax({
+                url: "@Url.Action("Sort", "Menu")",
+                method: "POST",
+                data: { "json": JSON.stringify(json) },
+                dataType: "json",
+                success: function (data) {
+                    swal({
+                        title: "Thành công!",
+                        text: "Sắp xếp thành công",
+                        type: "success"
+                    }).then(function (check) {
+                        if (check.value) {
+                            loadBody($menuGroupSelect.val())
+                        }
+                    })
+                },
+                error: function (error) {
+                    swal({
+                        title: "Lỗi!",
+                        text: "Sắp xếp thất bại",
+                        type: "warning"
+                    })
+                }
+            })
+        }
+
+        $menuGroupSelect.on('change', function () {
+            menuGroupChange()
+        })
+
+        let checkToMenu = function ($target, e) {
+            e.stopPropagation()
+            e.preventDefault()
+
+            if ($target.hasClass("text-muted")) {
+                return
+            }
+
+            let $i = $target.find('i')
+            let $input = $target.find('input')
+
+            if ($input.is(':checked'))
+                $input.attr('checked', false)
+            else
+                $input.attr('checked', true)
+
+            $i.toggleClass('d-block')
+        }
+
+        let checkSelectAll = (strParentId, target) => {
+            if ($(strParentId + ' .mn-item-check:not(.text-muted) input:checked').length === 0) {
+                document.getElementById(target).innerHTML = 'Chọn hết'
+                document.getElementById(target).classList.remove('selected-all')
+            }
+
+            if ($(strParentId + ' .mn-item-check:not(.text-muted) input:unchecked').length === 0) {
+                document.getElementById(target).innerHTML = 'Hủy hết'
+                document.getElementById(target).classList.add('selected-all')
+            }
+        }
+
+        let checkAllToMenu = ($parent, $target) => {
+            let $li = $target.find('.mn-chk-item')
+
+            $.each($li, function (index, value) {
+                let $i = $(value).find('i')
+                let $input = $(value).find('input')
+                if ($input.attr("data-inMenu") === "False") {
+                    if ($parent.hasClass('selected-all')) {
+                        $input.attr('checked', false)
+                        $i.removeClass('d-block')
+                    } else {
+                        $input.attr('checked', true)
+                        $i.addClass('d-block')
+                    }
+                }
+            })
+
+            if ($parent.hasClass('selected-all')) {
+                $parent.text("Chọn hết")
+            } else {
+                $parent.text("Hủy hết")
+            }
+
+            $parent.toggleClass('selected-all')
+        }
+
+        let addToMenu = ($target) => {
+            let $list = $target.find('input:checked')
+            let arr = []
+            let type = $target.data('type')
+
+            $.each($list, function (index, value) {
+                if ($(value).attr("data-inMenu") === "False") {
+                    arr.push({
+                        referenceId: $(value).data('id'),
+                        label: $(value).data('label'),
+                        uRL: $(value).data('url'),
+                        type: $(value).data('type'),
+                        languageCode: $('#lang-code').val(),
+                        menuGroupId: $menuGroupSelect.val()
+                    })
+                }   
+            })
+
+            $.ajax({
+                url: '@Url.Action("Create","Menu")',
+                method: "POST",
+                data: {
+                    "json": JSON.stringify(arr)
+                },
+                success: function (data) {
+                    if (data.succeeded) {
+                        loadBody($menuGroupSelect.val())
+                        switch (type) {
+                            case 0: loadPage($menuGroupSelect.val())
+                                break
+                            case 1: loadPost($menuGroupSelect.val())
+                                break
+                            case 2: loadCategory($menuGroupSelect.val())
+                                break
+                            case 3: loadCustom($menuGroupSelect.val())
+                                break
+                        }
+                    }
+                }
+            })
+        }
+
+        let menuGroupChange = () => {
+            MenuSuccess()
+        }
+
+        let MenuSuccess = () => {
+            loadBody($menuGroupSelect.val())
+
+            loadPage($menuGroupSelect.val())
+            loadPost($menuGroupSelect.val())
+            loadCategory($menuGroupSelect.val())
+            loadCustom($menuGroupSelect.val())
+        }
+
+    </script>
+}

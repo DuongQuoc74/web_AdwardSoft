@@ -1,0 +1,324 @@
+﻿@model ProductDataViewModel
+
+@{ var isNew = Model.Id == default(int);
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+    string textAction = isNew ? EText.Create.Description() : EText.Update.Description();
+}
+<style>
+    .adsTable {
+        display: flex;
+        flex-flow: column;
+        height: 225px;
+        width: 100%;
+    }
+
+        .adsTable thead {
+            flex: 0 0 auto;
+        }
+
+        .adsTable tbody {
+            flex: 1 1 auto;
+            display: block;
+            overflow-y: auto;
+        }
+
+            .adsTable tbody tr {
+                width: 100%;
+            }
+
+            .adsTable thead,
+            .adsTable tbody tr {
+                display: table;
+                table-layout: fixed;
+            }
+
+   
+</style>
+<form class="form-validate-jquery" asp-action="@action" asp-controller="Product" callbackfn="ProductSuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        <h5 class="modal-title">@textAction</h5>
+    </div>
+    <div class="modal-body row">
+        <input asp-for="@Model.Id" type="hidden" value="@Model.Id">
+        <input asp-for="@Model.Image" type="hidden" value="@Model.Image">
+        <div class="col-md-12 row">
+            <div class="col-md-6">
+                <label class="clear-fix font-weight-semibold" asp-for="@Model.Image"></label>
+                <div class="card-img-actions d-inline-block mb-3">
+                    <label for="img" style="width:100%;height:auto;overflow:hidden">
+                        @if (string.IsNullOrEmpty(Model.Image))
+                        {
+            <img id="ProductImage-preview" alt="Responsive image" src="~/images/product.png" class="img-fluid" width="200" height="200"> }
+        else
+        {
+    <img id="ProductImage-preview" alt="Responsive image" src="~/file/Product/@Model.Image" class="img-fluid" width="200" height="200" style="max-width:200px;">}
+                    </label>
+                    <div class="card-img-actions-overlay">
+                        <a href="#" class="btn btn-outline bg-white text-white btn-icon ml-2">
+                            <i class="icon-image4">
+                                <span class="fileUpload">
+                                    <span class="upl" id="upload"></span>
+                                    <input id="img" type="file" class="upload up" value="@Model.ImgFile" accept="image/*" asp-for="@Model.ImgFile" />
+                                    <input type="hidden" id="ProductImageShow" asp-for="@Model.ImgFile" value="@Model.ImgFile" class="form-control" readonly>
+                                </span>
+                            </i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="col-md-12">
+                    <label asp-for="@Model.Code" class="clear-fix font-weight-semibold ads-control"></label>
+                    <input asp-for="@Model.Code" value="@Model.Code" type="text" class="form-control" onkeypress="return _codeKeyPressHandler(event)">
+                    <span asp-validation-for="@Model.Code" class="validation-invalid-label"></span>
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="@Model.Name" class="clear-fix font-weight-semibold ads-control"></label>
+                    <input asp-for="@Model.Name" value="@Model.Name" type="text" class="form-control">
+                    <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="Description" class="clear-fix font-weight-semibold ads-control"></label>
+                    <textarea rows="5"asp-for="@Model.Description" value="@Model.Description" class="form-control"></textarea>
+                    <span asp-validation-for="@Model.Description" class="validation-invalid-label"></span>
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="@Model.CategoryId" class="clear-fix font-weight-semibold"></label>
+                    <select class="form-control select" asp-for="@Model.CategoryId" asp-items="@ViewBag.Categories">
+                    </select>
+                    <span asp-validation-for="@Model.CategoryId" class="validation-invalid-label"></span>
+                </div>
+                <div class="form-group col-md-12">
+                    <div class="row">
+                        <div class=" col-md-6">
+                            <label asp-for="@Model.PriceType" class="clear-fix font-weight-semibold"></label>
+                            <select class="form-control select" asp-for="@Model.CategoryId">
+                                <option value="0">Theo lượng đăng ký</option>
+                                <option value="1">Theo lượng thực giao</option>
+                            </select>
+                        </div>
+                        <div class=" col-md-6">
+                            <label asp-for="@Model.IsTrade" class="clear-fix font-weight-semibold"></label>
+                            <div class="form-check form-check-switch form-check-switch-left mt-1">
+                                <label class="form-check-label d-flex align-items-center">
+                                    <input asp-for="@Model.IsTrade" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>               
+            </div>
+        </div>
+
+        <div class="col-md-12 row">
+            <div class="col-md-6">
+                <div class="col-md-12">
+                    <label asp-for="@Model.UnitId" class="clear-fix font-weight-semibold ads-control"></label>
+                    <select class="form-control select" asp-for="@Model.UnitId" asp-items="@ViewBag.Units">
+                    </select>
+                    <span asp-validation-for="@Model.UnitId" class="validation-invalid-label"></span>
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="@Model.MinStock" class="clear-fix font-weight-semibold ads-control"></label>
+                    <input asp-for="@Model.MinStock" value="@String.Format("{0:#,##0.##}", Model.MinStock)" type="text" class="form-control format-Currency">
+                    <span asp-validation-for="@Model.MinStock" class="validation-invalid-label"></span>
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="@Model.Profit" class="clear-fix font-weight-semibold ads-control"></label>
+                    <input asp-for="@Model.Profit" value="@String.Format("{0:#,##0.##}", Model.Profit)" type="text" class="form-control format-Currency">
+                    <span asp-validation-for="@Model.Profit" class="validation-invalid-label"></span>
+                </div>
+                @*<div class="col-md-12">
+            <label asp-for="@Model.WholesalePrice" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.WholesalePrice" value="@String.Format("{0:#,##0.##}", Model.WholesalePrice)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.WholesalePrice" class="validation-invalid-label"></span>
+        </div>*@
+            </div>
+            <div class="col-md-6">
+                <div class="col-md-12">
+                    <label asp-for="@Model.StockId" class="clear-fix font-weight-semibold ads-control"></label>
+                    <select class="form-control" asp-for="@Model.StockId" asp-items="@ViewBag.Stocks">
+                    </select>
+                    <span asp-validation-for="@Model.StockId" class="validation-invalid-label"></span>
+                </div>
+                <div class="col-md-12">
+                    <label asp-for="@Model.MaxStock" class="clear-fix font-weight-semibold"></label>
+                    <input asp-for="@Model.MaxStock" value="@String.Format("{0:#,##0.##}", Model.MaxStock)" type="text" class="form-control format-Currency">
+                    <span asp-validation-for="@Model.MaxStock" class="validation-invalid-label"></span>
+                </div>
+                <div class=" col-md-12">
+                    <label asp-for="@Model.Status" class="clear-fix font-weight-semibold"></label>
+                    <select class="form-control select" asp-for="@Model.Status" disabled>
+                        <option value="0">@EProductStatus.Unavailable.Description()</option>
+                        <option value="1">@EProductStatus.Display.Description()</option>
+                        <option value="2">@EProductStatus.Pause.Description()</option>
+                        <option value="3">@EProductStatus.Remove.Description()</option>
+                    </select>
+                </div>
+                @*<div class="col-md-12">
+            <label asp-for="@Model.RetailPrice" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.RetailPrice" value="@String.Format("{0:#,##0.##}", Model.RetailPrice)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.RetailPrice" class="validation-invalid-label"></span>
+        </div>*@
+            </div>
+        </div>
+    <div class="modal-footer row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-end align-items-center clear-fix">
+                <a href="#" data-dismiss="modal" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+                <button type="button" onclick="_submitForm()" class="btn btn-success ml-1 btn-sm mr-0">@textAction<i class="fa fa-check ml-1"></i></button>
+                <button hidden id="btnSubmitProduct" type="submit"></button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        })
+
+        $('.select-search').select2()
+        setTimeout(rebindValidation, 500)
+
+        var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'));
+
+        elems.forEach(function (html) {
+            var switchery = new Switchery(html);
+        });
+        $('#tamplateTmpTable').hide();
+    })
+
+    function _codeKeyPressHandler(event) {
+        return (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 65 && event.charCode <= 90) || (event.charCode >= 97 && event.charCode <= 122)
+    }
+
+    function _submitForm() {     
+        if (_checkDuplicateUnit() == true) {
+            $("#btnSubmitProduct").click();
+        } else {
+            swal({
+                title: 'Warning!!',
+                text: "Unit in unit selling's list have duplicate or duplicate with main unit product !! ",
+                type: 'warning',
+                showCancelButton: false,
+                showConfirmButton: false,
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary',
+                cancelButtonClass: 'btn btn-light'
+            })
+        }
+     
+        
+    }
+
+    function _checkDuplicateUnit() {
+        var flag = true;
+        $.each($("#divAddTmp > tr"), function (i, item) {
+            var id = item.id.charAt(11);  
+            var selectUnit0 = $("#UnitId").val();
+            var selectUnit = $("#UnitPrice_" + id + "__UnitId").val();
+
+            if (selectUnit0 == selectUnit) {
+              
+                flag = false;
+            }
+            $.each($("#divAddTmp > tr"), function (i2, item2) {
+                var id2 = item2.id.charAt(11);            
+                var selectUnit2 = $("#UnitPrice_" + id2 + "__UnitId").val();
+               
+                if (id != id2 && selectUnit == selectUnit2) {
+                   
+                    flag = false;
+                }
+            });
+        });
+     
+        return flag;
+    }
+
+    String.prototype.compose = (function () {
+        var re = /\{{(.+?)\}}/g;
+        return function (o) {
+            return this.replace(re, function (_, k) {
+                return typeof o[k] != 'undefined' ? o[k] : '';
+            });
+        }
+    }());
+
+  
+    $('#btnAdd').click(function () {   
+        var countTmpList = $("#divAddTmp > tr").length;
+        var id = countTmpList;
+        $('#tamplateTmpTable').show();
+        var div = document.getElementById('tamplateTmp');
+        var clone = div.cloneNode(true); // true means clone all childNodes and all event handlers
+        $('#tamplateTmpTable').hide();
+        var idTmp = "TmpContent_" + id
+        clone.id = idTmp;
+        $.each($(clone).find("*[name]"), function (i, item) {
+            var nameOld = $(item).attr("name");
+            var nameNew = nameOld.replace("[0]", "[" + id + "]");
+            $(item).attr("name", nameNew);
+        });
+        $.each($(clone).find("*[class]"), function (i, item) {
+            var nameOld = $(item).attr("class");
+            var nameNew = nameOld.replace("[0]", "[" + id + "]");
+            $(item).attr("class", nameNew);
+        });
+        $.each($(clone).find("*[id]"), function (i, item) {
+            var nameOld = $(item).attr("id");
+            var nameNew = nameOld.replace("_0__", "_" + id + "__");
+            $(item).attr("id", nameNew);
+        });
+        $.each($(clone).find("*[data-valmsg-for]"), function (i, item) {
+            var nameOld = $(item).attr("data-valmsg-for");
+            var nameNew = nameOld.replace("[0]", "[" + id + "]");
+            $(item).attr("data-valmsg-for", nameNew);
+        });
+        $('#divAddTmp').append(clone);
+        $("#" + idTmp).show();
+        $(clone).find("span.select2").remove();
+        $(clone).find("select.select").removeClass("select2-hidden-accessible");
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+    })
+
+    $("#adsTableTmp").on("click", "#DeleteButton", function () {
+        $(this).closest("tr").remove();
+        var count = 0;
+        $.each($("#divAddTmp > tr"), function (i, item) {
+            var id = item.id;
+            var oldId = id.charAt(11)
+            var newId = i;
+            $.each($("#" + id).find("*[name]"), function (i, item) {
+                var nameOld = $(item).attr("name");
+                var nameNew = nameOld.replace("[" + oldId + "]", "[" + newId + "]");
+                $(item).attr("name", nameNew);
+            });
+            $.each($("#" + id).find("*[class]"), function (i, item) {
+                var nameOld = $(item).attr("class");
+                var nameNew = nameOld.replace("[" + oldId + "]", "[" + newId + "]");
+                $(item).attr("class", nameNew);
+            });
+            $.each($("#" + id).find("*[id]"), function (i, item) {
+                var nameOld = $(item).attr("id");
+                var nameNew = nameOld.replace("_" + oldId + "__", "_" + newId + "__");
+                $(item).attr("id", nameNew);
+            });
+            $.each($("#" + id).find("*[data-valmsg-for]"), function (i, item) {
+                var nameOld = $(item).attr("data-valmsg-for");
+                var nameNew = nameOld.replace("[" + oldId + "]", "[" + newId + "]");
+                $(item).attr("data-valmsg-for", nameNew);
+            });
+            document.getElementById(id).setAttribute("id", "tmpContent_" + newId);
+            count++;
+        });
+    });
+</script>
+

@@ -1,0 +1,92 @@
+﻿@model AdwardSoft.Web.Inside.Models.EmployeeSalaryViewModel
+@{ 
+    bool isNew = (ViewBag.isNew == 0) ? true : false;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+}
+
+<form class="form-validate-jquery form-content" asp-action="@action" asp-controller="EmployeeSalary" callbackfn="EmployeeSalarySuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <input asp-for="@Model.EmployeeId" type="hidden" value="@Model.EmployeeId">
+        <input id="DateMin" type="hidden" value="@ViewBag.DateMin">
+        <div class="col-md-12">
+            <label asp-for="@Model.EffectiveDate" class="clear-fix font-weight-semibold ads-control"></label>
+            <div class="form-group-feedback form-group-feedback-left">
+                <input type="text" asp-for="@Model.EffectiveDateStr" value="@Model.EffectiveDate.ToString("dd/MM/yyyy")" class="form-control daterange">
+                <div class="form-control-feedback">
+                    <i class="icon-calendar22"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.BasicSalary" class="clear-fix font-weight-semibold ads-control"></label>
+            <input asp-for="@Model.BasicSalary" value="@String.Format("{0:#,##0.##}", Model.BasicSalary)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.BasicSalary" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Type" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" asp-items="@Html.GetEnumSelectList<EEmployeeSalaryType>()" asp-for="Type">
+            </select>
+            <span asp-validation-for="@Model.Type" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Wage" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" asp-items="@Html.GetEnumSelectList<EEmployeeSalaryWage>()" asp-for="Wage">
+            </select>
+            <span asp-validation-for="@Model.Wage" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.ActualWage" class="clear-fix font-weight-semibold ads-control"></label>
+            <input asp-for="@Model.ActualWage" value="@String.Format("{0:#,##0.##}", Model.ActualWage)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.ActualWage" class="validation-invalid-label"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">Cancel <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+
+        var from = $("#DateMin").val();
+        var datePart = from.split("-"); 
+        var minDate = new Date(datePart[0], Number(datePart[1]) - 1, datePart[2]);
+        $('.daterange').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: true,
+            timePicker: false,
+            minDate: minDate,
+            autoclose: true,
+            opens: 'right',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    });
+</script>
+

@@ -1,0 +1,39 @@
+﻿@model MenuViewModel
+
+<form asp-action="CreateCustom" asp-controller="Menu" class="form-validate-jquery form-content" callbackfn="MenuSuccess()" method="POST">
+    <input hidden type="text" class="form-control" asp-for="@Model.MenuGroupId" id="custom-menu_group-id" />
+    <div class="clear-fix">
+        <label asp-for="NavigationLabel" class="font-weight-bold"></label>
+        <input type="text" class="form-control" asp-for="@Model.NavigationLabel" />
+        <span id="errorNavigationLabel" class="validation-invalid-label"></span>
+    </div>
+    <div class="clear-fix">
+        <label asp-for="URL" class="font-weight-bold"></label>
+        <input type="text" class="form-control" asp-for="@Model.URL" />
+        <span id="errorURL" class="validation-invalid-label"></span>
+    </div>
+    <div class="clear-fix">
+        <label asp-for="ParentId" class="font-weight-semibold"></label>
+        <select id="menu-select" class="form-control select" asp-for="@Model.ParentId" asp-items="@ViewBag.Menus">
+            <option value="0">-- Chọn --</option>
+        </select>
+    </div>
+    <div class="mn-chk-footer">
+        <button type="submit" class="mn-chk-btn mn-chk-btn-right mn-chk-btn-light">
+            <i class="fa fa-plus mr-1"></i>Thêm vào Menu
+        </button>
+    </div>
+
+    <script>
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        })
+        $('.select-search').select2()
+    </script>
+</form>
+        
+<script>
+    $(() => {
+        $('#custom-menu_group-id').val($menuGroupSelect.val())
+    })
+</script>

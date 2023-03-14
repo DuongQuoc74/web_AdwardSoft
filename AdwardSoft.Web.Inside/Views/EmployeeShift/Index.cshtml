@@ -1,0 +1,260 @@
+﻿@{ ViewData["Title"] = "EmployeeShift"; }
+@model AdwardSoft.Web.Inside.Models.EmployeeShiftDataTableViewModel
+<div class="row">
+    <div class="col-4">
+        <div class="card">
+            <div class="card-body" id="fEmployeeShift"></div>
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">EmployeeShift's List</h5>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Type</label>
+                            <select class="form-control select" asp-items="@(new SelectList(ViewBag.ShiftsSelect, "Id", "Text"))" id="ShiftSelect">
+                                <option value="0">-- All --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-bold">Employee</label>
+                            <select class="form-control" id="EmployeeSelect">
+                                <option value="0">-- All --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Date</label>
+                            <div class="form-group-feedback form-group-feedback-left">
+                                <input type="text" value="@DateTime.Now.ToString("dd/MM/yyyy")" class="form-control daterange" id="DateSelect">
+                                <div class="form-control-feedback">
+                                    <i class="icon-calendar22"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="EmployeeShiftTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                <label asp-for="ShiftName"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="EmployeeName"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="EmployeeCode"></label>
+                            </th>
+                            <th width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        $('.daterange').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: true,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+        $(document).ready(function () {
+            $("#titlePage").text('EmployeeShift')
+            var EmployeeShiftAction = $.templates("#EmployeeShiftAction");
+            var $EmployeeShiftTable = $("#EmployeeShiftTable").DataTable({
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "model": data,
+                            "shiftId": $("#ShiftSelect").val(),
+                            "employeeId": $("#EmployeeSelect").val(),
+                            "date": $("#DateSelect").val()
+                        },
+                        url: "@Url.Action("Read", "EmployeeShift")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal })
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                processing: true,
+                responsive: true,
+                pageLength: 10,
+                paging: true,
+                serverSide: true,
+                cache: false,
+                lengthChange: false,
+                filter: true,
+                search: true,
+                columns: [
+                    {
+                        data: "shiftName",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "employeeName",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "employeeCode",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return EmployeeShiftAction.render({ data: data })
+                        }
+                    },
+                ],
+                columnDefs: [
+                    //{
+                    //    className: "text-center", targets: [1,2,3]
+                    //}
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+            ReadById(0);
+        });
+
+
+        var EmployeeShiftSuccess = function () {
+            $('#EmployeeShiftTable').DataTable().ajax.reload();
+            ReadById(0);
+        }
+
+        var EmployeeShiftUpdateSucess = function () {
+            var tmp = $("#EmployeeShiftTable").DataTable().page();
+            $('#EmployeeShiftTable').DataTable().ajax.reload();
+            $('#EmployeeShiftTable').DataTable().page(tmp).draw('page');
+            ReadById(0);
+        }
+
+        $(document).on("change", "#ShiftSelect", function (e) {
+            EmployeeShiftSuccess();
+        });
+
+        $(document).on("change", "#EmployeeSelect", function (e) {
+            EmployeeShiftSuccess();
+        });
+
+        $(document).on("change", "#DateSelect", function (e) {
+            EmployeeShiftSuccess();
+        });
+
+        function ReadById( employeeId,  shiftId,  year,  month) {
+            $.ajax({
+                url: "@Url.Action("_Form", "EmployeeShift")",
+                method: "GET",
+                data: {
+                    "employeeId": employeeId,
+                    "shiftId": shiftId,
+                    "year": year,
+                    "month": month,
+                },
+                success: function (data) {
+                    $("#fEmployeeShift").empty();
+                    $("#fEmployeeShift").html(data);
+                },
+                error: function (data) {
+                },
+            });
+        }
+
+        $('#EmployeeSelect').select2(
+            {
+                ajax: {
+                    delay: 150,
+                    url: '@Url.Action("Search", "Employee")',
+                    dataType: 'json',
+                    data: function (params) {
+                        params.page = params.page || 1;
+                        return {
+                            searchTerm: params.term,
+                            pageSize: 10,
+                            pageNumber: params.page,
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: $.map(data.items, function (obj) {
+                                return {
+                                    id: obj.id,
+                                    text: obj.text
+                                };
+                            }),
+                            pagination: {
+                                more: (params.page * 10) < data.total
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                placeholder: "-- Select --",
+                minimumInputLength: 0,
+                allowClear: true,
+            }
+        );
+
+    </script>
+    <script id="EmployeeShiftAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a onclick="ReadById('{{:data.employeeId}}','{{:data.shiftId}}','{{:data.year}}','{{:data.month}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                        @EText.Edit
+                    </a>
+                    <a href="#" class="dropdown-item remove-item" data-action="/EmployeeShift/Delete" callbackfn="EmployeeShiftSuccess()" data-params='{"employeeId":"{{:data.employeeId}}","shiftId":"{{:data.shiftId}}","year":"{{:data.year}}","month":"{{:data.month}}"}'>
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        @EText.Remove
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+}
+

@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewData["Title"] = "Checkout counter";
+}
+
+<div class="row">
+    <div class="col-3">
+        <div class="card" id="_Form">
+
+        </div>
+    </div>
+    <div class="col-9">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Checkout counter list</h5>
+            </div>
+            <div class="card-body">
+                <table id="CheckoutCounterTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label>Name</label>
+                            </th>
+                            <th>
+                                <label>Status</label>
+                            </th>
+                            <th class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script id="CheckoutCounterAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @* -- Edit -- *@
+                    <a onclick="ReadById('{{:id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.GetDescription()"></i>
+                        @EText.Edit.GetDescription()
+                    </a>
+                    @* -- Remove -- *@
+                    <a data-action="/CheckoutCounter/Delete" callbackfn="CheckoutCounterSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+                        @EText.Remove.GetDescription()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+
+        var $CheckoutCounterTable
+        var CheckoutCounterAction = $.templates("#CheckoutCounterAction")
+
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500)
+            ReadById(0)
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+
+            $('.select-search').select2()
+        }
+
+        $CheckoutCounterTable = $("#CheckoutCounterTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    url: "@Url.Action("Read", "CheckoutCounter")",
+                    method: "GET",
+                    success: function (response) {
+                        callback({ data: response })
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            columns: [
+                { data: "name" },
+                {
+                        data: "status",
+                        render: (data, type, row) => data === 0 ? '<p class="text-danger">@EStatus.Unavailable</p>' : '<p class="text-success">@EStatus.Available</p>'
+                },
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return (CheckoutCounterAction.render({ id: data }))
+                    }
+                },
+            ],
+            language: {
+                search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.GetDescription()",
+                zeroRecords: "@EText.EmptyTable.GetDescription()",
+                infoFiltered: "",
+                processing: "@EText.Processing.GetDescription()",
+            }
+        })
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "CheckoutCounter")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#_Form").empty().html(data)
+                    rebindValidation()
+                }
+            })
+        }
+
+        var CheckoutCounterSuccess = function () {
+            $CheckoutCounterTable.ajax.reload()
+            ReadById(0)
+        }
+
+    </script>
+}

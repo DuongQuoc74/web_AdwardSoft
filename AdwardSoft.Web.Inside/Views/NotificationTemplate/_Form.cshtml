@@ -1,0 +1,98 @@
+﻿@model AdwardSoft.Web.Inside.Models.NotificationTemplateViewModel
+@using AdwardSoft.Provider.Common
+@{
+    ViewData["Title"] = "Mậu thông báo";
+    var action = Model.IsNew ? "Create": "Update";
+    var readOnly = Model.IsNew ? "" : "readonly";
+}
+
+<form class="form-validate-jquery" asp-action="@action" asp-controller="NotificationTemplate" callbackfn="NotificationTemplatePage.success()" method="post">
+    <div class="modal-header">
+        @if (Model.IsNew)
+        {
+            <h5 class="modal-title">Thêm mới</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">Điều chỉnh</h5>
+        }
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body row">
+
+        <input type="hidden" asp-for="@Model.Id" value="@Model.Id" class="form-control" required>
+        <input type="hidden" asp-for="@Model.Action" value="@Model.Action" class="form-control" required>
+
+        <div class="col-md-6 form-group">
+            <label class="clear-fix font-weight-semibold" asp-for="@Model.Type"></label>
+            <select asp-for="@Model.Type" value="@Model.Type" asp-items="@Html.GetEnumSelectList<ENotificationTemplateType>()" class="form-control form-control-sm select d-inline-block"></select>
+            <span asp-validation-for="@Model.Type" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-6">
+            <label asp-for="@Model.IsActive" class="clear-fix font-weight-semibold"></label>
+            <div class="form-check form-check-switch form-check-switch-left">
+                <label class="form-check-label d-flex align-items-center">
+                    <input asp-for="@Model.IsActive" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                </label>
+            </div>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="MailServerId" class="clear-fix font-weight-semibold"></label>
+            <select asp-for="@Model.MailServerId" asp-items="@ViewBag.MailServers" class="form-control select"></select>
+            <span asp-validation-for="@Model.MailServerId" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="Title" class="clear-fix font-weight-semibold"></label>
+            <input type="text" asp-for="@Model.Title" value="@Model.Title" class="form-control" />
+            <span asp-validation-for="@Model.Title" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="Content" class="clear-fix font-weight-semibold"></label>
+            <textarea rows="4" asp-for="@Model.Content" type="text" class="form-control"></textarea>
+            <span asp-validation-for="@Model.Content" class="validation-invalid-label"></span>
+        </div>
+
+    </div>
+    <div class="modal-footer position-relative">
+        <a href="#" class="btn btn-light ml-1 btn-sm text-capitalize" data-dismiss="modal" aria-label="Close">Hủy bỏ<i class="fa fa-remove ml-1"></i></a>
+        <button type="submit" class="btn btn-success ml-1 btn-sm submitFormNotificationTemplate">Cập nhật <i class="fa fa-check ml-1"></i></button>
+    </div>
+
+</form>
+
+
+<script>
+    $(document).ready(function () {
+        //// Initialize multiple switches
+        //var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'));
+        //elems.forEach(function (html) {
+        //    var switchery = new Switchery(html);
+        //});
+        //NotificationTemplatePage.validate();
+        $('form').each(function (i, f) {
+            $form = $(f);
+            $form.removeData('validator');
+            $form.removeData('unobtrusiveValidation');
+            $.validator.unobtrusive.parse($form);
+        });
+        //initTINYMCE('Content');
+        if ("@Model.IsNew" == "True") {
+            $('.select').select2();
+        }
+        else {
+            $('#Type').select2({ disabled: 'readonly' });
+            $('#MailServerId').select2();
+        }
+        $('.form-check-input-switch').bootstrapSwitch();
+    });
+</script>
+
+<script>
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'))
+
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html)
+    })
+</script>

@@ -1,0 +1,41 @@
+﻿CREATE TABLE [dbo].[CustomerOrder]
+(
+	[Id] CHAR(32) NOT NULL PRIMARY KEY, 
+    [Date] DATE NULL, 
+    [CustomerId] INT NULL, 
+    [BranchId] INT NULL, 
+    [No] CHAR(20) NULL,
+    [Description] NVARCHAR(128) NULL, 
+    [DeliveryDate] DATE NOT NULL,
+    [DeliveryPointId] INT NOT NULL,
+    [DeliveryVehicleId] INT NOT NULL,
+    [Receiver] NVARCHAR(120) NOT NULL,
+    [ReceiverPhone] VARCHAR(12) NOT NULL,
+    [ReceiverAddress] NVARCHAR(128) NOT NULL,
+    [DeliveryType] TINYINT NOT NULL,
+    [VoucherCode] VARCHAR(60) NULL, --Mã khuyến mãi
+    [Status] TINYINT NOT NULL, -- 0 : Hoàn thành đặt hàng , 1 : Đang xử lý, 2 : Đã giao hàng, 3 : Hoàn thành đơn hàng, 4: Tạm hủy
+    [IsShipping] BIT NOT NULL DEFAULT 0, 
+    [TotalQuantityReg] NUMERIC(8, 3) NOT NULL, 
+    [TotalQuantity] NUMERIC(8, 3) NOT NULL, 
+    [SubTotal] NUMERIC(16, 2) NOT NULL, 
+    [ShippingFee] NUMERIC(16, 2) NOT NULL, 
+    [TaxRate] NUMERIC(5, 2) NOT NULL, 
+    [TaxFee] NUMERIC(16, 2) NOT NULL, 
+    [TotalDiscount] NUMERIC(16, 2) NOT NULL, 
+    [TotalAmount] NUMERIC(16, 2) NOT NULL, 
+    [CreateDate] SMALLDATETIME NOT NULL, 
+    [CreatedUser] BIGINT NOT NULL, 
+    [ModifiedDate] SMALLDATETIME NOT NULL, 
+    [ModifiedUser] BIGINT NOT NULL, 
+    [PaymentDate] DATETIME NULL, 
+    [PaymentUser] BIGINT NULL, 
+    [PaymentStatus] TINYINT NOT NULL, 
+    [PaymentMethodId] INT NOT NULL, 
+    --0: Chưa thanh toán, 1: Đã thanh toán, 2: Từ chối
+    CONSTRAINT [FK_CustomerOrder_Customer] FOREIGN KEY ([CustomerId]) REFERENCES [Customer]([Id]), 
+    CONSTRAINT [FK_CustomerOrder_Branch] FOREIGN KEY ([BranchId]) REFERENCES [Branch]([Id]),
+    --CONSTRAINT [FK_CustomerOrder_DeliveryVehicle] FOREIGN KEY ([DeliveryVehicleId]) REFERENCES [DeliveryVehicle]([Id]),
+    CONSTRAINT [FK_CustomerOrder_DeliveryPoint] FOREIGN KEY ([DeliveryPointId]) REFERENCES [DeliveryPoint]([Id]),
+    CONSTRAINT [FK_CustomerOrder_PaymentMethod] FOREIGN KEY ([PaymentMethodId]) REFERENCES [PaymentMethod]([Id]) 
+)

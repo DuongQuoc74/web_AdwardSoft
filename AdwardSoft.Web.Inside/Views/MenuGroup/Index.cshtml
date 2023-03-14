@@ -1,0 +1,161 @@
+﻿@model AdwardSoft.Web.Inside.Models.MenuGroupViewModel
+@{
+    ViewData["Title"] = "Nhóm menu";
+}
+
+<div class="row">
+    <div class="col-4">
+        <div class="card" id="_Form">
+
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Danh sách nhóm menu</h5>
+            </div>
+            <div class="card-body">
+                <table id="MenuGroupTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th><label asp-for="Name"></label></th>
+                            <th width="5%"></th>
+                            <th width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script id="MenuGroupAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <a onclick="ReadById('{{:id}}')" class="list-icons-item"><i class="icon-pencil7 " data-toggle="tooltip" title="Cập nhật"></i></a>
+            <a href="#" class="list-icons-item"><i data-action="/MenuGroup/Delete" callbackfn="MenuGroupSuccess()" class="icon-trash remove-item" data-params='{"id":"{{:id}}"}' data-toggle="tooltip" title="Xóa"></i></a>
+        </div>
+    </script>
+
+    <script id="MenuUpDown" type="text/x-jsrender">
+        <div class="list-icons w-100 text-center">
+            <a href="#" data-toggle="tooltip" title="Giảm" class="list-icons-item test-center w-50"><i onclick="Sort('{{:id}}', false)" style="color:red; width:2%" class="fa fa-caret-down"></i></a>
+            <a href="#" data-toggle="tooltip" title="Tăng" class="list-icons-item test-center"><i id="" block="" typecar="" onclick="Sort('{{:id}}', true)" style="color:green; width:2%" class="fa fa-caret-up btnUpTechnology"></i></a>
+        </div>
+    </script>
+
+    <script>
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            });
+            $('.select-search').select2();
+            $('.form-check-input-switch').bootstrapSwitch();
+        };
+
+        let MenuGroupAction = $.templates("#MenuGroupAction");
+        let MenuUpDown = $.templates("#MenuUpDown");
+
+        let $MenuGroupTable = $("#MenuGroupTable").DataTable({
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    url: "@Url.Action("Read", "MenuGroup")",
+                    data: {
+                        "model": data
+                    },
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                });
+            },
+            pageLength: 5,
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            columns: [
+                { "data": "name" },
+                {
+                    "data": "id",
+                    "render": function (data, type, row) {
+
+                        return (MenuUpDown.render({ id: data }));
+                    }
+                },
+                {
+                    "data": "id" ,
+                    "render": function (data, type, row) {
+                        return (MenuGroupAction.render({ id: data }));
+                    }
+                },
+            ],
+            language: {
+                search: '<div class="col-12">_INPUT_</div>',
+                searchPlaceholder: 'Gõ để tìm kiếm...',
+                info: "<span style='padding-left:2%;'>Trang _PAGE_ của _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "không có dữ liệu"
+            }
+        });
+
+        let Sort = (selectedId, isUp) => {
+            if (selectedId > 0) {
+                $.ajax({
+                    url: "@Url.Action("Sort", "MenuGroup")",
+                    method: "POST",
+                    data: { selectedId, isUp },
+                    success: function (data) {
+                        // notification
+                        $('#MenuGroupTable').DataTable().ajax.reload();
+                    }
+                });
+            }
+            else {
+                swal({
+                    title: "LỖI!",
+                    text: "Không thể cập nhật menu!!",
+                    type: "warning"
+                });
+            }
+        }
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "MenuGroup")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#_Form").empty();
+                    $("#_Form").html(data);
+                    setTimeout(rebindValidation, 500);
+                }
+            });
+        };
+
+        var MenuGroupSuccess = function () {
+            $MenuGroupTable.ajax.reload();
+            ReadById(0)
+        };
+
+        $(document).ready(function() {
+            setTimeout(rebindValidation, 500);
+            ReadById(0)
+        });
+    </script>
+}
+

@@ -1,0 +1,269 @@
+﻿@model ProductDatatableViewModel
+@{
+    ViewData["Title"] = "Product";
+
+    var CategorySelects = @ViewBag.Categories;
+
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Danh sách sản phẩm</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <a href="@Url.Action("_Form","Product")" checkvalidate="true" modal-size="modal-lg" class="btn btn-medium btn-primary modal-link" callbackfn="ProductSuccess()">
+                                <i class="icon-plus22 mr-1"></i><span class="hidden-xs">Thêm mới</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <div class="row">
+                                <div class="col-md-auto float-right">
+                                    <label asp-for="CategoryName" class="clear-fix font-weight-semibold">Phân loại</label>
+                                    <select id="pricing_policy-select" class="form-control select" asp-items="CategorySelects">
+                                        <option value="-1" selected>Tất cả</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-auto float-right">
+                                    <label asp-for="Status" class="clear-fix font-weight-semibold"></label>
+                                    <select id="status-select" class="form-control select" asp-items="@Html.GetEnumSelectList<EProductStatus>()">
+                                        <option value="-1" selected>Tất cả</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="ProductTable" style="text-align:center" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th> <label asp-for="Code"></label> </th>
+                            <th> <label asp-for="Image"></label></th>
+                            <th> <label asp-for="Name"></label></th>
+                            <th> <label asp-for="UnitId"></label></th>
+                            <th> <label asp-for="CategoryId"></label></th>
+                            <th> <label asp-for="PriceType"></label></th>
+                            <th> <label asp-for="IsTrade"></label></th>
+                            <th> <label asp-for="Status"></label></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script id="ProductAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a data-params='{"id":{{:data.id}}}' href="@Url.Action("_Form","Product")" checkvalidate="true" modal-size="modal-lg" callbackfn="ProductSuccess()" class="dropdown-item modal-link">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="Edit"></i>
+                        @EText.Edit.Description()
+                    </a>
+                    <a href="#" class="dropdown-item remove-item" data-action="/Product/Delete" callbackfn="ProductSuccess()" data-params='{"id":"{{:data.id}}"}'>
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        @EText.Remove.Description()
+                    </a>
+                    @*<a class="dropdown-item modal-link" modal-size="modal-lg" href="@Url.Action("Index","SellingPrice")" data-params='{"productId":"{{:data.id}}"}'>
+                            <i class="icon-cash" data-toggle="tooltip" title=" Price's List"></i>
+                            Price's List
+                        </a>*@
+                    @*<a class="dropdown-item  modal-link" href="/ProductUnitConverter/Index" data-params='{"id":{{:data.id}}}' checkvalidate="true" modal-size="modal-lg">
+                            <i class="icon-arrow-down-left2" data-toggle="tooltip" title="Unit Converter"></i>
+                            Unit Converter
+                        </a>*@
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var ProductAction = $.templates("#ProductAction")
+        var $categorySelect = $('#category-select')
+        var $ProductTable
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+        }
+
+        $ProductTable = $("#ProductTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "listCategory": $('#category-select').val()
+                    },
+                    url: "@Url.Action("Read", "Product")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal })
+
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            columns: [
+                { data: "code" },
+                {
+                    data: "image",
+                    render: function (data, type, row) {
+                        if (data)
+                            return '<img src="../../file/Product/' + data + '" width="40" height="40" alt="">'
+                        else
+                            return '<img src="../../images/product.png" width="40" height="40" alt="">'
+                    }
+                },
+                { data: "name" },
+                { data: "unitName" },
+                { data: "categoryName" },
+                {
+                    data: "priceType",
+                    render: function (data, type, row) {
+                        if (data == 0)
+                            return 'Theo lượng đăng ký'
+                        else
+                            return 'Theo lượng thực giao'
+                    }
+                },
+                {
+                    data: "isTrade",
+                    render: (data, type, row) => data === true ? '<p class="text-info"><i class="icon-checkmark3"></i></p>' : ""
+                },
+                //{
+                //    data: null,
+                //    render: function (data, type, row) {
+
+                //        return (data.minStock + ' - ' + data.maxStock)
+                //    }
+                //},
+
+                {
+                    data: "status",
+                    render: function (data, type, row) {
+                        let _display = "";
+                        let _status = "";
+                        switch (data) {
+                            case 0:
+                                _display = "text-info";
+                                _status = '@EProductStatus.Unavailable.Description()';
+                                break;
+                            case 1:
+                                _display = "text-success";
+                                _status = '@EProductStatus.Display.Description()';
+                                break;
+                            case 2:
+                                _display = "text-warning";
+                                _status = '@EProductStatus.Pause.Description()';
+                                break;
+                            case 3:
+                                _display = "text-danger";
+                                _status = '@EProductStatus.Remove.Description()';
+                                break;
+                        }
+                        return "<p class='" + _display + "'>" + _status + "</p>";
+                    }
+                },
+                {
+                    data: { id: "id" },
+                    render: function (data, type, row) {
+                        return (ProductAction.render({ data: data }))
+                    }
+                },
+            ],
+            language: {
+                search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        })
+
+
+        var ProductSuccess = function () {
+            $ProductTable.ajax.reload()
+        }
+
+        var ProductUpdateSucess = function () {
+            var tmp = $ProductTable.page()
+            $ProductTable.ajax.reload()
+            $ProductTable.page(tmp).draw('page')
+        }
+
+        $(document).ready(function () {
+
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+        });
+    </script>
+
+    @*  --- Events ---  *@
+
+    <script>
+
+        $categorySelect.on('change', function (e) {
+            $ProductTable.ajax.reload()
+        })
+
+        $(document).on("change", "#img", function (e) {
+            $("#ProductImageShow").val(e.target.files[0].name)
+            GetImage($(this), $('#ProductImage-preview'))
+        })
+
+    </script>
+
+    @*  --- Image Processing ---  *@
+
+    <script>
+        var GetImage = ($file, $target) => {
+            let file = $file.get(0).files[0]
+
+            if (file) {
+                let fileType = file["type"]
+                PreviewImage(file, $target)
+            }
+        }
+
+        var PreviewImage = ($file, $target) => {
+            let reader = new FileReader
+            let image = new Image
+
+            reader.readAsDataURL($file)
+
+            reader.onload = (_file) => {
+                image.src = _file.target.result
+                image.onload = () => {
+                    $target.attr('src', _file.target.result)
+                }
+            }
+        }
+    </script>
+}
+

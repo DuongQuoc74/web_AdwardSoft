@@ -1,0 +1,181 @@
+﻿
+@{
+    ViewData["Title"] = "Shift";
+}
+
+<div class="row">
+    <div class="col-3">
+        <div class="card" id="_Form">
+
+        </div>
+    </div>
+    <div class="col-9">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Shift list</h5>
+            </div>
+            <div class="card-body">
+                <table id="ShiftTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label>Name</label>
+                            </th>
+                            <th>
+                                <label>Days</label>
+                            </th>
+                            <th>
+                                <label>Working Time</label>
+                            </th>
+                            <th class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script id="ShiftAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @* -- Edit -- *@
+                    <a onclick="ReadById('{{:id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.GetDescription()"></i>
+                        @EText.Edit.GetDescription()
+                    </a>
+                    @* -- Remove -- *@
+                    <a data-action="/Shift/Delete" callbackfn="ShiftSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+                        @EText.Remove.GetDescription()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script>
+
+        var $ShiftTable
+        var ShiftAction = $.templates("#ShiftAction")
+
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500)
+            ReadById(0)
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+
+            $('.select-search').select2()
+        }
+
+        $ShiftTable = $("#ShiftTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    url: "@Url.Action("Read", "Shift")",
+                    method: "GET",
+                    success: function (response) {
+                        callback({ data: response })
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            columns: [
+                { data: "name" },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+
+                        if (data.isMonday && data.isTuesday && data.isWednesday && data.isThursday && data.isFriday && data.isSaturday && data.isSunday) {
+                            return "The seven days"
+                        } else if (data.isMonday && data.isTuesday && data.isWednesday && data.isThursday && data.isFriday) {
+                            return "Weekdays"
+                        } else if (data.isSaturday && data.isSunday) {
+                            return "Weekend"
+                        } else {
+                            var arr = []
+
+                            if (data.isMonday)
+                                arr.push("Monday")
+                            if (data.isTuesday)
+                                arr.push("Tuesday")
+                            if (data.isWednesday)
+                                arr.push("Wednesday")
+                            if (data.isThursday)
+                                arr.push("Thursday")
+                            if (data.isFriday)
+                                arr.push("Friday")
+                            if (data.isSaturday)
+                                arr.push("Saturday")
+                            if (data.isSunday)
+                                arr.push("Sunday")
+
+                            return arr.join(", ")
+                        }
+                    }
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return data.startTime + " - " + data.endTime
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return (ShiftAction.render({ id: data }))
+                    }
+                },
+            ],
+            language: {
+                search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.GetDescription()",
+                zeroRecords: "@EText.EmptyTable.GetDescription()",
+                infoFiltered: "",
+                processing: "@EText.Processing.GetDescription()",
+            }
+        })
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "Shift")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#_Form").empty().html(data)
+                    rebindValidation()
+                }
+            })
+        }
+
+        var ShiftSuccess = function () {
+            $ShiftTable.ajax.reload()
+            ReadById(0)
+        }
+
+    </script>
+}
+
+

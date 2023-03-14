@@ -1,0 +1,58 @@
+﻿@model AdwardSoft.Web.Inside.Models.PermissionViewModel
+<form class="form-validate-jquery form-content" asp-action="Create" asp-controller="Permission" callbackfn="PermissionSuccess()" method="post" id="form-create">
+    <div class="modal-header">
+        @if (ViewBag.IsCreate)
+        {
+            <h5 class="modal-title">Thêm mới</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">Điều chỉnh</h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="col-md-12">
+            <label class="clear-fix font-weight-semibold">Controller</label>
+            <input asp-for="@Model.Controller" type="text" class="form-control" required>
+            <span asp-validation-for="@Model.Controller" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label class="clear-fix font-weight-semibold">Action</label>
+            <input asp-for="@Model.Action" type="text" class="form-control" required>
+            <span asp-validation-for="@Model.Action" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label class="clear-fix font-weight-semibold">Chi tiết quyền</label>
+            <input asp-for="@Model.Description" type="text" class="form-control" required>
+            <span asp-validation-for="@Model.Description" class="validation-invalid-label"></span>
+        </div>
+        <input asp-for="Id" type="hidden" value="@Model.Id">
+    </div>
+    <div class="modal-footer">
+        @if (ViewBag.IsCreate)
+        {
+            <a href="#" onclick="loadFindId('')" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+            <button onclick="submitForm('Create')" type="button" class="btn btn-success ml-1 btn-sm mr-0">Thêm mới <i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <a href="#" onclick="loadFindId('')" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+            <button onclick="submitForm('Update')" type="button" class="btn btn-success ml-1 btn-sm mr-0">Cập nhật<i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        setTimeout(rebindValidation, 500);
+    });
+
+    function submitForm(str) {
+        $("#form-create").attr("action", "/Permission/" + str);
+        $("#form-create").submit();
+    }
+</script>

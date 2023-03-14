@@ -1,0 +1,161 @@
+﻿@model CustomerWalletDatatableViewModel
+
+@{
+	ViewData["Title"] = "Duyệt cấp tín dụng";
+}
+
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h5 class="card-title">Danh sách duyệt cấp tín dụng</h5>
+			</div>
+			<div class="card-body">
+				<table id="CustomerWalletTable" class="table datatable-save-state w-100">
+					<thead>
+						<tr>
+							<th>
+								<label asp-for="Date"></label>
+							</th>
+							<th>
+								<label asp-for="CustomerName"></label>
+							</th>
+							<th>
+								<label asp-for="Amount"></label>
+							</th>
+							<th>
+								<label asp-for="Note"></label>
+							</th>
+							<th>
+								<label asp-for="Status"></label>
+							</th>
+							<th>Phê duyệt</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script id="CustomerWalletAction" type="text/x-jsrender">
+		<a data-action="/CustomerWallet/Approval" callbackfn="CustomerWalletSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item approval-item">
+						<i class="icon-checkmark3" data-toggle="tooltip" title="@EText.TooltipApproval.GetDescription()"></i>
+		@EText.TooltipApproval.GetDescription()
+		</a>
+	</script>
+	<script>
+		$(document).ready(function () {
+			setTimeout(rebindValidation, 500);
+		})
+		var rebindValidation = function () {
+			$('form').each(function (i, f) {
+				$form = $(f);
+				$form.removeData('validator');
+				$form.removeData('unobtrusiveValidation');
+				$.validator.unobtrusive.parse($form);
+			});
+
+			$('.select-search').select2();
+			$('.form-check-input-switch').bootstrapSwitch();
+		};
+		$("body").on("click", ".approval-item", function (e) {
+			var data = $(this).data("params");
+
+			var url = $(this).data("action");
+			
+			var callbackfn = $(this).attr("callbackfn");
+			swal({
+				title: 'Bạn có chắc duyệt cấp hạn mức tín dụng này không?',
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Có!',
+				cancelButtonText: 'Không'
+			}).then(function (check) {
+				$.ajax({
+					url: url,
+					method: "PUT",
+					data: {
+						id: data.id,
+						status: check.value ? 1 : 2
+					},
+					success: function (response) {
+						if (response.succeeded) {
+                            new PNotify({
+                                title: 'Thành công',
+                                text: check.value ? 'Duyệt thành công' : 'Không duyệt thành công',
+                                addclass: 'bg-success border-success'
+                            });
+                        } else {
+                            new PNotify({
+                                title: 'Thất bại',
+                                text: 'Duyệt thất bại',
+                                addclass: 'bg-warning border-warning'
+                            });
+                        }  
+						CustomerWalletSuccess()
+					}
+				});
+			});
+		});
+
+		var $CustomerWalletTable
+		var CustomerWalletAction = $.templates("#CustomerWalletAction");
+		$CustomerWalletTable = $("#CustomerWalletTable").DataTable({
+			ajax: function (data, callback, settings) {
+				$.ajax({
+					url: "@Url.Action("ReadCreditApproval", "CustomerWallet")",
+					method: "POST",
+					success: function (response) {
+						callback({ data: response })
+					},
+					error: function (error) {
+						console.log(error)
+					}
+				})
+			},
+			pageLength: 10,
+			paging: true,
+			cache: false,
+			lengthChange: false,
+			filter: false,
+			search: false,
+			columns: [
+				{
+					data: "date",
+					render: (data, type, row) => moment(data).format('DD/MM/YYYY')
+				},
+				{ data: "customerName" },
+				{
+					data: "amount",
+					render: (data, type, row) => FormatCurrency(data)
+				},
+				{ data: "note" },
+				{
+					data: "status",
+					render: (data, type, row) => data === 0 ? '<p class="text-danger">@ECustomerWalletStatus.Processing.Description()</p>' : data === 1 ? '<p class="text-danger">@ECustomerWalletStatus.Succeed.Description()</p>' : '<p class="text-success">@ECustomerWalletStatus.Denied.Description()</p>'
+				},
+				{
+					data: "id",
+					render: function (data, type, row) {
+						return row.status === 0 ? (CustomerWalletAction.render({ id: data })) : "";
+					}
+				},
+			],
+			language: {
+				info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+				paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+				processing: "",
+				infoEmpty: "",
+				emptyTable: "Không có dữ liệu ..."
+			}
+		});
+
+		var CustomerWalletSuccess = function () {
+			$CustomerWalletTable.ajax.reload();
+		};
+	</script>
+}

@@ -1,0 +1,320 @@
+﻿@model EmployeeDataTableViewModel
+
+@{
+    var positions = ViewBag.Positions;
+    ViewData["Title"] = "Employee";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Employee list</h5>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="col-md-auto" style="margin-top:35px">
+                            <a href="/Employee/_Form" checkvalidate="true" modal-size="modal-lg" callbackfn="EmployeeSuccess()" class="btn btn-sm btn-primary modal-link"><i class="fa fa-plus mr-1"></i>@EText.Create.GetDescription()</a>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="col-md-auto float-right">
+                            <label asp-for="PositionId" class="clear-fix font-weight-semibold"></label>
+                            <select id="position-select" class="form-control select" asp-items="positions">
+                                <option value="0" selected>All</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label asp-for="DepartmentId" class="clear-fix font-weight-semibold"></label>
+                            <select id="department-select" class="form-control">
+                                <option value="0" selected>All</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="EmployeeTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                <label asp-for="Avatar"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="Code"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="Name"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="IdentityCode"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="Phone"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="Address"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="ActualWage"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="UserName"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="StartingDate"></label>
+                            </th>
+                            <th class="text-center">
+                                <label asp-for="LeavingDate"></label>
+                            </th>
+                            <th class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script id="EmployeeAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @* -- Salary -- *@
+                    <a class="dropdown-item modal-link" href="/EmployeeSalary/Index" data-params='{"employeeId":{{:data.id}}}' checkvalidate="true" modal-size="modal-lg">
+                        <i class="icon-cash" data-toggle="tooltip" title="Salary"></i>
+                        Salary
+                    </a>
+                    @* -- Link account -- *@
+                    <a class="dropdown-item modal-link" href="/EmployeeUser/_Form" data-params='{"employeeId":"{{:data.id}}"}' callbackfn="EmployeeUpdateSucess()" checkvalidate="true" modal-size="modal-sm">
+                        <i class="icon-user-tie" data-toggle="tooltip" title="Link"></i>
+                        Link
+                    </a>
+                    @* -- Edit -- *@
+                    <a class="dropdown-item modal-link" href="/Employee/_Form" data-params='{"id":"{{:data.id}}"}' callbackfn="EmployeeUpdateSucess()" checkvalidate="true" modal-size="modal-lg">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                        @EText.Edit
+                    </a>
+                    @* -- Remove -- *@
+                    <a data-action="/Employee/Delete" callbackfn="EmployeeSuccess()" data-params='{"id":"{{:data.id}}","avatar":"{{:data.avatar}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+                        @EText.Remove.GetDescription()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var $EmployeeTable
+        var EmployeeAction = $.templates("#EmployeeAction")
+
+        var $PositionSelect = $('#position-select')
+        var $DepartmentSelect = $('#department-select')
+
+        $(document).ready(function () {
+            Select2MultiLv("Department", "department-select");
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            });
+            setTimeout(rebindValidation, 500);
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+            $('.select-search').select2()
+        }
+
+        $EmployeeTable = $("#EmployeeTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "positionId": $PositionSelect.val(),
+                        "departmentId": $DepartmentSelect.val()
+                    },
+                    url: "@Url.Action("Read", "Employee")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                        $('.popup-over').popover()
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            order: false,
+            columns: [
+                {
+                    data: {},
+                    render: function (data, type, row) {
+                        if (data.avatar) {
+                            return '<img src="' + data.avatar + '" width="40" height="40" alt="">'
+                        } else {
+                            var name = data.name;
+
+                            var output = name.trim().split(' ');
+
+                            if (output.length == 1) {
+                                name = output[0].substring(0, 2)
+                            }
+                            else {
+                                name = output[0].substring(0, 1) + output[output.length - 1].substring(0, 1);
+                            }
+                            name = _removeAccents(name.toUpperCase())
+
+                            var randColor = _getRandomColor()
+
+                            return `<a href="#" class="btn bg-primary-400 rounded-round btn-icon btn-md" style="background-color: ${randColor}"><span class="letter-icon">${name}</span></a>`
+                        }
+
+                    }
+                },
+                { data: "code" },
+                { data: "name" },
+                { data: "identityCode" },
+                { data: "phone" },
+                {
+                    data: "address",
+                    render: (data, type, row) => {
+                        var strSkiped = data
+
+                        if (data.length > 20)
+                            strSkiped = data.substring(0, 20) + "...";
+
+                        return `<span class="popup-over cursor-pointer" data-placement="bottom" data-content="${data}">${strSkiped}</span>`
+                    }
+                },
+                {
+                    data: "actualWage",
+                    render: function (data, type, row) {
+                        return "<span class='text-success'>" + FormatCurrency(data) + "</span>";
+                    }
+                },
+                {
+                    data: "userName",
+                    render: function (data, type, row) {
+                        if (data) {
+                            return "<span class='text-warning'>" + data + "</span>";
+                        }
+                        else {
+                            return "<span class='text-warning'>N/A</span>"
+                        }
+                    }
+                },
+                {
+                    data: "startingDate",
+                    render: function (data, type, row) {
+                        return "<span class='text-info'>" + moment(data).format("DD/MM/YYYY") + "</span>";
+                    }
+                },
+                {
+                    data: {},
+                    render: function (data, type, row) {
+                        if (Number(data.status) == 1) {
+                            return "<span class='text-warning'>" + moment(data.leavingDate).format("DD/MM/YYYY") + "</span>";
+                        }
+                        else {
+                            return "<span class='text-warning'>N/A</span>"
+                        }
+                    }
+                },
+                {
+                    data: {},
+                    render: function (data, type, row) {
+                        return (EmployeeAction.render({ data: data }))
+                    }
+                },
+            ],
+            columnDefs: [
+                {
+                    className: "text-center", targets: [0, 6, 7, 8, 9, 10]
+                }
+            ],
+            language: {
+                search: '<div class="row">_INPUT_</div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        });
+
+        function _getRandomColor() {
+            var letters = '0123456787654321';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function _removeAccents(str) {
+            var AccentsMap = [
+                "aàảãáạăằẳẵắặâầẩẫấậ",
+                "AÀẢÃÁẠĂẰẲẴẮẶÂẦẨẪẤẬ",
+                "dđ", "DĐ",
+                "eèẻẽéẹêềểễếệ",
+                "EÈẺẼÉẸÊỀỂỄẾỆ",
+                "iìỉĩíị",
+                "IÌỈĨÍỊ",
+                "oòỏõóọôồổỗốộơờởỡớợ",
+                "OÒỎÕÓỌÔỒỔỖỐỘƠỜỞỠỚỢ",
+                "uùủũúụưừửữứự",
+                "UÙỦŨÚỤƯỪỬỮỨỰ",
+                "yỳỷỹýỵ",
+                "YỲỶỸÝỴ"
+            ];
+            for (var i = 0; i < AccentsMap.length; i++) {
+                var re = new RegExp('[' + AccentsMap[i].substr(1) + ']', 'g');
+                var char = AccentsMap[i][0];
+                str = str.replace(re, char);
+            }
+            return str;
+        }
+
+        var EmployeeSuccess = function () {
+            var tmp = $EmployeeTable.page();
+            $EmployeeTable.ajax.reload();
+            $EmployeeTable.page(tmp).draw('page');
+        };
+
+        var EmployeeUpdateSucess = function () {
+            var tmp = $EmployeeTable.page();
+            $EmployeeTable.ajax.reload();
+            $EmployeeTable.page(tmp).draw('page');
+        }
+    </script>
+
+    @* --- Events --- *@
+    <script>
+        $PositionSelect.on('change', function (e) {
+            $EmployeeTable.ajax.reload()
+        })
+
+        $DepartmentSelect.on('change', function (e) {
+            $EmployeeTable.ajax.reload()
+        })
+
+    </script>
+}

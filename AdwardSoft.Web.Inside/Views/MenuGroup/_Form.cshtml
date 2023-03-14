@@ -1,0 +1,40 @@
+﻿@model AdwardSoft.Web.Inside.Models.MenuGroupViewModel
+
+<form class="form-validate-jquery form-content" id="_FormView" callbackfn="MenuGroupSuccess()" method="@ViewBag.ActionMethod">
+    <div class="modal-header">
+        @if (Model.IsNew)
+        {
+            <h5 class="modal-title">Thêm mới</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">Điều chỉnh</h5>
+            <input type="hidden" value="@Model.Id" asp-for="@Model.Id" />
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="form-group col-md-12">
+            <label asp-for="Name" class="clear-fix font-weight-semibold"></label>
+            <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+        @if (Model.IsNew)
+        {
+            <button type="button" onclick="submitForm('Create')" class="btn btn-success ml-1 btn-sm mr-0">Thêm mới <i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <button type="button" onclick="submitForm('Update')" class="btn btn-success ml-1 btn-sm mr-0">Cập nhật <i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+
+<script>
+    function submitForm(str) {
+        $("#_FormView").attr("action", "/MenuGroup/" + str);
+        $("#_FormView").submit();
+    }
+</script>

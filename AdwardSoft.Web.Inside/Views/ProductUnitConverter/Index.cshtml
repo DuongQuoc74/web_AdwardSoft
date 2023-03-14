@@ -1,0 +1,169 @@
+﻿<div class="modal-header">
+    <h5 class="modal-title">Product Unit Converter</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body" id="fProductUnitConverter"></div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Product Unit Converter's List</h5>
+                    <input hidden id="PId" value="@ViewBag.productId">
+                </div>
+                <div class="card-body">
+                    <table id="ProductUnitConverterTable" class="table datatable-save-state w-100">
+                        <thead>
+                            <tr>
+                                <th width="25%" class="text-center">Product Name</th>
+                                <th width="25%" class="text-center">Unit</th>
+                                <th width="20%" class="text-center">Quantity From</th>
+                                <th width="20%" class="text-center">Quantity To</th>
+                                <th width="10%"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            var ProductUnitConverterAction = $.templates("#ProductUnitConverterAction");
+            var $ProductUnitConverterTable = $("#ProductUnitConverterTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "productId": @ViewBag.productId
+                        },
+                        url: "@Url.Action("Read", "ProductUnitConverter")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                pageLength: 10,
+                paging: true,
+                serverSide: false,
+                cache: false,
+                lengthChange: false,
+                filter: true,
+                search: true,
+                columns: [
+                    {
+                        data: "productName",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "unitName",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "quantityFrom",
+                        render: function (data, type, row) {
+                            return FormatCurrency(data);
+                        }
+                    },
+                    {
+                        data: "quantityTo",
+                        render: function (data, type, row) {
+                            return FormatCurrency(data);
+                        }
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return ProductUnitConverterAction.render({ data: data })
+                        }
+                    },
+                ],
+                //columnDefs: [
+                //    {
+                //        className: "text-center", targets: [0,1,2]
+                //    }
+                //],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+            ReadUnitById(0);
+        });
+
+
+        var ProductUnitConverterSuccess = function () {
+            $('#ProductUnitConverterTable').DataTable().ajax.reload();
+            ReadUnitById(0);
+        }
+
+        var ProductUnitConverterUpdateSucess = function () {
+            var tmp = $("#ProductUnitConverterTable").DataTable().page();
+            $('#ProductUnitConverterTable').DataTable().ajax.reload();
+            $('#ProductUnitConverterTable').DataTable().page(tmp).draw('page');
+            ReadUnitById(0);
+        }
+
+
+        function ReadUnitById(unitId) {
+            $.ajax({
+                url: "@Url.Action("_Form", "ProductUnitConverter")",
+                method: "GET",
+                data: {
+                    "unitId": unitId,
+                    "productId": $("#PId").val()
+                },
+                success: function (data) {
+                    $("#fProductUnitConverter").empty();
+                    $("#fProductUnitConverter").html(data);
+                },
+                error: function (data) {
+                },
+            });
+        }
+
+</script>
+<script id="ProductUnitConverterAction" type="text/x-jsrender">
+    <div class="list-icons">
+        <div class="list-icons-item dropdown">
+            <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a onclick="ReadUnitById('{{:data.unitId}}')" class="dropdown-item">
+                    <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                    @EText.Edit
+                </a>
+                <a href="#" class="dropdown-item remove-item" data-action="/ProductUnitConverter/Delete" callbackfn="ProductUnitConverterSuccess()" data-params='{"unitId":"{{:data.unitId}}","productId":"{{:data.productId}}"}'>
+                    <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                    @EText.Remove
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+

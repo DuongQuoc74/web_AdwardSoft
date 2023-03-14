@@ -1,0 +1,40 @@
+﻿@model UserBranchViewModel
+
+
+<form asp-controller="User" asp-action="UpdateBranch" class="form-validate-jquery" id="_FormView" callbackfn="reloadCurrentPage()" method="put">
+    <div class="modal-header">
+        <h5 class="modal-title">@EText.Update.Description() </h5>
+    </div>
+    <div class="modal-body row">
+        <div class="col-md-12">
+            <input hidden id="currentBranchId" value="@Model.BranchId">
+            <label asp-for="BranchId" class="clear-fix font-weight-bold"></label>
+            <select class="form-control" asp-for="BranchId">
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-end align-items-center clear-fix">
+                <a href="#" data-dismiss="modal" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+                <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        Select2MultiLv("BranchByUser", "BranchId", $("#currentBranchId").val());   
+        setTimeout(rebindValidation, 500);
+    });
+
+    var rebindValidation = function () {
+        $('form').each(function (i, f) {
+            $form = $(f)
+            $form.removeData('validator')
+            $form.removeData('unobtrusiveValidation')
+            $.validator.unobtrusive.parse($form)
+        })
+    }
+</script>

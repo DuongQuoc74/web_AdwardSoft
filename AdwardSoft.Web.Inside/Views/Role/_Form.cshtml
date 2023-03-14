@@ -1,0 +1,111 @@
+﻿@model AdwardSoft.Web.Inside.Models.RoleViewModel
+
+<form class="form-validate-jquery form-content" id="_FormView" callbackfn="RoleSuccess()" method="post">
+    <div class="modal-header">
+        @if (Model.Id == 0)
+        {
+            <h5 class="modal-title">Thêm mới</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">Điều chỉnh</h5>
+            <input type="text" hidden value="@Model.Id" asp-for="@Model.Id" />
+        }
+    </div>
+    <div class="modal-body row">
+        @*<input type="hidden" asp-for="@Model.UserType" value="1"/>*@
+        <div class="form-group col-md-12">
+            <label class="clear-fix font-weight-semibold">Tên</label>
+            <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label class="clear-fix font-weight-semibold">NormalizedName</label>
+            <input type="text" asp-for="@Model.NormalizedName" value="@Model.NormalizedName" class="form-control" />
+            <span asp-validation-for="@Model.NormalizedName" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label class="clear-fix font-weight-semibold">ConcurrencyStamp</label>
+            <input type="text" asp-for="@Model.ConcurrencyStamp" value="@Model.ConcurrencyStamp" class="form-control" />
+            <span asp-validation-for="@Model.ConcurrencyStamp" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label class="clear-fix font-weight-semibold">Loại thành viên</label>
+            <select asp-for="@Model.UserType" class="form-control select" asp-items="Html.GetEnumSelectList<EUserType>()"></select>
+        </div>
+        <div class="form-group col-md-12">
+            <label class="clear-fix font-weight-semibold">Quyền sử dụng</label>
+            <select multiple="multiple" asp-for="@Model.Permissions" class="form-control select select-search" asp-items="@ViewBag.Select"></select>
+        </div>
+        @if (Model.Id == 0)
+        {
+            <div class="form-group col-md-6">
+                <label class="clear-fix font-weight-semibold" style="margin:auto 0">Xác nhận OTP &nbsp;</label>
+                <div class="form-check form-check-switch form-check-switch-left">
+                    <label class="form-check-label d-flex align-items-center">
+                        <input asp-for="@Model.IsOTPVerification" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery">
+                    </label>
+                </div>
+            </div>
+            if (!ViewBag.IsDefault)
+            {
+                <div class="form-group col-md-6">
+                    <label class="clear-fix font-weight-semibold" style="margin:auto 0">Mặc định &nbsp;</label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.IsDefault" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery">
+                        </label>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="form-group col-md-6">
+                <label class="clear-fix font-weight-semibold" style="margin:auto 0">Xác nhận OTP &nbsp;</label>
+                <div class="form-check form-check-switch form-check-switch-left">
+                    <label class="form-check-label d-flex align-items-center">
+                        <input asp-for="@Model.IsOTPVerification" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery_@Model.Id">
+                    </label>
+                </div>
+            </div>
+            if (!ViewBag.IsDefault)
+            {
+                <div class="form-group col-md-6">
+                    <label class="clear-fix font-weight-semibold" style="margin:auto 0">Mặc định &nbsp;</label>
+                    <div class="form-check form-check-switch form-check-switch-left">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.IsDefault" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery_@Model.Id">
+                        </label>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <input asp-for="@Model.IsDefault" value="@Model.IsDefault" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" hidden class="form-check-input-switchery_@Model.Id">
+            }
+        }
+    </div>
+    <div class="modal-footer">
+        @if (Model.Id == 0)
+        {
+            <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+            <button type="button" onclick="submitForm('Create')" class="btn btn-success ml-1 btn-sm mr-0">Thêm mới <i class="fa fa-check ml-1"></i></button>
+
+        }
+        else
+        {
+            <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close mr-1"></i></a>
+            <button type="button" onclick="submitForm('Update')" class="btn btn-success ml-1 btn-sm mr-0">Cập nhật <i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+
+<script>
+    var switchery = new Switchery(document.querySelectorAll('.form-check-input-switchery_@Model.Id'));
+
+    function submitForm(str) {
+        $("#_FormView").attr("action", "/Role/" + str);
+        $("#_FormView").submit();
+    }
+</script>

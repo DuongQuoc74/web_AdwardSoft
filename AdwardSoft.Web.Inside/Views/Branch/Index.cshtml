@@ -1,0 +1,132 @@
+﻿@model List<BranchViewModel>
+@{
+    ViewData["Title"] = "Đơn vị";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section StyleSheet{
+    <link href="~/lib/menutable/menutable.css" rel="stylesheet" />
+}
+
+<div class="row">
+    <div class="col-4">
+        <div class="card">
+            <div class="card-body" id="fBranch"></div>
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="card" style="margin-bottom:unset !important">
+            <div class="col-md-12" id="menu-Table" style="height: 26rem;">
+                <branch-menu data="@Model" url_form="/Branch/_Form"></branch-menu>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-end align-items-center">
+                    <a href="#" onclick="Sort()" class="btn btn-sm btn-success">Update<i class="fa fa-check ml-1"></i></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+@section Scripts {
+    <script src="~/lib/menutable/jquery.menutable.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            ReadById(0)
+            $('#menutable').menutable();
+            $("#titlePage").text('Branch')
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+
+        function ReadById(id) {
+                $.ajax({
+                    url: "@Url.Action("_Form", "Branch")",
+                    method: "GET",
+                    data: { "id": id },
+                    success: function (data) {
+                        $("#fBranch").empty();
+                        $("#fBranch").html(data);
+                        $('.select').select2({
+                            minimumResultsForSearch: Infinity
+                        });
+                    },
+                    error: function (data) {
+                        debugger;
+                    },
+                });
+        }
+
+        function Collapse(id) {
+            var div = $(".mn-handle-details[data-id='handleCollapse-" + id + "']")
+            div.removeClass("show");
+            div.one("transitionend", function () {
+                div.empty();
+            });
+        }
+
+        function Submit(action, id) {
+            if ($("#_FormView-" + id).valid()) {
+                var data = $("#_FormView-" + id).serializeArray()
+                $.ajax({
+                    url: "Branch/" + action,
+                    method: "POST",
+                    displaysetings: {
+                        success: false,
+                        error: true,
+                        showIndicator: true,
+                        hideIndicator: true
+                    },
+                    data: data,
+                    success: function (data) {
+                        if (data.succeeded)
+                            setTimeout(function () { location.reload(); }, 500)
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    },
+                })
+            }
+
+        }
+
+        function Sort() {
+            var json = $('.mn').menutable('serialize');
+            $.ajax({
+                url: "@Url.Action("Sort", "Branch")",
+                            method: "POST",
+                            data: { "json": JSON.stringify(json) },
+                            dataType: "json",
+                            success: function (data) {
+                                swal({
+                                    title: "Success!",
+                                    text: "Sort success",
+                                    type: "success"
+                                }).then(function (check) {
+                                    if (check.value) {
+                                        location.reload();
+                                    }
+                                })
+                            },
+                            error: function (error) {
+                                swal({
+                                    title: "Error!",
+                                    text: "Sort error",
+                                    type: "warning"
+                                });
+                            }
+                        });
+        }
+
+        var BranchSuccess = function () {
+            location.reload();
+        }
+    </script>
+}

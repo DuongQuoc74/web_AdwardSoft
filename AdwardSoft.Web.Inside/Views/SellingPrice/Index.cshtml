@@ -1,0 +1,190 @@
+﻿<div class="modal-header">
+    <h5 class="modal-title">Selling Price's List</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-4">
+            <div class="card" id="formSellingPrice">
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header header-elements-inline">
+                    <h5 class="card-title">Selling Price's List</h5>
+                    <div class="col-md-auto float-right">
+                        <label class="clear-fix font-weight-semibold">Unit</label>
+                        <select class="form-control select" asp-items="@(new SelectList(ViewBag.UnitsSelect, "Id", "Text"))" id="UnitSelectId">
+                            <option value="0">-- All --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table id="SellingPriceTable" class="table datatable-save-state w-100">
+                        <thead>
+                            <tr>
+                                <th width="20%" class="text-center">Unit</th>
+                                <th width="15%" class="text-center">Date</th>
+                                <th width="30%" class="text-center">Whole sale Price</th>
+                                <th width="30%" class="text-center">Retail Price</th>
+                                <th width="5%"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            });
+        }
+        $(document).ready(function () {
+            $("#titlePage").text('Selling Price')
+
+            var SellingPriceAction = $.templates("#SellingPriceAction");
+            var $SellingPriceTable = $("#SellingPriceTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "model": data,
+                            "productId": @ViewBag.ProductId,
+                            "unitId": $('#UnitSelectId').val()
+                        },
+                        url: "@Url.Action("Read", "SellingPrice")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+
+
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                pageLength: 10,
+                paging: true,
+                serverSide: true,
+                cache: false,
+                lengthChange: false,
+                filter: false,
+                search: false,
+                columns: [
+                    {
+                        data: "unitName",
+                        render: (data, type, row) => data
+                    },
+                    {
+                        data: "date",
+                        render: (data, type, row) => moment(data).format("DD/MM/YYYY")
+                    },
+                    {
+                        data: "wholesalePrice",
+                        render: (data, type, row) => FormatCurrency(data)
+                    },
+                    {
+                        data: "retailPrice",
+                        render: (data, type, row) => FormatCurrency(data)
+                    },
+                    {
+
+                        data: { },
+                        render: (data, type, row) => SellingPriceAction.render({ data: data })
+                    },
+                ],
+                columnDefs: [
+                    {
+                        className: "text-center", targets: [4]
+                    },
+                    {
+                        className: "text-right", targets: [2,3]
+                    },
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+            ReadPriceById();
+        });
+
+        function ReadPriceById(unitId, date) {
+            $.ajax({
+                url: "@Url.Action("_Form", "SellingPrice")",
+                method: "GET",
+                data: {
+                    "productId": @ViewBag.ProductId,
+                    "unitId": unitId,
+                    "date": date
+                },
+                success: function (data) {
+                    $("#formSellingPrice").empty();
+                    $("#formSellingPrice").html(data);
+                    setTimeout(rebindValidation, 500);
+                }
+            });
+
+        }
+
+        var SellingPriceSuccess = function () {
+            $('#SellingPriceTable').DataTable().ajax.reload();
+            ReadPriceById();
+        }
+
+        var SellingPriceUpdateSucess = function () {
+            var tmp = $("#SellingPriceTable").DataTable().page();
+            $('#SellingPriceTable').DataTable().ajax.reload();
+            $('#SellingPriceTable').DataTable().page(tmp).draw('page');
+            ReadPriceById();
+        }
+
+    $(document).on("change", "#UnitSelectId", function (e) {
+        $('#SellingPriceTable').DataTable().ajax.reload();
+        ReadPriceById();
+    });
+
+
+
+</script>
+
+<script id="SellingPriceAction" type="text/x-jsrender">
+    <div class="list-icons">
+        <div class="list-icons-item dropdown">
+            <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a onclick="ReadPriceById('{{:data.unitId}}','{{:data.date}}')" class="dropdown-item">
+                    <i class="icon-pencil7" data-toggle="tooltip" title="Edit"></i>
+                    Edit
+                </a>
+                <a href="#" class="dropdown-item remove-item" data-action="/SellingPrice/Delete" callbackfn="SellingPriceSuccess()" data-params='{"productId":"{{:data.productId}}","unitId":"{{:data.unitId}}","date":"{{:data.date}}"}'>
+                    <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                    @EText.Remove
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+

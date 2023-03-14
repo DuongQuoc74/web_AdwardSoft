@@ -1,0 +1,69 @@
+﻿@model AdwardSoft.Web.Inside.Models.SellingPriceViewModel
+@{ bool isNew = Model.IsNew;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";  }
+
+<form class="form-validate-jquery form-content" asp-action="@action" asp-controller="SellingPrice" callbackfn="SellingPriceSuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <input asp-for="@Model.ProductId" type="hidden" value="@Model.ProductId">
+        <input asp-for="@Model.Date" type="hidden" value="@Model.Date">
+        <div class="col-md-12">
+            <label asp-for="@Model.UnitId" class="clear-fix font-weight-semibold"></label>      
+            <select class="form-control select" onchange="changeUnit(this.value)" asp-for="@Model.UnitId" asp-items="@(new SelectList(ViewBag.Units, "Id", "Text"))">
+                <option value="0">-- Select --</option>
+            </select>
+            <span asp-validation-for="@Model.UnitId" class="validation-invalid-label"></span>
+        </div>        
+        <div class="col-md-12">
+            <label asp-for="@Model.Date" class="clear-fix font-weight-semibold"></label>
+            <input value="@Model.Date.ToString("dd/MM/yyyy")" type="text" class="form-control" readonly>
+            <span asp-validation-for="@Model.Date" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.WholesalePrice" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.WholesalePrice" value="@String.Format("{0:#,##0.##}", Model.WholesalePrice)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.WholesalePrice" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.RetailPrice" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.RetailPrice" value="@String.Format("{0:#,##0.##}", Model.RetailPrice)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.RetailPrice" class="validation-invalid-label"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadPriceById(0)" class="btn btn-light ml-1 btn-sm">Cancel <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button> 
+        }
+        else
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+
+    var changeUnit = function (unit) {
+        ReadPriceById(unit);
+    }
+</script>
+

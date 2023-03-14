@@ -1,0 +1,204 @@
+﻿@model EmployeeSalaryViewModel
+<div class="modal-header">
+    <h5 class="modal-title">Employee Salary</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body" id="fEmployeeSalary"></div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Employee Salary's List</h5>
+                    <input hidden id="EId" value="@ViewBag.EmployeeId">
+                </div>
+                <div class="card-body">
+                    <table id="EmployeeSalaryTable" class="table datatable-save-state w-100">
+                        <thead>
+                            <tr>
+
+                                <th class="text-center">
+                                    <label asp-for="EffectiveDate"></label>
+                                </th>
+                                <th class="text-center">
+                                    <label asp-for="BasicSalary"></label>
+                                </th>
+                                <th class="text-center">
+                                    <label asp-for="Type"></label>
+                                </th>
+                                <th class="text-center">
+                                    <label asp-for="Wage"></label>
+                                </th>
+                                <th class="text-center">
+                                    <label asp-for="ActualWage"></label>
+                                </th>
+                                <th class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            var EmployeeSalaryAction = $.templates("#EmployeeSalaryAction");
+            var $EmployeeSalaryTable = $("#EmployeeSalaryTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "employeeId": $("#EId").val()
+                        },
+                        url: "@Url.Action("Read", "EmployeeSalary")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                pageLength: 10,
+                paging: true,
+                serverSide: false,
+                cache: false,
+                lengthChange: false,
+                filter: true,
+                search: true,
+                columns: [
+                    {
+                        data: "effectiveDate",
+                        render: function (data, type, row) {
+                            return moment(data).format("DD/MM/YYYY");
+                        }
+                    },
+                    {
+                        data: "basicSalary",
+                        render: function (data, type, row) {
+                            return FormatCurrency(data);
+                        }
+                    },
+                    {
+                        data: "type",
+                        render: function (data, type, row) {
+                             switch (data) {
+                                case 0:
+                                     return "<p class='text-info'>@Html.Raw(EEmployeeSalaryType.Net.Description())</p>";
+                                case 1:
+                                     return "<p class='text-success'>@Html.Raw(EEmployeeSalaryType.Gross.Description())</p>";
+                            }
+
+                        }
+                    },
+                    {
+                        data: "wage",
+                        render: function (data, type, row) {
+                             switch (data) {
+                                case 0:
+                                     return "<p class='text-info'>@Html.Raw(EEmployeeSalaryWage.Hourly.Description())</p>";
+                                case 1:
+                                     return "<p class='text-success'>@Html.Raw(EEmployeeSalaryWage.Day.Description())</p>";
+                                case 2:
+                                     return "<p class='text-warning'>@Html.Raw(EEmployeeSalaryWage.Fixed.Description())</p>";
+                                case 3:
+                                     return "<p class='text-danger'>@Html.Raw(EEmployeeSalaryWage.Contractual.Description())</p>";
+                            }
+
+                        }
+                    },
+                    {
+                        data: "actualWage",
+                        render: function (data, type, row) {
+                            return FormatCurrency(data);
+                        }
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return EmployeeSalaryAction.render({ data: data })
+                        }
+                    },
+                ],
+                columnDefs: [
+                    {
+                        className: "text-center", targets: [0,1,2,3,4,5]
+                    }
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+            ReadById();
+        });
+
+
+        var EmployeeSalarySuccess = function () {
+            $('#EmployeeSalaryTable').DataTable().ajax.reload();
+            ReadById();
+        }
+
+        var EmployeeSalaryUpdateSucess = function () {
+            var tmp = $('#EmployeeSalaryTable').DataTable().page();
+            $('#EmployeeSalaryTable').DataTable().ajax.reload();
+            $('#EmployeeSalaryTable').DataTable().page(tmp).draw('page');
+            ReadById();
+        }
+
+
+        function ReadById(effectiveDate) {
+            $.ajax({
+                url: "@Url.Action("_Form", "EmployeeSalary")",
+                method: "GET",
+                data: {
+                    "employeeId": $("#EId").val(),
+                    "effectiveDate": effectiveDate,
+                },
+                success: function (data) {
+                    $("#fEmployeeSalary").empty();
+                    $("#fEmployeeSalary").html(data);
+                },
+                error: function (data) {
+                },
+            });
+        }
+
+</script>
+<script id="EmployeeSalaryAction" type="text/x-jsrender">
+    <div class="list-icons">
+        <div class="list-icons-item dropdown">
+            <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a onclick="ReadById('{{:data.effectiveDate}}')" class="dropdown-item">
+                    <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                    @EText.Edit
+                </a>
+                <a href="#" class="dropdown-item remove-item" data-action="/EmployeeSalary/Delete" callbackfn="EmployeeSalarySuccess()" data-params='{"effectiveDate":"{{:data.effectiveDate}}","employeeId":"{{:data.employeeId}}"}'>
+                    <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                    @EText.Remove
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+

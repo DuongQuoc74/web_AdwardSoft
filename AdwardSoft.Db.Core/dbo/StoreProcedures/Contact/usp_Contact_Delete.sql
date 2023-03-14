@@ -1,0 +1,18 @@
+﻿CREATE PROCEDURE [dbo].[usp_Contact_Delete]
+	@Id INT
+AS BEGIN
+	SET NOCOUNT OFF;
+	SET TRANSACTION ISOLATION LEVEL READ COMMITTED
+	--------------------------------------------------
+	BEGIN TRY
+			DELETE FROM [dbo].[Contact]
+			WHERE [Id] = @Id
+		COMMIT	
+		SELECT 1
+	END TRY
+	BEGIN CATCH
+		ROLLBACK TRAN;
+		SELECT 0
+		THROW;
+	END CATCH	
+END

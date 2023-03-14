@@ -1,0 +1,32 @@
+﻿@model PriceDetailViewModel
+@{
+    var isExist = ViewBag.IsExist == 1;
+    var action = isExist ? "UpdatePrice" : "Create";
+    var methodAction = isExist ? "PUT" : "POST";
+}
+
+<form asp-action="@action" asp-controller="PriceDetail" callbackfn="PriceDetailSuccess()" class="form-validate-jquery" method="@methodAction">
+    <div class="modal-header">
+        <h5 class="modal-title">Điều chỉnh giá</h5>
+        <input hidden type="text" asp-for="@Model.ProductId" value="@Model.ProductId" class="form-control" />
+        <input hidden type="text" asp-for="@Model.LocationId" value="@Model.LocationId" class="form-control" />
+        <input hidden type="text" asp-for="@Model.DeliveryPointId" value="@Model.DeliveryPointId" class="form-control" />
+        <input hidden type="text" asp-for="@Model.DeliveryType" value="@Model.DeliveryType" class="form-control" />
+        <input hidden type="text" asp-for="@Model.Date" value="@Model.Date" class="form-control" />
+    </div>
+    <div class="modal-body row">
+        <div class="col-md-auto">
+            <label asp-for="Price" class="clear-fix font-weight-semibold"></label>
+            <input type="text" asp-for="@Model.Price" value="@String.Format("{0:#,##0.##}", Model.Price)" class="form-control format-Currency" />
+            <span asp-validation-for="@Model.Price" class="validation-invalid-label"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+        <a data-dismiss="modal" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+    </div>
+</form>
+
+<script>
+
+</script>

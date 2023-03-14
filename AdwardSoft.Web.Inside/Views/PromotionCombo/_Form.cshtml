@@ -1,0 +1,105 @@
+﻿@model AdwardSoft.Web.Inside.Models.PromotionComboViewModel
+@{ 
+    bool isNew = (Model.PurchaseProductId == 0) ? true : false;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+}
+
+<form class="form-validate-jquery form-content" asp-action="@action" asp-controller="PromotionCombo" callbackfn="PromotionComboSuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <input asp-for="@Model.PromotionId" type="hidden" value="@Model.PromotionId">
+        <input asp-for="@Model.PromoProductIdCurrent" type="hidden" value="@Model.PromoProductIdCurrent">
+        <input asp-for="@Model.PurchaseProductIdCurrnet" type="hidden" value="@Model.PurchaseProductIdCurrnet">
+        @if (isNew)
+        {
+            <div class="col-md-12">
+                <label asp-for="@Model.PurchaseProductId" class="clear-fix font-weight-semibold"></label>
+                <select class="form-control select-search" asp-items="@(new SelectList(ViewBag.Product, "Id", "Text"))" asp-for="PurchaseProductId">
+                </select>
+                <span asp-validation-for="@Model.PurchaseProductId" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-12">
+                <label asp-for="@Model.PromoProductId" class="clear-fix font-weight-semibold"></label>
+                <select class="form-control select-search" asp-items="@(new SelectList(ViewBag.Product, "Id", "Text"))" asp-for="PromoProductId">
+                </select>
+                <span asp-validation-for="@Model.PromoProductId" class="validation-invalid-label"></span>
+            </div>
+        }
+        else
+        {
+            <div class="col-md-12">
+                <label asp-for="@Model.PurchaseProductId" class="clear-fix font-weight-semibold"></label>
+                <select class="form-control select-search" asp-items="@(new SelectList(ViewBag.Product, "Id", "Text"))" disabled asp-for="PurchaseProductId">
+                </select>
+                <span asp-validation-for="@Model.PurchaseProductId" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-12">
+                <label asp-for="@Model.PromoProductId" class="clear-fix font-weight-semibold"></label>
+                <select class="form-control select-search" asp-items="@(new SelectList(ViewBag.Product, "Id", "Text"))" disabled asp-for="PromoProductId">
+                </select>
+                <span asp-validation-for="@Model.PromoProductId" class="validation-invalid-label"></span>
+            </div>
+            <input asp-for="@Model.PurchaseProductId" type="hidden" value="@Model.PurchaseProductId">
+            <input asp-for="@Model.PromoProductId" type="hidden" value="@Model.PromoProductId">
+        }
+
+        <div class="col-md-12">
+            <label asp-for="@Model.PromoType" class="clear-fix font-weight-semibold"></label>
+            <select class="form-control select" onchange="changeAmountType('#PromoType', '#PromoAmount')" asp-items="@Html.GetEnumSelectList<EPromotionAmountType>()" asp-for="PromoType">
+            </select>
+            <span asp-validation-for="@Model.PromoType" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.PromoAmount" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.PromoAmount" value="@String.Format("{0:#,##0.##}", Model.PromoAmount)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.PromoAmount" class="validation-invalid-label"></span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadComboById(0)" class="btn btn-light ml-1 btn-sm">Cancel <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+
+    var changeAmountType = function (selectName, inputName) {
+        $(inputName).val(0);
+        if (Number($(selectName).val()) == 1) {
+            $(inputName).attr("max", "100");
+            $(inputName).attr("min", "0");
+            $(inputName).removeClass("format-Currency");
+            $(inputName).addClass("format-number");
+        } else {
+            $(inputName).removeAttr("max");
+            $(inputName).removeAttr("min");
+            $(inputName).removeClass("format-number");
+            $(inputName).addClass("format-Currency");
+        }
+    }
+</script>
+

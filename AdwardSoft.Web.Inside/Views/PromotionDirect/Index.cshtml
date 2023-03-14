@@ -1,0 +1,168 @@
+﻿<div class="modal-header">
+    <h5 class="modal-title">@EPromotionType.DiscountCombo.Description()</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body" id="fPromotionDirect"></div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">@EPromotionType.DiscountCombo.Description()'s List</h5>
+                    <input hidden id="PId" value="@ViewBag.PromotionId">
+                </div>
+                <div class="card-body">
+                    <table id="PromotionDirectTable" class="table datatable-save-state w-100">
+                        <thead>
+                            <tr>
+                                <th width="30%" class="text-center">Purchase Product Name</th>
+                                <th width="30%" class="text-center">Promo Type</th>
+                                <th width="30%" class="text-center">Promo Amount</th>
+                                <th width="10%"></th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+        $(document).ready(function () {
+            var PromotionDirectAction = $.templates("#PromotionDirectAction");
+            var $PromotionDirectTable = $("#PromotionDirectTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "promotionId": @ViewBag.PromotionId
+                        },
+                        url: "@Url.Action("Read", "PromotionDirect")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                pageLength: 10,
+                paging: true,
+                serverSide: false,
+                cache: false,
+                lengthChange: false,
+                filter: true,
+                search: true,
+                columns: [
+                    {
+                        data: "purchaseProductName",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "promoType",
+                        render: function (data, type, row) {
+                             switch (data) {
+                                case 0:
+                                     return "<p class='text-info'>@Html.Raw(EPromotionAmountType.Value.Description())</p>";
+                                case 1:
+                                     return "<p class='text-success'>@Html.Raw(EPromotionAmountType.Rate.Description())</p>";
+                            }
+
+                        }
+                    },
+                    {
+                        data: "promoAmount",
+                        render: function (data, type, row) {
+                            return FormatCurrency(data);
+                        }
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return PromotionDirectAction.render({ data: data })
+                        }
+                    },
+                ],
+                columnDefs: [
+                    {
+                        className: "text-center", targets: [0,1,2]
+                    }
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+            ReadDirectById(0);
+        });
+
+
+        var PromotionDirectSuccess = function () {
+            $('#PromotionDirectTable').DataTable().ajax.reload();
+            ReadDirectById(0);
+        }
+
+        var PromotionDirectUpdateSucess = function () {
+            var tmp = $("#PromotionDirectTable").DataTable().page();
+            $('#PromotionDirectTable').DataTable().ajax.reload();
+            $('#PromotionDirectTable').DataTable().page(tmp).draw('page');
+            ReadDirectById(0);
+        }
+
+
+        function ReadDirectById(purchaseProductId) {
+            $.ajax({
+                url: "@Url.Action("_Form", "PromotionDirect")",
+                method: "GET",
+                data: {
+                    "purchaseProductId": purchaseProductId,
+                    "promotionId": $("#PId").val()
+                },
+                success: function (data) {
+                    $("#fPromotionDirect").empty();
+                    $("#fPromotionDirect").html(data);
+                },
+                error: function (data) {
+                },
+            });
+        }
+
+</script>
+<script id="PromotionDirectAction" type="text/x-jsrender">
+    <div class="list-icons">
+        <div class="list-icons-item dropdown">
+            <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a callbackfn="PromotionDirectSuccess()" onclick="ReadDirectById('{{:data.purchaseProductId}}','{{:data.promoProductId}}')" class="dropdown-item">
+                    <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                    @EText.Edit
+                </a>
+                <a href="#" class="dropdown-item remove-item" data-action="/PromotionDirect/Delete" callbackfn="PromotionDirectSuccess()" data-params='{"promotionId":"{{:data.promotionId}}","purchaseProductId":"{{:data.purchaseProductId}}"}'>
+                    <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                    @EText.Remove
+                </a>
+            </div>
+        </div>
+    </div>
+</script>
+

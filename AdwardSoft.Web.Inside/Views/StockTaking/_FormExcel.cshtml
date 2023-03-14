@@ -1,0 +1,139 @@
+﻿@model StockTakingExcelViewModel
+
+@{ 
+    var Stocks = @ViewBag.Stocks;
+}
+
+<form asp-action="CreateExcel" asp-controller="StockTaking" id="_Form_View-Excel" callbackfn="StockTakingSuccess()" class="form-validate-jquery" method="POST">
+    <div class="modal-header">
+        <h5 class="modal-title">Import from excel</h5>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <label class="clear-fix font-weight-bold">File</label>
+                <div class="input-group">
+                    <input type="text" id="FileShow" class="form-control" readonly>
+                    <div class="input-group-btn">
+                        <span class="fileUpload btn btn-info">
+                            <span class="upl" id="upload">Chose file</span>
+                            <input type="file" class="upload up" accept=".xlsx, .xls" asp-for="@Model.File" />
+                        </span>
+                    </div>
+                </div>
+                <span asp-validation-for="File" class="validation-invalid-label"></span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="clear-fix font-weight-semibold">Stock</label>
+                    <select id="stock-select-excel" asp-for="@Model.StockId" class="form-control select-search" asp-items="Stocks">
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="clear-fix font-weight-semibold">Date <span class="text-danger">*</span></label>
+                    <input type="text" id="date-stocktaking" asp-for="@Model.DateStr" class="form-control daterange-single" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button id="btn-sync" type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Sync.Description() <i class="fa fa-check ml-1"></i></button>
+        <a data-dismiss="modal" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+    </div>
+    <div id="alert-footer" class="modal-footer d-flex flex-column">
+
+    </div>
+    
+</form>
+
+<script>
+    var $StockSelectExcel = $('#stock-select-excel')
+    var $DateStocking = $('#date-stocktaking')
+
+    var AlertFooter = {
+        obj: $('#alert-footer'),
+        _addAlert: function(date, stock) {
+            this.obj.append(
+                `<div class="alert alert-warning alert-styled-left alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert"><span>×</span></button>
+                    <span class="font-weight-semibold">Warning!</span> this content in <b>${date}</b> and <b>${stock}</b> have been locking.
+                </div>`)
+        },
+        _empty: function () {
+            this.obj.empty()
+        }
+    }
+
+    var SyncButton = {
+        btn: $('#btn-sync'),
+        _disable: function () {
+            this.btn.addClass('disabled')
+            this.btn.attr('disabled', true)
+        },
+        _able: function () {
+            this.btn.removeClass('disabled')
+            this.btn.removeAttr('disabled')
+        }
+    }
+
+    $('.select-search').select2()
+
+    $(document).on("change", "#File", function (e) {
+        $("#FileShow").val(e.target.files[0].name)
+        _Form_CheckIsLock()
+    })
+
+    $DateStocking.daterangepicker({
+        singleDatePicker: true,
+        timePicker: false,
+        minDate: '01-01-1910',
+        maxDate: new Date(),
+        locale: {
+            format: 'DD/MM/YYYY'
+        },
+        yearPicker: true
+    })
+
+    function _Form_CheckIsLock() {
+        $.getJSON('@Url.Action("CheckIsLock", "StockTaking")', {
+            "stockId": $StockSelectExcel.val(),
+            "date": $DateStocking.val()
+        }, function (data) {
+            _handeLock(data)
+        })
+    }
+
+    function _handeLock(isLock) {
+
+        if (isLock > 0) {
+            // => is lock
+            SyncButton._disable()
+            // => Show alert
+            AlertFooter._addAlert($DateStocking.val(), $StockSelectExcel.find('option:selected').text())
+        } else {
+            // => is not lock
+            SyncButton._able()
+            // => Empty alert
+            AlertFooter._empty()
+        }
+    }
+
+    $(document).ready(function () {
+        _Form_CheckIsLock()
+    })
+
+</script>
+@* ---- Events ---- *@ 
+<script>
+    $DateStocking.on('change', function (e) {
+        _Form_CheckIsLock()
+    })
+
+    $StockSelectExcel.on('change', function (e) {
+        _Form_CheckIsLock()
+    })
+</script>

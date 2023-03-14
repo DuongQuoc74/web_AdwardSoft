@@ -1,0 +1,153 @@
+﻿@model AdwardSoft.Web.Inside.Models.ModuleViewModel
+<form class="form-validate-jquery form-content" id="@("_FormView-" + Model.Id)" callbackfn="moduleSuccess()">
+    @if (Model.Id == 0)
+    {
+        <div class="clear-fix">
+            <label asp-for="Title" class="font-weight-semibold"></label>
+            <input type="text" class="form-control" asp-for="Title" value="@Model.Title" />
+            <span asp-validation-for="@Model.Title" class="validation-invalid-label"></span>
+        </div>
+        <div class="clear-fix">
+            <label asp-for="Link" class="font-weight-semibold"></label>
+            <input type="text" class="form-control" asp-for="Link" value="@Model.Link" />
+            <span asp-validation-for="@Model.Link" class="validation-invalid-label"></span>
+        </div>
+        <div class="clear-fix">
+            @*<label asp-for="ClassName" class="font-weight-semibold"></label>
+        <input type="text" class="form-control" asp-for="ClassName" value="@Model.ClassName" />
+        <span asp-validation-for="@Model.ClassName" class="validation-invalid-label"></span>*@
+            <label asp-for="ClassName" class="font-weight-semibold"></label>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" asp-for="ClassName" value="@Model.ClassName" />
+                <div class="input-group-append">
+                    <a href="@Url.Action("_ViewIcons", "Module")" modal-size="modal-lg" class="btn btn-outline-info text-info modal-link" >Icon</a>
+                </div>
+            </div>
+            <span asp-validation-for="@Model.ClassName" class="validation-invalid-label"></span>
+        </div>
+        <div class="clear-fix">
+            <label asp-for="ControllerName" class="font-weight-semibold"></label>
+            <input type="text" class="form-control" asp-for="ControllerName" value="@Model.ControllerName" />
+            <span asp-validation-for="@Model.ControllerName" class="validation-invalid-label"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <label asp-for="@Model.IsPublic" class="clear-fix font-weight-semibold"></label>
+                <div class="form-check form-check-switch form-check-switch-left pt-2">
+                    <label class="form-check-label d-flex align-items-center">
+                        <input asp-for="@Model.IsPublic" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery">
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-9" id="module_for_type_0">
+                <label asp-for="UserTypes" class="clear-fix font-weight-semibold"></label>
+                <select asp-for="@Model.UserTypes" asp-items="@Html.GetEnumSelectList<EUserType>()" multiple class="form-control select ">
+                </select>
+            </div>
+        </div>
+
+        <div class="clear-fix">
+            <label asp-for="ParentId" class="font-weight-semibold"></label>
+            <select class="form-control select-search" asp-for="ParentId" id="module_parent-select">
+                <option value="0">-- Chọn --</option>
+            </select>
+            <span asp-validation-for="@Model.ParentId" class="validation-invalid-label"></span>
+        </div>
+        <div class="clear-fix"></div>
+        <div class="d-flex justify-content-end align-items-center">
+            <a href="#" onclick="loadFindId(0)" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close ml-1"></i></a>
+            <button type="button" onclick="Submit('Create', @Model.Id)" class="btn btn-success ml-1 btn-sm mr-0">Thêm mới <i class="fa fa-check ml-1"></i></button>
+            
+        </div>
+    }
+    else
+    {
+        <div class="row" style="margin: 0 1.375rem">
+            <input asp-for="Id" type="hidden" value="@Model.Id">
+            <div class="col-md-6">
+                <label asp-for="Title" class="clear-fix font-weight-semibold"></label>
+                <input type="text" class="form-control" asp-for="Title" value="@Model.Title" />
+                <span asp-validation-for="@Model.Title" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Link" class="clear-fix font-weight-semibold"></label>
+                <input type="text" class="form-control" asp-for="Link" value="@Model.Link" />
+                <span asp-validation-for="@Model.Link" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ClassName" class="font-weight-semibold"></label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" asp-for="ClassName" value="@Model.ClassName" id="ClassName_@Model.Id" />
+                    <div class="input-group-append">
+                        <a href="@Url.Action("_ViewIcons", "Module", new { Id = Model.Id })" modal-size="modal-lg" class="btn btn-outline-info text-info modal-link">Icon</a>
+                    </div>
+                </div>
+                <span asp-validation-for="@Model.ClassName" class="validation-invalid-label"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="ControllerName" class="clear-fix font-weight-semibold"></label>
+                <input type="text" class="form-control" asp-for="ControllerName" value="@Model.ControllerName" />
+                <span asp-validation-for="@Model.ControllerName" class="validation-invalid-label"></span>
+            </div>
+
+            <div class="row col-md-12 pr-0">
+                <div class="col-md-2">
+                    <label asp-for="@Model.IsPublic" class="clear-fix font-weight-semibold"></label>
+                    <div class="form-check form-check-switch form-check-switch-left pt-2">
+                        <label class="form-check-label d-flex align-items-center">
+                            <input asp-for="@Model.IsPublic" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery_@Model.Id">
+                        </label>
+                    </div>
+                </div>
+                @if (Model.IsPublic == false)
+                {
+                    <div class="col-md-10 pr-0" id="module_for_type_@Model.Id">
+                        <label asp-for="UserTypes" class="clear-fix font-weight-semibold"></label>
+                        <select asp-for="@Model.UserTypes" asp-items="@Html.GetEnumSelectList<EUserType>()" multiple class="form-control select ">
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <div class="d-none col-md-10 pr-0" id="module_for_type_@Model.Id">
+                        <label asp-for="UserTypes" class="clear-fix font-weight-semibold"></label>
+                        <select asp-for="@Model.UserTypes" asp-items="@Html.GetEnumSelectList<EUserType>()" multiple class="form-control select ">
+                        </select>
+                    </div>
+                }
+            </div>
+            <div class="clear-fix"></div>
+        </div>
+        <div class="form-footer row col-md-12">
+            <div class="col-md-2 pl-4" style="padding-left:2.5rem;">
+                <a data-action="/Module/Delete" data-params='{"id": @Model.Id}' class="remove-item" callbackfn="moduleSuccess()"><i class="icon-trash"></i> Xóa</a>
+            </div>
+
+            <div class="col-md-10">
+                <div class="d-flex justify-content-end align-items-center">
+                    <a href="#" onclick="Collapse(@Model.Id)" class="btn btn-light ml-1 btn-sm">Hủy bỏ <i class="fa fa-close ml-1"></i></a>
+                    <button type="button" onclick="Submit('Update', @Model.Id)" class="btn btn-success ml-1 btn-sm mr-0">Cập nhật <i class="fa fa-check ml-1"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="clear-fix"></div>
+    }
+</form>
+
+
+<script>
+    rebindValidation();
+    $(document).ready(function () {
+        Select2MultiLv("Module", "module_parent-select");
+        setTimeout(rebindValidation, 500);
+
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.select-search').select2();
+        new Switchery(document.querySelector('.form-check-input-switchery_@Model.Id'));
+        
+        
+    });
+</script>

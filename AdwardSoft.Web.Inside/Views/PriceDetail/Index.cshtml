@@ -1,0 +1,263 @@
+﻿@model PriceDetailDatatableViewModel
+
+@{
+    ViewData["Title"] = "Chi tiết giá";
+
+    var Products = @ViewBag.Products;
+    var Locations = @ViewBag.Locations;
+    var DeliveryPoints = @ViewBag.DeliveryPoints;
+    var ChildLocations = @ViewBag.ChildLocations;
+    var date = @ViewBag.Date;
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Danh sách chi tiết giá</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Sản phẩm</label>
+                            <select id="product-select" class="form-control select-search" asp-items="Products">
+                                <option value="0" selected>Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Tỉnh/thành</label>
+                            <select id="location-select" class="form-control select-search" asp-items="Locations">
+                                <option value="0" selected>Tất cả</option>
+                            </select>
+                        </div>
+                        <div id="child-location-div" class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Quận/huyện</label>
+                            <select id="child-location-select" class="form-control select-search" asp-items="ChildLocations">
+                                <option value="0" selected>Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Điểm giao hàng</label>
+                            <select id="delivery-point-select" class="form-control select-search" asp-items="DeliveryPoints">
+                                <option value="0" selected>Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Loại vận chuyển</label>
+                            <select id="delivery-type-select" class="form-control select" asp-items="@Html.GetEnumSelectList<EDeliveryType>()">
+                                <option value="4" selected>Tất cả</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="PriceDetailTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th width="5%">
+                                <label asp-for="OrdinalNumber"></label>
+                            </th>
+                            <th>
+                                <label asp-for="ProductName"></label>
+                            </th>
+                             <th>
+                                <label asp-for="UnitName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="LocationName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="DeliveryPointName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="DeliveryType"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Price"></label>
+                            </th>
+                            <th>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script id="PriceDetailAction" type="text/x-jsrender">
+        {{if !data.isLock}}
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a href="/PriceDetail/_FormEditPrice?productId={{:data.productId}}&locationId={{:data.locationId}}&deliveryPointId={{:data.deliveryPointId}}&deliveryType={{:data.deliveryType}}&date=@date" callbackfn="PriceDetailSuccess()" checkvalidate="true" modal-size="modal-sm" class="dropdown-item modal-link">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description() giá"></i>
+        @EText.Edit.Description() giá
+                    </a>
+                   @* <a href="#" class="dropdown-item remove-item" data-action="/PriceDetail/Delete" callbackfn="PriceDetailSuccess()" data-params='{"productId":"{{:data.productId}}", "locationId":"{{:data.locationId}}", "deliveryPointId":"{{:data.deliveryPointId}}", "deliveryType":"{{:data.deliveryType}}"}'>
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.Description()"></i>
+        @EText.Remove.Description()
+                    </a>*@
+                </div>
+            </div>
+        </div>
+        {{/if}}
+    </script>
+    <script>
+        var $ProductSelect = $('#product-select')
+        var $LocationSelect = $('#location-select')
+        var $ChildLocationDiv = $('#child-location-div')
+        var $DeliveryPointSelect = $('#delivery-point-select')
+        var $DeliveryTypeSelect = $('#delivery-type-select')
+        var $ChildLocationSelect = $('#child-location-select');
+        var PriceDetailAction = $.templates("#PriceDetailAction");
+        var $PriceDetailTable
+
+        $PriceDetailTable = $("#PriceDetailTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "productId": $ProductSelect.val(),
+                        "locationId": $LocationSelect.val(),
+                        "locationChildId": $ChildLocationSelect.val(),
+                        "deliveryPointId": $DeliveryPointSelect.val(),
+                        "deliveryType": $DeliveryTypeSelect.val(),
+                        "date": '@date'
+                    },
+                    url: "@Url.Action("Read", "PriceDetail")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data });
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: false,
+            search: false,
+            order: false,
+            columns: [
+                { data: "ordinalNumber" },
+                { data: "productName" },
+                { data: "unitName" },
+                { data: "locationName" },
+                { data: "deliveryPointName" },
+                {
+                    data: "deliveryType",
+                    render: (data, type, row) => data === 0 ? "<p class='text-info'>@EDeliveryType.Waterway.Description()</p>" : data === 1 ? "<p class='text-info'>@EDeliveryType.Road.Description()</p>" : data === 2 ? "<p class='text-info'>@EDeliveryType.Airline.Description()</p>" : "<p class='text-info'>@EDeliveryType.Railway.Description()</p>"
+                },
+                { 
+                    data: "price",
+                    render: (data, type, row) => FormatCurrency(data)
+                },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return (PriceDetailAction.render({ data: data }));
+                    }
+                },
+            ],
+            columnDefs: [
+                {
+                    searchable: false,
+                    orderable: false,
+                    targets: 0,
+                },
+            ],
+            order: [[1, 'asc']],
+            language: {
+                info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        });
+        $PriceDetailTable.on('order.dt', function () {
+            let i = 1;
+
+            $PriceDetailTable.cells(null, 0, { order: 'applied' }).every(function (cell) {
+                this.data(i++);
+            });
+        }).draw();
+        $(document).ready(function () {
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.form-check-input-switch').bootstrapSwitch();
+            $('.select-search').select2();
+            $ChildLocationDiv.hide();
+            setTimeout(rebindValidation, 500);
+        });
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+
+        var PriceDetailSuccess = function () {
+            $PriceDetailTable.ajax.reload()
+        }
+
+    </script>
+
+    @* ------ Events ------ *@
+
+    <script>
+
+        $ProductSelect.on('change', function (e) {
+            $PriceDetailTable.ajax.reload()
+        })
+        $LocationSelect.on('change', function (e) {
+            $PriceDetailTable.ajax.reload()
+            if (e.target.value != 0) {
+                $ChildLocationDiv.show()
+            } else {
+                $ChildLocationDiv.hide()
+            }
+            $.ajax({
+                data: {
+                    "parentId": e.target.value,
+                },
+                url: "@Url.Action("ReadSelect", "PriceDetail")",
+                method: "POST",
+                success: function (response) {
+                    var data = response.data
+                    $ChildLocationSelect.empty();
+                    $ChildLocationSelect.append($(`<option value="0" selected>Tất cả</option>`));
+                    for (var key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            $ChildLocationSelect.append($(`<option value="${data[key].value}">${data[key].text}</option>`));
+                        }
+                    }
+                }
+            })
+        })
+        $DeliveryPointSelect.on('change', function (e) {
+            $PriceDetailTable.ajax.reload()
+        })
+        $ChildLocationSelect.on('change', function (e) {
+            $PriceDetailTable.ajax.reload()
+        })
+        $DeliveryTypeSelect.on('change', function (e) {
+            $PriceDetailTable.ajax.reload()
+        })
+
+    </script>
+
+  
+}

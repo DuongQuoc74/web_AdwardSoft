@@ -1,0 +1,247 @@
+﻿@{
+    ViewData["Title"] = "Sale Receipt";
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Sale Receipt</h5>
+                <div class="clear-fix"></div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="col-md-auto" style="margin-top:35px">
+                            <a href="/SaleReceipt/_Form" class="btn btn-sm btn-primary"><i class="fa fa-plus mr-1"></i>Create</a>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Shift</label>
+                            <select class="form-control select" asp-items="@(new SelectList(ViewBag.Shifts, "Id", "Text"))" id="ShiftsId">
+                                <option value="0">-- All --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Checkout Counter</label>
+                            <select class="form-control select" asp-items="@(new SelectList(ViewBag.CheckoutCounters, "Id", "Text"))" id="CheckoutCounterId">
+                                <option value="0">-- All --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Date</label>
+                            <div class="form-group-feedback form-group-feedback-left ">
+                                <input type="text" id="DateFilter" class="form-control">
+                                <div class="form-control-feedback">
+                                    <i class="icon-calendar22"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-body">
+                <table id="ADSTable" class="table datatable-save-state" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th class="text-center">No</th>
+                            <th class="text-center">Customer</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Date</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+
+        $('#DateFilter').daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: false,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+
+        $(document).ready(function () {
+            $("#titlePage").text('ADS')
+            var ADSAction = $.templates("#ADSAction");
+            var $ADSTable = $("#ADSTable").DataTable({
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "type": $("#ShiftsId").val(),
+                            "status": $("#CheckoutCounterId").val(),
+                            "date": $("#DateFilter").val(),
+                            "model": data
+                        },
+                        url: "@Url.Action("Read", "SaleReceipt")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                serverSide: true,
+                processing: true,
+                responsive: true,
+                filter: true,
+                search: true,
+                pageLength: 10,
+                paging: true,
+                cache: false,
+                bSort: false,
+                lengthChange: false,
+                columns: [
+                    {
+                        data: "no",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "customerName",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: "totalAmount",
+                        render: function (data, type, row) {
+                            return FormatCurrency(data);
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function (data, type, row) {
+                             switch (data) {
+                                case 0:
+                                     return "<p class='text-success'>@Html.Raw(ESaleReceiptStatus.Created.Description())</p>";
+                                case 1:
+                                     return "<p class='text-danger'>@Html.Raw(ESaleReceiptStatus.Canceled.Description())</p>";
+                            }
+
+                        }
+                    },
+                    {
+                        data: "date",
+                        render: function (data, type, row) {
+                            return moment(data).format("DD/MM/YYYY");
+                        }
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return ADSAction.render({ data: data })
+                        }
+                    },
+                ],
+                columnDefs: [
+                    {
+                        className: "text-center", targets: [3,4,5]
+                    },
+                    {
+                        className: "text-right", targets: [2]
+                    },
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+        });
+
+
+        var ADSSuccess = function () {
+            $('#ADSTable').DataTable().ajax.reload();
+        }
+
+        var ADSUpdateSucess = function () {
+            var tmp = $("#ADSTable").DataTable().page();
+            $('#ADSTable').DataTable().ajax.reload();
+            $('#ADSTable').DataTable().page(tmp).draw('page');
+        }
+
+        $(document).on("change", "#ShiftsId", function (e) {
+            ADSSuccess();
+        });
+
+        $(document).on("change", "#CheckoutCounterId", function (e) {
+            ADSSuccess();
+        });
+
+        $(document).on("change", "#DateFilter", function (e) {
+            ADSSuccess();
+        });
+
+        var Print = function (id) {
+            $.ajax({
+                data: {
+                    "id": id,
+                },
+                url: "@Url.Action("Print", "SaleReceipt")",
+                method: "GET",
+                success: function (response) {                         
+                },
+                error: function (error) {
+                    console.log(error)
+                }
+            });
+        }
+
+    </script>
+    <script id="ADSAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="/SaleReceipt/_Form?id={{:data.id}}">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                        @EText.Edit
+                    </a>
+                    <a href="#" class="dropdown-item remove-item" data-action="/SaleReceipt/Delete" callbackfn="ADSSuccess()" data-params='{"id":"{{:data.id}}"}'>
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        @EText.Remove
+                    </a>
+                    <a href="#" onclick="Print('{{:data.id}}')" class="dropdown-item">
+                        <i class="icon-printer" data-toggle="tooltip" title="Print"></i>
+                        Print
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+}

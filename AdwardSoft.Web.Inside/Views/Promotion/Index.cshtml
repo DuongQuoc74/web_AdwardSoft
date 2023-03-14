@@ -1,0 +1,240 @@
+﻿@{ ViewData["Title"] = "Promotion"; }
+<div class="row">
+    <div class="col-4">
+        <div class="card">
+            <div class="card-body" id="fPromotion"></div>
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Promotion's List</h5>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Type</label>
+                            <select class="form-control select" asp-items="@Html.GetEnumSelectList<EPromotionType>()" id="TypeSelect">
+                                <option value="4">-- All --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Status</label>
+                            <select class="form-control select" asp-items="@Html.GetEnumSelectList<EPromotionStatus>()" id="StatusSelect">
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Year</label>
+                            <select class="form-control select" id="YearSelect">
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                                <option value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2024">2025</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="PromotionTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th width="25%" class="text-center">Name</th>
+                            <th width="40%" class="text-center">Duration</th>
+                            <th width="30%" class="text-center">Type</th>
+                            <th width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+        $(document).ready(function () {
+            $("#titlePage").text('Promotion')
+            var PromotionAction = $.templates("#PromotionAction");
+            var $PromotionTable = $("#PromotionTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "type": $("#TypeSelect").val(),
+                            "status": $("#StatusSelect").val(),
+                            "year": $("#YearSelect").val()
+                        },
+                        url: "@Url.Action("Read", "Promotion")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                pageLength: 10,
+                paging: true,
+                serverSide: false,
+                cache: false,
+                lengthChange: false,
+                filter: true,
+                search: true,
+                columns: [
+                    {
+                        data: "name",
+                        render: function (data, type, row) {
+                            return data;
+                        }
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return moment(data.effectiveDate).format("DD/MM/YYYY") + ' - ' + moment(data.expiryDate).format("DD/MM/YYYY");
+                        }
+                    },
+
+                    {
+                        data: "type",
+                        render: function (data, type, row) {
+                             switch (data) {
+                                case 0:
+                                     return "<p class='text-info'>@Html.Raw(EPromotionType.DonationPurchase.Description())</p>";
+                                case 1:
+                                     return "<p class='text-success'>@Html.Raw(EPromotionType.DiscountValue.Description())</p>";
+                                case 2:
+                                     return "<p class='text-purple'>@Html.Raw(EPromotionType.DiscountProduct.Description())</p>";
+                                case 3:
+                                     return "<p class='text-brown'>@Html.Raw(EPromotionType.DiscountCombo.Description())</p>";
+                            }
+
+                        }
+                    },
+                    {
+                        data: {},
+                        render: function (data, type, row) {
+                            return PromotionAction.render({ data: data })
+                        }
+                    },
+                ],
+                columnDefs: [
+                    {
+                        className: "text-center", targets: [1,2,3]
+                    }
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Search...',
+                    info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "No data",
+                    zeroRecords: "No data",
+                    infoFiltered: "",
+                    processing: "Waiting for me!!!",
+                }
+            });
+            ReadById(0);
+        });
+
+
+        var PromotionSuccess = function () {
+            $('#PromotionTable').DataTable().ajax.reload();
+            ReadById(0);
+        }
+
+        var PromotionUpdateSucess = function () {
+            var tmp = $("#PromotionTable").DataTable().page();
+            $('#PromotionTable').DataTable().ajax.reload();
+            $('#PromotionTable').DataTable().page(tmp).draw('page');
+            ReadById(0);
+        }
+
+        $(document).on("change", "#TypeSelect", function (e) {
+            PromotionSuccess();
+        });
+
+        $(document).on("change", "#StatusSelect", function (e) {
+            PromotionSuccess();
+        });
+
+        $(document).on("change", "#YearSelect", function (e) {
+            PromotionSuccess();
+        });
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "Promotion")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#fPromotion").empty();
+                    $("#fPromotion").html(data);
+                },
+                error: function (data) {
+                },
+            });
+        }
+
+    </script>
+    <script id="PromotionAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    {{if data.type == 0}}
+                    <a class="dropdown-item  modal-link" href="/PromotionGift/Index" data-params='{"id":{{:data.id}}}' checkvalidate="true" modal-size="modal-lg">
+                        <i class="icon-gift" data-toggle="tooltip" title="@EPromotionType.DonationPurchase.Description()"></i>
+                        @EPromotionType.DonationPurchase.Description()
+                    </a>
+                    {{/if}}
+
+                    {{if data.type == 1}}
+                    <a class="dropdown-item  modal-link" href="/PromotionAmount/Index" data-params='{"id":{{:data.id}}}' checkvalidate="true" modal-size="modal-lg">
+                        <i class="icon-gift" data-toggle="tooltip" title="@EPromotionType.DiscountValue.Description()"></i>
+                        @EPromotionType.DiscountValue.Description()
+                    </a>
+                    {{/if}}
+
+
+                    {{if data.type == 2}}
+                    <a class="dropdown-item  modal-link" href="/PromotionDirect/Index" data-params='{"id":{{:data.id}}}' checkvalidate="true" modal-size="modal-lg">
+                        <i class="icon-gift" data-toggle="tooltip" title=" @EPromotionType.DiscountProduct.Description()"></i>
+                         @EPromotionType.DiscountProduct.Description()
+                    </a>
+                    {{/if}}
+
+
+                    {{if data.type == 3}}
+                    <a class="dropdown-item  modal-link" href="/PromotionCombo/Index" data-params='{"id":{{:data.id}}}' checkvalidate="true" modal-size="modal-lg">
+                        <i class="icon-gift" data-toggle="tooltip" title="@EPromotionType.DiscountCombo.Description()"></i>
+                        @EPromotionType.DiscountCombo.Description()
+                    </a>
+                    {{/if}}
+
+                    <a onclick="ReadById('{{:data.id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" callbackfn="PromotionSuccess()" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                        @EText.Edit
+                    </a>
+                    <a href="#" class="dropdown-item remove-item" data-action="/Promotion/Delete" callbackfn="PromotionSuccess()" data-params='{"id":"{{:data.id}}"}'>
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        @EText.Remove
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+}
+

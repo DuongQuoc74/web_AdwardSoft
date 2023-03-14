@@ -1,0 +1,207 @@
+﻿@model PriceListViewModel
+@{
+    var defaultDate = default(DateTime);
+    ViewData["Title"] = "Quản lý giá bán";
+}
+
+<div class="row">
+    <div class="col-3">
+        <div class="card" id="_Form">
+        </div>
+    </div>
+    <div class="card col-9">
+            <div class="card-header">
+                <h5 class="card-title">Danh sách giá bán</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Từ ngày - đến ngày</label>
+                            <div class="form-group-feedback form-group-feedback-left ">
+                                <input type="text" id="date-filter" class="form-control">
+                                <div class="form-control-feedback">
+                                    <i class="icon-calendar22"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="PriceListTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="Date"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Title"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Note"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Status"></label>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script id="PriceListAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+        @* -- List Price Detail -- *@
+                    <a href="/PriceDetail/{{:date}}" data-params='{"date":"{{:date}}"}'  class="dropdown-item">
+                        <i class="icon-list" data-toggle="tooltip" title="Danh sách chi tiết giá"></i>
+        Danh sách chi tiết giá
+                    </a>
+        @* -- Edit -- *@
+                    <a onclick="ReadByDate('{{:date}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="Edit"></i>
+        @EText.Edit.Description()
+                    </a>
+        @* -- Remove -- *@
+                    <a data-action="/PriceList/Delete" callbackfn="PriceListSuccess()" data-params='{"date":"{{:date}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+        @EText.Remove.Description()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500);
+            ReadByDate('@defaultDate')
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+
+            $('.select-search').select2();
+            $('.form-check-input-switch').bootstrapSwitch();
+            $('.daterange-single').daterangepicker({
+                singleDatePicker: true,
+                timePicker: false,
+                minDate: '01-01-1910',
+                maxDate: new Date(),
+                locale: {
+                    format: 'DD/MM/YYYY'
+                },
+                yearPicker: true
+            })
+
+        };
+        $.fn.dataTable.render.ellipsis = function (cutoff) {
+            return function (data, type, row) {
+                return type === 'display' && data !== null && data.length > cutoff ?
+                    data.substr(0, cutoff) + '…' :
+                    data;
+            }
+        };
+        var $DateFilter = $('#date-filter');
+        $DateFilter.daterangepicker({
+            applyClass: 'bg-slate-600',
+            cancelClass: 'btn-light',
+            singleDatePicker: false,
+            timePicker: false,
+            autoclose: true,
+            opens: 'right',
+            startDate: moment().subtract(3, 'months'),
+			minDate: '01-01-1910',
+			maxDate: new Date(),
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        })
+        var $PriceListTable
+        var PriceListAction = $.templates("#PriceListAction");
+        $PriceListTable = $("#PriceListTable").DataTable({
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "date": $DateFilter.val()
+                    },
+                    url: "@Url.Action("Read", "PriceList")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response })
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: false,
+            search: false,
+            columns: [
+                { 
+                    data: "date",
+                    render: (data, type, row) => moment(data).format('DD/MM/YYYY')
+                },
+                { data: "title" },
+                { data: "note" },
+                {
+                    data: "status",
+                    render: (data, type, row) => data === 0 ? '<p class="text-danger">@EPriceListStatus.Unavailable.Description()</p>' : data === 1 ? '<p class="text-success">@EPriceListStatus.Available.Description()</p>' : '<p class="text-success">@EPriceListStatus.Pending.Description()</p>'
+                },
+                {
+                    data: "date",
+                    render: function (data, type, row) {
+                        return (PriceListAction.render({ date: moment(data).format('YYYY-MM-DD') }));
+                    }
+                },
+            ],
+            columnDefs: [{
+                targets: 2,
+                render: $.fn.dataTable.render.ellipsis(25)
+            }],
+            language: {
+                info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "Không có dữ liệu ..."
+            }
+        });
+
+        function ReadByDate(date) {
+            
+            $.ajax({
+                url: "@Url.Action("_Form", "PriceList")",
+                method: "GET",
+                data: { "date": date },
+                success: function (data) {
+                    $("#_Form").empty();
+                    $("#_Form").html(data);
+                    rebindValidation()
+                }
+            });
+        };
+
+        var PriceListSuccess = function () {
+            $PriceListTable.ajax.reload();
+            ReadByDate('@defaultDate')
+        };
+
+        $DateFilter.on('change', function (e) {
+            $PriceListTable.ajax.reload()
+            ReadByDate('@defaultDate')
+        })
+    </script>
+}
+

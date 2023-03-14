@@ -1,0 +1,171 @@
+﻿@model LocationDatatableViewModel
+
+@{
+    var parentId = ViewBag.ParentId;
+    var title = @parentId != 0 ? "quận, huyện" : "tỉnh, thành phố";
+    ViewData["Title"] = "Location";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Danh sách @title</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <a href="@Url.Action("_Form","Location")" data-params='{"parentId": @parentId}' checkvalidate="true" modal-size="modal-m" class="btn btn-medium btn-primary modal-link" callbackfn="LocationSuccess()">
+                                <i class="icon-plus22 mr-1"></i><span class="hidden-xs">Thêm mới</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="LocationTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="Code"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Name"></label>
+                            </th>
+                            <th>
+                                <label asp-for="PostalCode"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Rate"></label>
+                            </th>
+                            <th>
+                                <label asp-for="ParentName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Status"></label>
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script id="LocationAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                     
+        @* -- List -- *@
+                @if (parentId == 0) {
+                     <a href='/Location/parent/{{:id}}' checkvalidate="true" class="dropdown-item" >
+                        <i class="icon-list" data-toggle="tooltip" title="Danh sách quận huyện" ></i>
+                            Danh sách quận huyện
+                     </a>
+                }       
+                   
+        @* -- Edit -- *@
+                    <a href='@Url.Action("_Form","Location")' checkvalidate="true" class="dropdown-item modal-link"  modal-size="modal-lg" data-params='{"id":"{{:id}}", "parentId": @parentId}' callbackfn="LocationSuccess()">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.GetDescription()" ></i>
+        @EText.Edit.GetDescription()
+                    </a>
+        @* -- Remove -- *@
+                    <a data-action="/Location/Delete" callbackfn="LocationSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+        @EText.Remove.GetDescription()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500);
+        })
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+
+            $('.select-search').select2();
+            $('.form-check-input-switch').bootstrapSwitch();
+            $('.daterange-single').daterangepicker({
+                singleDatePicker: true,
+                timePicker: false,
+                locale: {
+                    format: 'MM-DD-YYYY'
+                },
+                autoclose: true,
+                yearPicker: true,
+            });
+
+        };
+
+        var $LocationTable
+        var LocationAction = $.templates("#LocationAction");
+        $LocationTable = $("#LocationTable").DataTable({
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "parentId": @parentId,
+                    },
+                    url: "@Url.Action("Read", "Location")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response })
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: false,
+            search: false,
+            columns: [
+                { data: "code" },
+                { data: "name" },
+                { data: "postalCode" },
+                { data: "rate" },
+                { data: "parentName" },
+                {
+                    data: "status",
+                    render: (data, type, row) => data === 0 ? '<p class="text-danger">@EStatus.Unavailable.Description()</p>' : '<p class="text-success">@EStatus.Available.Description()</p>'
+                },
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return (LocationAction.render({ id: data }));
+                    }
+                },
+            ],
+            columnDefs: [
+                {
+                    targets: [4],
+                    visible: @parentId !== 0 ? true : false,
+                    searchable: false,
+                }
+            ],
+            language: {
+                info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "Không có dữ liệu ..."
+            }
+        });
+
+        var LocationSuccess = function () {
+            $LocationTable.ajax.reload();
+        };
+    </script>
+}

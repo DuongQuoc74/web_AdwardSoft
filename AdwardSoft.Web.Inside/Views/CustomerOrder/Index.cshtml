@@ -1,0 +1,472 @@
+﻿@model CustomerOrderViewModel
+
+@{
+	ViewData["Title"] = "CustomerOrder";
+	var Locations = @ViewBag.Locations;
+	var PaymentMethods = @ViewBag.PaymentMethods;
+	var DeliveryVehicles = @ViewBag.DeliveryVehicles;
+}
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header bg-white header-elements-inline">
+				<h6 class="card-title">Đặt hàng</h6>
+			</div>
+			<div class="card-body">
+				<form id="CustomerOrderForm" class="wizard-form steps form-validate-jquery form-content" method="post" asp-controller="CustomerOrder" asp-action="Create" callbackfn="CustomerOrderSuccess()">
+					<input type="hidden" asp-for="@Model.CreatedUser" value="@Model.CreatedUser" />
+					<input type="hidden" asp-for="@Model.ModifiedUser" value="@Model.ModifiedUser" />
+					<input type="hidden" asp-for="@Model.BranchId" value="@Model.BranchId" />
+					<input type="hidden" asp-for="@Model.CustomerId" value="@Model.CustomerId" />
+					<input type="hidden" asp-for="@Model.ReceiverPhone" value="@Model.ReceiverPhone" />
+					<input type="hidden" asp-for="@Model.Date" value="@Model.Date" />
+					<input type="hidden" asp-for="@Model.CreateDate" value="@Model.CreateDate" />
+					<input type="hidden" asp-for="@Model.ModifiedDate" value="@Model.ModifiedDate" />
+					<input type="hidden" asp-for="@Model.TotalQuantityReg" value="@Model.TotalQuantityReg" />
+					<input type="hidden" asp-for="@Model.SubTotal" value="@Model.SubTotal" />
+					<h6>Thông tin đặt hàng</h6>
+					<fieldset>
+						<div class="row">
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="clear-fix font-weight-semibold">Tỉnh/thành</label>
+									<select id="location-select" class="form-control select-search" asp-items="Locations">
+										<option value="0" selected disabled>Vui lòng chọn tỉnh/thành</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="clear-fix font-weight-semibold">Quận/huyện</label>
+									<select id="child-location-select" class="form-control select-search">
+										<option value="0" selected>Vui lòng chọn quận/huyện</option>
+									</select>
+								</div>
+							</div>
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="clear-fix font-weight-semibold">Nơi giao hàng</label>
+									<select id="delivery-point-select" asp-for="@Model.DeliveryPointId" class="form-control select-search">
+										<option value="0" selected>Vui lòng chọn nơi giao hàng</option>
+									</select>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="clear-fix font-weight-semibold">Loại vận chuyển</label>
+									<select id="delivery-type-select" asp-for="@Model.DeliveryType" class="form-control select" asp-items="@Html.GetEnumSelectList<EDeliveryType>()">
+									</select>
+								</div>
+							</div>
+
+						</div>
+
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="clear-fix font-weight-semibold">Người nhận hàng:</label>
+									<input type="text" asp-for="@Model.Receiver" value="@Model.Receiver" class="form-control" />
+									<span asp-validation-for="@Model.Receiver" class="validation-invalid-label"></span>
+								</div>
+							</div>
+
+							<div class="col-md-6">
+								<label class="clear-fix font-weight-semibold">Địa chỉ:</label>
+								<input type="text" asp-for="@Model.ReceiverAddress" value="@Model.ReceiverAddress" class="form-control" />
+								<span asp-validation-for="@Model.ReceiverAddress" class="validation-invalid-label"></span>
+							</div>
+						</div>
+
+						<div class="row">
+
+							<div class="col-md-6">
+								<label class="clear-fix font-weight-semibold">Thanh toán:</label>
+								<select id="payment-method-select" asp-for="@Model.PaymentMethodId" class="form-control select-search" asp-items="PaymentMethods">
+								</select>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="clear-fix font-weight-semibold">Ngày giao:</label>
+									<input type="text" asp-for="@Model.DeliveryDate" value="@Model.DeliveryDate" class="form-control daterange-single">
+								</div>
+							</div>
+
+						</div>
+
+						<div class="row">
+
+							<div class="col-md-6">
+								<label class="clear-fix font-weight-semibold">Mã khuyến mãi:</label>
+								<input type="text" asp-for="@Model.VoucherCode" value="@Model.VoucherCode" class="form-control" />
+								<span asp-validation-for="@Model.VoucherCode" class="validation-invalid-label"></span>
+							</div>
+
+							<div class="col-md-6">
+								<div class="form-group">
+									<label class="clear-fix font-weight-semibold">Ghi chú:</label>
+									<textarea asp-for="@Model.Description" value="@Model.Description" rows="3" cols="3" class="form-control"></textarea>
+									<span asp-validation-for="@Model.Description" class="validation-invalid-label"></span>
+								</div>
+							</div>
+
+						</div>
+					</fieldset>
+
+					<h6>Sản phẩm</h6>
+					<fieldset>
+						<div class="row">
+							<div class="col-md-12">
+								<h6 class="clear-fix font-weight-semibold">Danh sách sản phẩm</h6>
+								<div class="form-group">
+									<table id="ProductTable" class="table datatable-save-state w-100">
+										<thead>
+											<tr>
+												<th>
+													<label>Mã sản phẩm</label>
+												</th>
+												<th>
+													<label>Tên sản phẩm</label>
+												</th>
+												<th>
+													<label>Đơn vị tính</label>
+												</th>
+												<th>
+													<label>Đơn giá</label>
+												</th>
+												<th width="10%">
+													<label>Số lượng</label>
+												</th>
+												<th width="2%" class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+
+					</fieldset>
+
+					<h6>Vận chuyển</h6>
+					<fieldset>
+						<div class="row">
+							<div class="col-md-6">
+								<label class="clear-fix font-weight-semibold">Phương tiện:</label>
+								<select id="delivery-vehicle-select" asp-for="@Model.DeliveryVehicleId" class="form-control select-search" asp-items="DeliveryVehicles">
+									<option value="0" selected disabled>Vui lòng chọn phương tiện giao hàng</option>
+								</select>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-12">
+								<label class="clear-fix font-weight-semibold">Thông tin phương tiện:</label>
+								<div class="form-group">
+									<table id="DeliveryVehicleTable" class="table datatable-save-state w-100">
+										<thead>
+											<tr>
+												<th>
+													<label>Biển số xe</label>
+												</th>
+												<th>
+													<label>Tải trọng</label>
+												</th>
+												<th>
+													<label>Tên tài xế</label>
+												</th>
+												<th>
+													<label>Số điện thoại</label>
+												</th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</fieldset>
+
+					<div class="clearfix float-right">
+						<label class="font-weight-semibold">Tổng số lượng: <span id="total-quantity-reg"></span></label>
+						<br />
+						<label class="font-weight-semibold">Tổng giá trị đơn hàng: <span id="total-amount"></span></label>
+					</div>
+					
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts{
+	<script>
+		var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'))
+		elems.forEach(function (html) {
+			var switchery = new Switchery(html)
+		})
+		let totalQuantityReg = 0;
+		let totalAmount = 0;
+
+		$(document).ready(function () {
+			$('.steps').steps({
+				headerTag: 'h6',
+				bodyTag: 'fieldset',
+				transitionEffect: 'fade',
+				titleTemplate: '<span class="number">#index#</span> #title#',
+				labels: {
+					previous: '<i class="icon-arrow-left13 mr-2" /> Quay lại',
+					next: 'Tiếp theo <i class="icon-arrow-right14 ml-2" />',
+					finish: 'Đặt hàng <i class="icon-arrow-right14 ml-2" />'
+				},
+				onFinished: function (event, currentIndex) {
+					$('#TotalQuantityReg').val(totalQuantityReg)
+					$('#SubTotal').val(totalAmount)
+					$('#CustomerOrderForm').submit()
+				}
+			});
+			
+			$('.select').select2({
+				minimumResultsForSearch: Infinity
+			})
+			$('#child-location-select').prop('disabled', true)
+			$('#delivery-point-select').prop('disabled', true)
+			$('.form-check-input-switch').bootstrapSwitch();
+			$('.select-search').select2();
+			$('#total-quantity-reg').text(parseInt(totalQuantityReg));
+			$('#total-amount').text(parseInt(totalAmount));
+
+			setTimeout(rebindValidation, 500);
+		});
+
+		var CustomerOrderSuccess = function () {
+			setTimeout(function () { location.reload(); }, 1000)
+		};
+
+		var rebindValidation = function () {
+			$('form').each(function (i, f) {
+				$form = $(f);
+				$form.removeData('validator');
+				$form.removeData('unobtrusiveValidation');
+				$.validator.unobtrusive.parse($form);
+			});
+			$('.daterange-single').daterangepicker({
+				singleDatePicker: true,
+				timePicker: false,
+				minDate: new Date(),
+				maxDate: new Date(),
+				locale: {
+					format: 'DD/MM/YYYY'
+				},
+				yearPicker: true
+			})
+			
+			$("#ProductTable").DataTable({
+				processing: true,
+				responsive: true,
+				ajax: function (data, callback, settings) {
+					$.ajax({
+						url: "@Url.Action("ReadProducts", "CustomerOrder")",
+						method: "POST",
+						success: function (response) {
+							callback({ data: response })
+						}
+					})
+				},
+				pageLength: 10,
+				paging: true,
+				cache: false,
+				lengthChange: false,
+				filter: false,
+				search: false,
+				order: false,
+				columns: [
+					{ data: "productCode" },
+					{ data: "productName" },
+					{ data: "unitName" },
+					{
+						data: "price",
+						render: (data, type, row, meta) => {
+							return `<span>${FormatCurrency(data)}</span>
+									<input hidden name='OrderDetail[${meta.row}].Price' value='${data}' />`
+						}
+					},
+					{
+						data: "unitId",
+						render: (data, type, row, meta) => {
+							return `<input type='text' placeholder="Chọn để nhập số lượng" value="0" name='OrderDetail[${meta.row}].QuantityReg' class='form-control'>
+									<input hidden name='OrderDetail[${meta.row}].UnitId' value='${data}' />`
+						}
+					},
+					{
+						data: "productId",
+						render: (data, type, row, meta) => {
+							return `<input name='OrderDetail[${meta.row}].IsOrder' type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" value='false' class="form-check-input-switchery form-control"/>
+									<input hidden name='OrderDetail[${meta.row}].ProductId' value='${data}' />`
+						}
+
+					}
+				],
+				columnDefs: [
+					{
+						orderable: false,
+						targets: [4, 5],
+					},
+					{
+						targets: 5, // your case first column
+						className: "text-center"
+					},
+				],
+				language: {
+					info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+					paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+					processing: "",
+					infoEmpty: "",
+					emptyTable: "@EText.EmptyTable.Description()",
+					zeroRecords: "@EText.EmptyTable.Description()",
+					infoFiltered: ""
+				}
+			});
+		}
+
+		$('#CustomerOrderForm').on('change input', 'input[type="checkbox"]', function (e) {
+			totalCal();
+			return e.target.checked ? $(this).val(true) : $(this).val(false);
+		})
+
+		$('#CustomerOrderForm').on('change input', 'input[name*="QuantityReg"]', function (e) {
+			totalCal();
+		})
+		
+		$('#CustomerOrderForm').on('change', '#delivery-vehicle-select', function (e) {
+			$("#DeliveryVehicleTable").DataTable({
+				ajax: function (data, callback, settings) {
+					$.ajax({
+						url: "@Url.Action("ReadById", "DeliveryVehicle")",
+						data: {
+							"id": $('#delivery-vehicle-select').val()
+						},
+						method: "GET",
+						success: function (response) {
+							var array = []
+							array.push(response)
+							console.log(array)
+							callback({ data: array })
+						}
+					})
+				},
+				pageLength: 1,
+				paging: false,
+				ordering: false,
+				cache: false,
+				lengthChange: false,
+				filter: false,
+				search: false,
+				info: false,
+				bDestroy: true,
+				columns: [
+					{ data: "licensePlate" },
+					{ data: "load" },
+					{ data: "driverName" },
+					{ data: "driverPhone" }
+				],
+				language: {
+					processing: "",
+					infoEmpty: "",
+					emptyTable: "Không có dữ liệu ..."
+				}
+			});
+		})
+
+		function totalCal() {
+			totalQuantityReg = 0;
+			totalAmount = 0;
+			for(let i = 0; i < @Model.OrderDetail.Count; i) {
+				
+				var $IsOrder = $(`input[name="OrderDetail[${i}].IsOrder"]`)
+				
+				if ($IsOrder.val() === 'true') {
+					var $Price = $(`input[name="OrderDetail[${i}].Price"]`)
+					var $QuantityReg = $(`input[name="OrderDetail[${i}].QuantityReg"]`)
+					totalQuantityReg = parseInt($QuantityReg.val())
+					totalAmount = parseInt($QuantityReg.val()) * parseInt($Price.val())
+				}
+			}
+			$('#total-quantity-reg').text(parseInt(totalQuantityReg));
+			$('#total-amount').text(parseInt(totalAmount));
+		}
+
+	</script>
+
+	@* ------ Events ------ *@
+
+	<script>
+
+		$('#CustomerOrderForm').on('change', '#location-select', function (e) {
+
+			$('#child-location-select').empty();
+			$('#child-location-select').prop('disabled', true)
+			$('#delivery-point-select').prop('disabled', true)
+			$('#child-location-select').append($(`<option value="0" selected>Vui lòng chọn quận/huyện</option>`));
+			$('#delivery-point-select').append($(`<option value="0" selected>Vui lòng chọn nơi giao hàng</option>`));
+
+			$.ajax({
+				data: {
+					"parentId": e.target.value,
+				},
+				url: "@Url.Action("ReadChildSelect", "CustomerOrder")",
+				method: "POST",
+				success: function (response) {
+					var data = response.data
+					$('#child-location-select').empty();
+					if (data.length > 0) {
+						$('#child-location-select').prop('disabled', false)
+						$('#child-location-select').append($(`<option value="0" selected>Vui lòng chọn quận/huyện</option>`));
+						for (var key in data) {
+							if (data.hasOwnProperty(key)) {
+								$('#child-location-select').append($(`<option value="${data[key].value}">${data[key].text}</option>`));
+							}
+						}
+					} else {
+						$('#child-location-select').prop('disabled', true)
+						$('#child-location-select').append($(`<option value="0" selected>Vui lòng chọn quận/huyện</option>`));
+					}
+				}
+			})
+		})
+
+		$('#CustomerOrderForm').on('change', '#child-location-select', function (e) {
+
+			$('#delivery-point-select').empty();
+			$('#delivery-point-select').prop('disabled', true)
+			$('#delivery-point-select').append($(`<option value="0" selected>Vui lòng chọn nơi giao hàng</option>`));
+			$.ajax({
+				data: {
+					"locationId": e.target.value
+				},
+				url: "@Url.Action("ReadDeliveryPointSelect", "CustomerOrder")",
+				method: "POST",
+				success: function (response) {
+					var data = response.data
+					$('#delivery-point-select').empty();
+					if (data.length > 0) {
+						$('#delivery-point-select').prop('disabled', false)
+						for (var key in data) {
+							if (data.hasOwnProperty(key)) {
+								$('#delivery-point-select').append($(`<option value="${data[key].value}">${data[key].text}</option>`));
+							}
+						}
+					} else {
+						$('#delivery-point-select').prop('disabled', true)
+						$('#delivery-point-select').append($(`<option value="0" selected>Vui lòng chọn nơi giao hàng</option>`));
+					}
+				}
+			})
+		})
+
+	</script>
+}

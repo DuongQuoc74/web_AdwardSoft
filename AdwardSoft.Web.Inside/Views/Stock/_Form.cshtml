@@ -1,0 +1,91 @@
+﻿@model StockViewModel
+
+@{
+    var isNew = Model.Id == default(int);
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+    var branches = ViewBag.Branches;
+}
+
+<form asp-controller="Stock" asp-action="@action" class="form-validate-jquery form-content" id="_FormView" callbackfn="StockSuccess()" method="@methodAction">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+            <input type="text" hidden value="@Model.Id" asp-for="@Model.Id" />
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="form-group col-md-12">
+            <label asp-for="Name" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="BranchId" class="clear-fix font-weight-semibold"></label>
+        @if (Model.StockIsUsing == 1) {
+            <select class="form-control select" disabled="disabled" asp-for="@Model.BranchId" asp-items="branches">
+            </select>
+                <input type="text" hidden value="@Model.BranchId" asp-for="@Model.BranchId" />
+        } else {
+            <select class="form-control select" asp-for="@Model.BranchId" asp-items="branches">
+            </select>
+        } 
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="Description" class="clear-fix font-weight-semibold ads-control"></label>
+            <textarea asp-for="@Model.Description" value="@Model.Description" rows="3" cols="3" class="form-control"></textarea>
+            <span asp-validation-for="@Model.Description" class="validation-invalid-label"></span>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="Type" class="clear-fix font-weight-semibold ads-control"></label>
+            <select class="form-control select" asp-for="@Model.Type" asp-items="@Html.GetEnumSelectList<EStockType>()">
+            </select>
+        </div>
+        <div class="form-group col-md-12">
+            <label asp-for="IsDefault" class="clear-fix font-weight-semibold ads-control"></label>
+            <div class="form-check form-check-switch form-check-switch-left">
+                <label class="form-check-label d-flex align-items-center">
+                    <input asp-for="@Model.IsDefault" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-end align-items-center clear-fix">
+                <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+                @if (isNew)
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'))
+
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html)
+    })
+</script>
+
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+</script>

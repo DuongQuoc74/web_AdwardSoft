@@ -1,0 +1,487 @@
+﻿@model AdwardSoft.Web.Inside.Models.PostCommentViewModel
+@inject AdwardSoft.Provider.Common.IUserSession userSession;
+
+<style>
+    /* CSS Test begin */
+    .comment-box {
+        margin-top: 30px !important;
+    }
+        /* CSS Test end */
+
+    .comment-box img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .comment-box .media-left {
+        padding-right: 10px;
+        width: 65px;
+    }
+
+    .comment-box .media-body p {
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    .comment-box .media-body .media p {
+        margin-bottom: 0;
+    }
+
+    .comment-box .media-body textarea {
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    .comment-box .media-body .media textarea {
+        margin-bottom: 0;
+    }
+
+    .comment-box .media-heading {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        padding: 7px 10px;
+        position: relative;
+        margin-bottom: -1px;
+    }
+
+    .comment-box .media-heading:before {
+        content: "";
+        width: 12px;
+        height: 12px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-width: 1px 0 0 1px;
+        -webkit-transform: rotate(-45deg);
+        transform: rotate(-45deg);
+        position: absolute;
+        top: 10px;
+        left: -6px;
+    }
+
+    .overflowTab {
+        display: flex;
+        flex-flow: column;
+        height: 595px;
+        width: 100%;
+        flex: 1 1 auto;
+        display: block;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+</style>
+<div class="card">
+    <div class="card-header header-elements-inline">
+        <h6 class="card-title">Bình luận bài viết</h6>
+        <div class="header-elements">
+        </div>
+    </div>
+
+    <div class="card-body">
+        <ul class="nav nav-pills nav-pills-bordered nav-justified">
+            <li class="nav-item"><a href="#bordered-justified-pill1" onclick="loadmoreparent(1)" class="nav-link active " data-toggle="tab">Đã xác nhận</a></li>
+            <li class="nav-item"><a href="#bordered-justified-pill2" onclick="loadmoreparent(0)" class="nav-link " data-toggle="tab">Đang chờ xử lý</a></li>
+            <li class="nav-item"><a href="#bordered-justified-pill3" onclick="loadmoreparent(2)" class="nav-link " data-toggle="tab">Rác</a></li>
+        </ul>
+        <input hidden id="skippl" value="0">
+        <input hidden id="skips" value="0">
+        <input hidden id="skipp" value="0">
+        <div class="tab-content">
+            <div class="tab-pane fade show active overflowTab" id="bordered-justified-pill1">
+                <div class="row" id="CPublished">
+                </div>
+            </div>
+
+            <div class="tab-pane fade overflowTab" id="bordered-justified-pill2">
+                <div class="row" id="CPending">
+                </div>
+            </div>
+
+            <div class="tab-pane fade overflowTab" id="bordered-justified-pill3">
+                <div class="row" id="CSpam">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*<div class="row">
+        <div class="avatarUser">
+            <img src="/upload/Images/Avatar/@userSession.Avatar" />
+        </div>
+        <div class="inputComment">
+            <form asp-action="Create" class="form-validate-jquery" enctype="multipart/form-data" asp-controller="PostComment" method="post" id="fComment">
+                <input asp-for="Comment" type="text" class="form-control" placeholder="Thêm bình luận..." />
+                <input asp-for="PostId" type="hidden" value="@ViewBag.PostId" class="form-control" />
+                <input asp-for="UserId" type="hidden" value="@userSession.UserId" class="form-control" />
+            </form>
+        </div>
+    </div>*@
+
+<script>
+    $(document).ready(function () {
+        loadmoreparent(1);
+    });
+
+    var PostCommentReplyTemplate = $.templates("#PostCommentReplyTemplate");
+    var PostCommentTemplate = $.templates("#PostCommentTemplate");
+    var PostCommentChildTemplate = $.templates("#PostCommentChildTemplate");
+    var btnloadmorefeedback = $.templates("#btnloadmorefeedback");
+    var btnloadmorecm = $.templates("#btnloadmorecm");
+
+    var loadmorechild = function (id, status) {
+        var skip = Number($("#skip" + id).val());
+        var count = 0;
+        $.ajax({
+            method: "GET",
+            url: "@Url.Action("ReadById", "PostComment")",
+            data: {
+                'parentId': id,
+                'status': status,
+                'skip': skip
+            },
+            success: function (data) {
+                let html = "";
+                $.each(data, function (index, value) {
+                    value.date = moment(value.date).format('MMMM Do YYYY, h:mm:ss a');
+                    html += PostCommentChildTemplate.render({ data: value });
+                    count = Number(value.count);
+                })
+
+                $("#skip" + id).val(skip + 1);
+                if (((skip + 1) * 5) >= count) {
+                    //html += btnloadmorefeedback.render({ data: id });
+                    $("#loadmore-" + id).remove();
+                }
+                $("#PR" + id).append(html);
+            }
+        })
+    }
+
+    var loadmoreparent = function (status) {
+        status = Number(status);
+        var count = 0;
+        var skip = 0;
+        switch (status) {
+            case 0:
+                skip = Number($("#skipp").val());
+                break;
+            case 1:
+                skip = Number($("#skippl").val());
+                break;
+            case 2:
+                skip = Number($("#skips").val());
+                break;
+        }
+
+        $.ajax({
+            method: "GET",
+            url: "@Url.Action("ReadById", "PostComment")",
+            data: {
+                'postId': '@ViewBag.PostId',
+                'status': status,
+                'skip': skip
+            },
+            success: function (data) {
+                let html = "";
+                $.each(data, function (index, value) {
+                    value.date = moment(value.date).format('MMMM Do YYYY, h:mm:ss a');
+                    html += PostCommentTemplate.render({ data: value });
+                    count = Number(value.count);
+                })
+                console.log(((skip + 1) * 5));
+                if (((skip + 1) * 5) < count) {
+                    $("#btnloadmorecm").remove();
+                    html += btnloadmorecm.render({ data: status });
+                } else {
+                    $("#btnloadmorecm").remove();
+                }
+                switch (status) {
+                    case 0:
+                        $("#CPublished").empty();
+                        $("#CSpam").empty();
+                        $("#CPending").append(html);
+                        $("#skipp").val(skip + 1)
+                        $("#skippl").val(0)
+                        $("#skips").val(0)
+                        break;
+                    case 1:
+                        $("#CPending").empty();
+                        $("#CSpam").empty();
+                        $("#CPublished").append(html);
+                        $("#skippl").val(skip + 1)
+                        $("#skips").val(0)
+                        $("#skipp").val(0)
+                        break;
+                    case 2:
+                        $("#CPending").empty();
+                        $("#CPublished").empty();
+                        $("#CSpam").append(html);
+                        $("#skips").val(skip + 1)
+                        $("#skippl").val(0)
+                        $("#skipp").val(0)
+                        break;
+                }
+            }
+        })
+    }
+
+    var comment = function (id) {
+        $("#FormCM").remove();
+        let html = "";
+        html = PostCommentReplyTemplate.render({ data: id });
+        $("#PR" + id).append(html);
+    }
+
+    var deleteComment = function (id) {
+        $.ajax({
+            method: "POST",
+            url: "@Url.Action("Delete", "PostComment")",
+            data: {
+                'Id': id,
+            },
+            success: function (data) {
+                if (data == true) {
+                    swal({
+                        title: 'Xóa thành công!',
+                        text: "Xóa bình luận thành công",
+                        type: 'success',
+                        showCancelButton: false,
+                        showConfirmButton: true,
+                        buttonsStyling: false,
+                        confirmButtonClass: 'btn btn-primary',
+                        cancelButtonClass: 'btn btn-light',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: "Hủy"
+                    })
+                    $("#cm" + id).remove();
+                } else {
+                    swal({
+                        title: 'Xóa bình luận thất bại!',
+                        text: "Xin vui lòng thử lại",
+                        type: 'warning',
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        buttonsStyling: false,
+                        confirmButtonClass: 'btn btn-primary',
+                        cancelButtonClass: 'btn btn-light',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: "Hủy"
+                    })
+                }
+            }
+        })
+    }
+
+    var tickTrash = function (id) {
+        $.ajax({
+            method: "GET",
+            url: "@Url.Action("Status", "PostComment")",
+            data: {
+                'Id': id,
+                'Status': 2
+            },
+            success: function (data) {
+                if (data == true) {
+                    swal({
+                        title: 'Điều chỉnh trạng thái thành công!',
+                        text: "Chuyển trạng thái bình luận thành công",
+                        type: 'success',
+                        showCancelButton: false,
+                        showConfirmButton: true,
+                        buttonsStyling: false,
+                        confirmButtonClass: 'btn btn-primary',
+                        cancelButtonClass: 'btn btn-light',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: "Hủy"
+                    })
+                    $("#cm" + id).remove();
+                } else {
+                    swal({
+                        title: 'Điều chỉnh trạng thái thất bại!',
+                        text: "Xin vui lòng thử lại",
+                        type: 'warning',
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        buttonsStyling: false,
+                        confirmButtonClass: 'btn btn-primary',
+                        cancelButtonClass: 'btn btn-light',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: "Hủy"
+                    })
+                }
+            }
+        })
+    }
+
+    var tickPushlish = function (id) {
+        $.ajax({
+            method: "GET",
+            url: "@Url.Action("Status", "PostComment")",
+            data: {
+                'Id': id,
+                'Status': 1
+            },
+            success: function (data) {
+                if (data == true) {
+                    swal({
+                        title: 'Điều chỉnh trạng thái thành công!',
+                        text: "Chuyển trạng thái bình luận thành công",
+                        type: 'success',
+                        showCancelButton: false,
+                        showConfirmButton: true,
+                        buttonsStyling: false,
+                        confirmButtonClass: 'btn btn-primary',
+                        cancelButtonClass: 'btn btn-light',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: "Hủy"
+                    })
+                    $("#cm" + id).remove();
+                } else {
+                    swal({
+                        title: 'Điều chỉnh trạng thái thất bại!',
+                        text: "Xin vui lòng thử lại",
+                        type: 'warning',
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        buttonsStyling: false,
+                        confirmButtonClass: 'btn btn-primary',
+                        cancelButtonClass: 'btn btn-light',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: "Hủy"
+                    })
+                }
+            }
+        })
+    }
+
+    $(document).on("click", "#btnCreateComment", (function () {
+        var id = $("#parentIdCC").val();
+        if ($('#CommentText').val()) {
+            $.ajax({
+            method: "POST",
+            url: "@Url.Action("Create", "PostComment")",
+            data: {
+                'PostId': @ViewBag.PostId,
+                'ParentId': id,
+                'Comment': $("#CommentText").val()
+            },
+            success: function (data) {
+                if (data.id) {
+                    $("#FormCM").remove();
+                    let html = "";
+                    data.date = moment(data.date).format('MMMM Do YYYY, h:mm:ss a');
+                    html = PostCommentChildTemplate.render({ data: data });
+                    $("#PR" + id).append(html);
+                } else {
+                    swal({
+                        title: 'Bình luận thất bại!',
+                        text: "Xin vui lòng thử lại",
+                        type: 'warning',
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        buttonsStyling: false,
+                        confirmButtonClass: 'btn btn-primary',
+                        cancelButtonClass: 'btn btn-light',
+                        confirmButtonText: 'Xác nhận',
+                        cancelButtonText: "Hủy"
+                    })
+                }
+            }
+        })
+        } else {
+            swal({
+                title: 'Chưa có đủ thông tin',
+                text: "Vui lòng nhập bình luận",
+                type: 'warning',
+                showCancelButton: false,
+                showConfirmButton: false,
+                buttonsStyling: false,
+                confirmButtonClass: 'btn btn-primary',
+                cancelButtonClass: 'btn btn-light',
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: "Hủy"
+            })
+
+        }
+    }));
+</script>
+<script id="PostCommentReplyTemplate" type="text/x-jsrender">
+    <div id="FormCM" class="media col-12">
+        <div class="media-left">
+            <a href="#">
+                <img class="img-responsive user-photo" src="@userSession.Avatar">
+            </a>
+        </div>
+        <div class="media-body">
+            <h4 class="media-heading">
+                <span style="color: cadetblue">@userSession.FullName</span> - <span>@DateTime.Now.ToString("dd/MM/yyyy")</span>
+            </h4>
+            <input hidden id="parentIdCC" value="{{:data}}">
+            <textarea id="CommentText" style="width:100%" rows="2"></textarea>
+            <button id="btnCreateComment" style="float:right" type="button" class="btn btn-success ml-1 btn-sm">Bình luận <i class="fa fa-check ml-1"></i></button>
+        </div>
+    </div>
+</script>
+<script id="PostCommentChildTemplate" type="text/x-jsrender">
+    <div id="cm{{:data.id}}" class="media col-12">
+        <div class="media-left">
+            <a href="#">
+                <img class="img-responsive user-photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+            </a>
+        </div>
+        <div class="media-body">
+            <h4 class="media-heading">
+                <span style="color:cadetblue">{{:data.userName}}</span> - <span>{{:data.dateStr}}</span>
+                <span class="float-right">
+                    {{if data.statusView == 0 && data.status == 0}}
+                    <a data-toggle="tooltip" onclick='tickPushlish("{{:data.id}}")' title="Xác nhận" href="#" class="list-icons-item"><i class="icon-check"></i></a>
+                    {{/if}}
+                    {{if data.statusView == 0 && data.userId != @userSession.UserId}}
+                    <a data-toggle="tooltip" onclick='tickTrash("{{:data.id}}")' title="Bình luận rác" href="#" class="list-icons-item"><i class="icon-trash"></i></a>
+                    {{/if}}
+                    {{if data.userId == @userSession.UserId}}
+                    <a data-toggle="tooltip" onclick='deleteComment("{{:data.id}}")' title="Xóa" href="#" class="list-icons-item"><i class="icon-trash"></i></a>
+                    {{/if}}
+                </span>
+            </h4>
+            <p>{{:data.comment}}</p>
+        </div>
+    </div>
+</script>
+<script id="PostCommentTemplate" type="text/x-jsrender">
+    <div id="cm{{:data.id}}" class=" media comment-box col-12">
+        <div class="media-left">
+            <a href="#">
+                <img class="img-responsive user-photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+            </a>
+        </div>
+        <div id="PR{{:data.id}}" class="media-body">
+            <input hidden id="skip{{:data.id}}" value="0">
+            <h4 class="media-heading">
+                <span style="color:cadetblue">{{:data.userName}}</span> - <span>{{:data.dateStr}}</span>
+                <span class="float-right">
+                    {{if data.statusView == 1}}
+                    <a data-toggle="tooltip" onclick='comment("{{:data.id}}")' title="Bình luận" href="#" class="list-icons-item"><i class="icon-comments"></i></a>
+                    {{/if}}
+                    {{if data.statusView == 0 && data.status == 0}}
+                    <a data-toggle="tooltip" onclick='comment("{{:data.id}}")' title="Xác nhận" href="#" class="list-icons-item"><i class="icon-check"></i></a>
+                    {{/if}}
+                    {{if data.statusView == 0}}
+                    <a data-toggle="tooltip" onclick='tickTrash("{{:data.id}}")' title="Bình luận rác" href="#" class="list-icons-item"><i class="icon-trash"></i></a>
+                    {{/if}}
+                </span>
+            </h4>
+            <p>{{:data.comment}}</p>
+            {{if data.count > 0}}
+            <span id="loadmore-{{:data.id}}"><a href="#" onclick='loadmorechild("{{:data.id}}", "{{:data.statusView}}")'>Xem phản hồi</a></span>
+            {{/if}}
+        </div>
+    </div>
+</script>
+<script id="btnloadmorefeedback" type="text/x-jsrender">
+    <span id="loadmore-{{:data}}"><a href="#" onclick='loadmorechild("{{:data}}")'>Xem phản hồi</a></span>
+</script>
+<script id="btnloadmorecm" type="text/x-jsrender">
+    <div class="col-12">
+        <span class="float-right" id="btnloadmorecm"><a href="#" onclick='loadmoreparent("{{:data}}")'>Xem thêm bình luận &nbsp&nbsp&nbsp</a></span>
+    </div>
+</script>

@@ -1,0 +1,110 @@
+﻿@model ServiceDisplayViewModel
+@{ 
+    var isNew = Model.Id == default(int);
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+    var Suppliers = @ViewBag.Suppliers;
+}
+
+<form asp-controller="ServiceDisplay" asp-action="@action" class="form-validate-jquery form-content" id="_FormView" callbackfn="ServiceDisplaySuccess()" method="@methodAction">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description()</h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+            <input type="text" hidden value="@Model.Id" asp-for="@Model.Id" />
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="col-md-12">
+            <label asp-for="Name" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Name" value="@Model.Name" class="form-control" />
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="SupplierId" class="clear-fix font-weight-semibold ads-control"></label>
+            <select asp-for="SupplierId" class="form-control select-search" asp-items="Suppliers">
+            </select>
+            <span asp-validation-for="@Model.SupplierId" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.DateFrom" class="clear-fix font-weight-semibold"></label>
+            <div class="form-group-feedback form-group-feedback-left">
+                <input type="text" asp-for="@Model.DateFromStr" value="@Model.DateFrom.ToString("dd/MM/yyyy")" class="form-control daterange">
+                <div class="form-control-feedback">
+                    <i class="icon-calendar22"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.DateTo" class="clear-fix font-weight-semibold"></label>
+            <div class="form-group-feedback form-group-feedback-left">
+                <input type="text" asp-for="@Model.DateToStr" value="@Model.DateTo.ToString("dd/MM/yyyy")" class="form-control daterange">
+                <div class="form-control-feedback">
+                    <i class="icon-calendar22"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="PaymentPeriod" class="clear-fix font-weight-semibold ads-control"></label>
+            <select asp-for="PaymentPeriod" class="form-control select" asp-items="@Html.GetEnumSelectList<EPaymentPeriod>()">
+            </select>
+            <span asp-validation-for="@Model.PaymentPeriod" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Fee" class="clear-fix font-weight-semibold ads-control"></label>
+            <input asp-for="@Model.Fee" value="@String.Format("{0:#,##0.##}", Model.Fee)" type="text" class="form-control format-Currency">
+            <span asp-validation-for="@Model.Fee" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="Description" class="clear-fix font-weight-semibold"></label>
+            <textarea rows="3" type="text" asp-for="@Model.Description" value="@Model.Description" class="form-control"></textarea>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button onclick="checkDateValid();" type="button" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button> 
+        }
+        else
+        {
+            if (DateTime.Now.Date < Model.DateTo.Date)
+            {
+                 <button onclick="checkDateValid();" type="button" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+            }         
+        }
+        <button id="btnHidenSubmit" hidden type="submit" class="btn btn-success ml-1 btn-sm mr-0"><i class="fa fa-check ml-1"></i></button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        setTimeout(rebindValidation, 500);
+    });
+
+    function checkDateValid() {
+
+        var dateNow = new Date();
+        var dateTo = processDate($("#DateToStr").val());
+        var dateFrom = processDate($("#DateFromStr").val());
+
+        if ((dateTo > dateFrom) && (dateNow <= dateTo)) {
+            $("#btnHidenSubmit").click();
+        } else {
+            swal({
+                title: "Lỗi!",
+                text: "Thời gian không phù hợp",
+                type: "warning"
+            })
+        }
+    }
+
+    function processDate(date) {
+        var parts = date.split("/");
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+    }
+</script>

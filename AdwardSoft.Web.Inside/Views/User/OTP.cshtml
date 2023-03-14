@@ -1,0 +1,223 @@
+﻿@model AdwardSoft.Web.Inside.Models.UserOTPViewModel
+@inject AdwardSoft.Provider.Common.IUserSession userSession
+@{ Layout = null; }
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Login</title>
+
+    <environment>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+        <link href="~/admin/global_assets/css/icons/icomoon/styles.css" rel="stylesheet" type="text/css">
+        <link href="~/admin/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="~/admin/assets/css/bootstrap_limitless.min.css" rel="stylesheet" type="text/css">
+        <link href="~/admin/assets/css/layout.min.css" rel="stylesheet" type="text/css">
+        <link href="~/admin/assets/css/components.min.css" rel="stylesheet" type="text/css">
+        <link href="~/admin/assets/css/colors.min.css" rel="stylesheet" type="text/css">
+        <!-- /global stylesheets -->
+        <!-- Core JS files -->
+        <script src="~/admin/global_assets/js/main/jquery.min.js"></script>
+        <script src="~/admin/global_assets/js/main/bootstrap.bundle.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/loaders/blockui.min.js"></script>
+        <!-- /core JS files -->
+        <!-- Theme JS files -->
+        <script src="~/admin/global_assets/js/plugins/forms/styling/uniform.min.js"></script>
+
+        <script src="~/admin/assets/js/app.js"></script>
+        <script src="~/admin/global_assets/js/demo_pages/login.js"></script>
+    </environment>
+
+</head>
+
+<body class="bg-slate-800">
+
+    <!-- Page content -->
+    <div class="page-content">
+
+        <!-- Main content -->
+        <div class="content-wrapper">
+
+            <!-- Content area -->
+            <div class="content d-flex justify-content-center align-items-center">
+
+                <!-- Login card -->
+                <form id="fLogin" class="login-form" asp-action="ConfirmOTP" asp-controller="User" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="card mb-0">
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <i class="icon-key icon-2x text-slate-300 border-slate-300 border-3 rounded-round p-3 mb-3 mt-1"></i>
+                                <h5 class="mb-0">Xác thực OTP</h5>
+                            </div>
+                            <div class="form-group form-group-feedback form-group-feedback-left">
+                                @{ 
+                                    string tmp = userSession.UserName;
+                                    int count = tmp.Length;
+                                    tmp = tmp.Substring(count - 4);
+                                    for (int i = 0; i < count - 4; i++)
+                                    {
+                                        tmp = tmp.Insert(i, "*");
+                                    }
+                                }
+                                <p style="text-align:center">Mã OTP đã được gửi đến số @tmp</p>
+                            </div>
+                            <div class="form-group form-group-feedback form-group-feedback-left">
+                                @Html.TextBoxFor(m => m.OTP, new { @class = "form-control", @placeholder = "Mã OTP" })
+                                <div class="form-control-feedback">
+                                    <i class="icon-key text-muted"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group d-flex align-items-center">
+                                <a onclick="SendNewOTP()" href="javascript:void(0)" class="ml-auto">Gửi lại mã OTP?</a>
+                            </div>
+
+                            <div class="form-group">
+                                <button onclick="CheckOTP()" type="button" class="btn btn-primary btn-block">Xác thực OTP <i class="icon-circle-right2 ml-2"></i></button>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+                <!-- /login card -->
+
+            </div>
+            <!-- /content area -->
+
+        </div>
+        <!-- /main content -->
+
+    </div>
+    <!-- /footer -->
+    <environment>
+        <!-- Core JS files -->
+        <script src="~/admin/global_assets/js/main/jquery.min.js"></script>
+        <script src="~/admin/global_assets/js/main/bootstrap.bundle.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/loaders/blockui.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/visualization/echarts/echarts.min.js"></script>
+        <script src="~/admin/global_assets/js/main/jquery-ui.min.js"></script>
+        <!-- /core JS files -->
+
+        <script src="~/admin/global_assets/js/plugins/forms/selects/bootstrap_multiselect.js"></script>
+        <script src="~/admin/global_assets/js/plugins/ui/moment/moment.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/pickers/daterangepicker.js"></script>
+
+        <script src="~/admin/global_assets/js/plugins/forms/styling/uniform.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/forms/styling/switchery.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/forms/styling/switch.min.js"></script>
+        <script src="~/admin/global_assets/js/demo_pages/form_checkboxes_radios.js"></script>
+
+        <!-- Button with spinner -->
+        <script src="~/admin/global_assets/js/plugins/buttons/spin.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/buttons/ladda.min.js"></script>
+        <!-- TinyMCE -->
+        <script src="~/lib/tinymce/tinymce.min.js"></script>
+        <!-- Alert -->
+        <script src="~/admin/global_assets/js/plugins/notifications/sweet_alert.min.js"></script>
+        <!-- Datatable -->
+
+        <script src="~/lib/datatable/jquery.dataTables.min.js"></script>
+        <script src="~/lib/datatable/dataTables.min.js"></script>
+        <script src="~/lib/datatable/rowgroup/rowGroup.min.js"></script>
+        <script src="~/lib/datatable/fixedcolumn/fixedColumns.min.js"></script>
+        <script src="~/lib/datatable/buttons/dataTables.buttons.min.js"></script>
+
+        <script src="~/admin/global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/tables/datatables/extensions/buttons.min.js"></script>
+        <script src="~/admin/global_assets/js/main/buttons.print.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/tables/datatables/extensions/pdfmake/pdfmake.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/tables/datatables/extensions/pdfmake/vfs_fonts.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/tables/datatables/extensions/jszip/jszip.min.js"></script>
+        <!-- Noty -->
+        <script src="~/admin/global_assets/js/plugins/notifications/jgrowl.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/notifications/noty.min.js"></script>
+        <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+        <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+        <script src="~/admin/global_assets/js/plugins/notifications/pnotify.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/forms/styling/uniform.min.js"></script>
+
+        @*<script src="~/lib/app/modals.js"></script>*@
+        <script>
+            var ajaxDefaultObject = $.ajax;
+        </script>
+        <script src="~/lib/app/ADS.js"></script>
+        <script src="~/admin/global_assets/js/main/Custom.js"></script>
+
+
+        <script src="~/admin/assets/js/app.js"></script>
+        <script src="~/admin/global_assets/js/demo_pages/picker_color.js"></script>
+        <script src="~/admin/global_assets/js/plugins/pickers/color/spectrum.js"></script>
+        <script src="~/admin/global_assets/js/plugins/tables/datatables/extensions/fixed_columns.min.js"></script>
+        <script src="~/admin/global_assets/js/plugins/forms/selects/select2.min.js"></script>
+    </environment>
+    <script>
+        var CheckOTP = function () {
+            if ($("#OTP").val()) {
+                $.ajax({
+                    url: "/User/IsOTPVerification",
+                    method: "GET",
+                    data: { "OTP": $("#OTP").val() },
+                    success: function (response) {
+                        if (response) {
+                            swal({
+                                title: "Thành công!",
+                                text: "Xác nhận OTP thành công, xin vui lòng chờ chuyển trang!",
+                                type: "success"
+                            })
+                            setTimeout(
+                                window.location.href = "/Home/Index",
+                                20000
+                            )
+                        } else {
+                            swal({
+                                title: "Lỗi!",
+                                text: "OTP không hợp lệ, vui lòng thử lại",
+                                type: "warning"
+                            });
+                        }
+                    }
+                });
+
+            } else {
+                swal({
+                    title: "Lỗi!",
+                    text: "Vui lòng nhập mã OTP!",
+                    type: "warning"
+                });
+            }
+        };
+
+        var SendNewOTP = function () {
+            $.ajax({
+                url: "/User/SendNewOTP",
+                method: "GET",
+                data: { "phoneNumber" : @userSession.UserName  },
+                success: function (response) {
+                    if (response) {
+                        swal({
+                            title: "Thành công!",
+                            text: "OTP đã gửi. Xin vui lòng kiểm tra lại.",
+                            type: "success"
+                        })
+
+                    } else {
+                        swal({
+                            title: "Lỗi!",
+                            text: "OTP không thể gửi , vui lòng liên hệ hỗ trợ",
+                            type: "warning"
+                        });
+                    }
+                }
+            });
+        };
+    </script>
+
+</body>
+</html>
+

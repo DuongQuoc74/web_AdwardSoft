@@ -1,0 +1,158 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Category";
+}
+
+<div class="row">
+    <div class="col-4">
+        <div class="card" id="formCategory">
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Danh sách loại sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <table id="CategoryTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th width="30%" class="text-center">Tên loại</th>
+                            <th width="40%" class="text-center">Mô tả</th>
+                            <th width="20%" class="text-center">Trạng thái</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script id="CategoryAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a onclick="ReadById('{{:data.id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description()"></i>
+                        @EText.Edit.Description()
+                    </a>
+                    <a href="#" class="dropdown-item remove-item" data-action="/Category/Delete" callbackfn="CategorySuccess()" data-params='{"id":"{{:data.id}}"}'>
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.Description()"></i>
+                        @EText.Remove.Description()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var CategoryAction = $.templates("#CategoryAction");
+        var $CategoryTable
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+
+        $(document).ready(function () {
+
+            //$(function () {
+            //    $("#titlePage").text('Category')
+            //});
+
+            $CategoryTable = $("#CategoryTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "model": data
+                        },
+                        url: "@Url.Action("Read", "Category")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                },
+                pageLength: 10,
+                paging: true,
+                serverSide: true,
+                cache: false,
+                lengthChange: false,
+                filter: true,
+                search: true,
+                columns: [
+                    { data: "name" },
+                    { data: "description" },
+                    {
+                        data: "status",
+                        render: (data, type, row) => data === 0 ? '<p class="text-danger">@EStatus.Unavailable.Description()</p>' : '<p class="text-success">@EStatus.Available.Description()</p>'
+                    },
+                    {
+                        data: { id: "id" },
+                        render: function (data, type, row) {
+                            return (CategoryAction.render({ data: data }));;
+                        }
+                    },
+                ],
+                language: {
+                    search: '<div class="row">_INPUT_</div>',
+                    searchPlaceholder: 'Tìm kiếm...',
+                    info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+                    paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                    processing: "",
+                    infoEmpty: "",
+                    emptyTable: "@EText.EmptyTable.Description()",
+                    zeroRecords: "@EText.EmptyTable.Description()",
+                    infoFiltered: "",
+                    processing: "@EText.Processing.Description()",
+                }
+
+
+            });
+
+             $('#newCategory').on('click', function () {
+                 ReadById(0);
+             });
+
+             ReadById(0);
+        });
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "Category")",
+                method: "GET",
+                data: {
+                    "id": id
+                },
+                success: function (data) {
+                    $("#formCategory").empty();
+                    $("#formCategory").html(data);
+                    setTimeout(rebindValidation, 500);
+                }
+            });
+        }
+
+        var CategorySuccess = function () {
+            $CategoryTable.ajax.reload();
+            ReadById(0);
+        }
+
+        var CategoryUpdateSucess = function () {
+            var tmp = $CategoryTable.page();
+            $CategoryTable.ajax.reload();
+            $CategoryTable.page(tmp).draw('page');
+            ReadById(0);
+        }
+    </script>
+}

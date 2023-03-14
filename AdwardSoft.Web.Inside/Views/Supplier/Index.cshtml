@@ -1,0 +1,159 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Supplier";
+}
+<div class="row">
+    <div class="col-4">
+        <div class="card" id="formSupplier">
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Supplier list</h5>
+            </div>
+            <div class="card-body">
+                <table id="SupplierTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th width="40%" class="text-center">Name</th>
+                            <th width="20%" class="text-center">Tel</th>
+                            <th width="20%" class="text-center">Email</th>
+                            <th width="10%" class="text-center">Default</th>
+                            <th width="10%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+        $(document).ready(function () {
+            $(function () {
+                $("#titlePage").text('Supplier')
+            });
+
+            var SupplierAction = $.templates("#SupplierAction");
+
+             var $SupplierTable = $("#SupplierTable").DataTable({
+                processing: true,
+                responsive: true,
+                ajax: function (data, callback, settings) {
+                    $.ajax({
+                        data: {
+                            "model": data
+                        },
+                        url: "@Url.Action("Read", "Supplier")",
+                        method: "POST",
+                        success: function (response) {
+                            callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                        },
+                        error: function (error) {
+                            console.log(error)
+                        }
+                    });
+                 },
+                pageLength: 10,
+                 paging: true,
+                 serverSide: true,
+                 cache: false,
+                 lengthChange: false,
+                 filter: true,
+                 search: true,
+                 columns: [
+                     { data: "name" },
+                     { data: "tel" },
+                     { data: "email"},
+                     {
+                         data: "isDefault",
+                         render: (data, type, row) => data === false ? '' : "<p class='text-info'>@Html.Raw(EText.IsDefault.Description())</p>"
+                     },
+                     {
+                         data: { id: "id" },
+                         render: function (data, type, row) {
+                             return (SupplierAction.render({ data: data }));;
+                         }
+                     },
+                 ],
+                 language: {
+                     search: '<div class="row"><div class="col-md-12">_INPUT_</div></div>',
+                     searchPlaceholder: 'Search...',
+                     info: " <span style='padding-left:2%;' > Page _PAGE_ / _PAGES_</span>",
+                     paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                     processing: "",
+                     infoEmpty: "",
+                     emptyTable: "Không có dữ liệu",
+                     zeroRecords: "Không có dữ liệu",
+                     infoFiltered: "",
+                     processing: "Xin vui lòng chờ ít phút",
+                 }
+
+
+             });
+             $('#newSupplier').on('click', function () {
+                 ReadById(0);
+             });
+
+
+            ReadById(0);
+         });
+          function ReadById(id) {
+                $.ajax({
+                    url: "@Url.Action("_Form", "Supplier")",
+                    method: "GET",
+                    data: {
+                        "id": id
+                    },
+                    success: function (data) {
+                        $("#formSupplier").empty();
+                        $("#formSupplier").html(data);
+                        setTimeout(rebindValidation, 500);
+                    }
+                });
+        }
+        var SupplierSuccess = function () {
+            $('#SupplierTable').DataTable().ajax.reload();
+            ReadById(0);
+        }
+
+        var SupplierUpdateSucess = function () {
+            var tmp = $("#SupplierTable").DataTable().page();
+            $('#SupplierTable').DataTable().ajax.reload();
+            $('#SupplierTable').DataTable().page(tmp).draw('page');
+            ReadById(0);
+        }
+    </script>
+    <script id="SupplierAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item  modal-link" href="/SupplierContact/Index" data-params='{"id":{{:data.id}}}' checkvalidate="true" modal-size="modal-lg">
+                        <i class="icon-connection" data-toggle="tooltip" title="Contact"></i>
+                        Contact
+                    </a>
+                    <a onclick="ReadById('{{:data.id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="Edit"></i>
+                        Edit
+                    </a>
+                    <a data-params='{"id":"{{:data.id}}"}' callbackfn="SupplierSuccess()" href="#" class="dropdown-item remove-item" data-action="/Supplier/Delete">
+                        <i class="icon-trash" data-toggle="tooltip" title="Remove"></i>
+                        Remove
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </script>
+}

@@ -1,0 +1,425 @@
+﻿.ads-search {
+    display: block;
+    color: #333;
+    min-height: 2.5rem;
+    line-height: 1.75rem;
+    text-decoration: none;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    background: -webkit-linear-gradient(top, #fafafa 0%, #eee 100%);
+    background: -moz-linear-gradient(top, #fafafa 0%, #eee 100%);
+    background: linear-gradient(top, #fafafa 0%, #eee 100%);
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+}
+
+.ads-search-details {
+    -webkit-transition: max-height 0.5s;
+    -moz-transition: max-height 0.5s;
+    -ms-transition: max-height 0.5s;
+    -o-transition: max-height 0.5s;
+    transition: max-height 0.5s;
+    overflow: hidden;
+    overflow: hidden;
+    max-height: 0;
+}
+
+    .ads-search-details.show {
+        max-height: 16rem;
+        border-bottom-left-radius: 3px !important;
+        border-bottom-right-radius: 3px !important;
+        -webkit-transition: max-height 0.5s ease-in;
+        -moz-transition: max-height 0.5s ease-in;
+        -ms-transition: max-height 0.5s ease-in;
+        -o-transition: max-height 0.5s ease-in;
+        transition: max-height 0.5s ease-in;
+    }
+
+.ads-search span.ads-title {
+    line-height: 2.4rem;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    padding: 0 1.5rem 0;
+    text-decoration: none;
+    position: relative;
+    font-weight: bold;
+}
+
+.ads-table-title {
+    line-height: 2.5rem;
+    text-align: center;
+    font-size: 25px;
+    background: #002e89;
+    color: #fff;
+    position: relative;
+}
+
+.ads-div-fixed {
+    position: absolute;
+    background-color: #fff;
+    border-radius: 3px;
+    max-width: 14rem;
+    cursor: pointer !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+    border: 1px solid #ccc;
+}
+
+    .ads-div-fixed .ads-div-title {
+        padding: 0 0.5rem;
+        width: 100%;
+        height: 30px;
+        font-size:20px;
+    }
+
+        .ads-div-fixed .ads-div-title span {
+            float: right;
+        }
+
+.ads-icon {
+    position: absolute;
+    top: 2px;
+    right: 10px;
+}
+
+.ads-row.ads-row-group .ads-icon {
+    position: absolute;
+    top: 2px;
+    left: 1.5rem;
+}
+
+.ads-icon-search, .ads-row-group-collapse, .ads-fa fa-check, .ads-icon-print {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+}
+
+    .ads-icon-search:before {
+        content: "\f002";
+    }
+
+    .ads-row-group-collapse:before {
+        content: "\f078";
+        font-size: 12px;
+    }
+
+    .ads-icon-print:before {
+        content: "\f02f";
+    }
+
+.ads-search-row {
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 1.5rem;
+}
+
+.ads-table-header, .ads-table-body {
+    overflow: hidden;
+    max-height: 27rem;
+    overflow-y: auto;
+    display: block;
+    border: 1px solid #ccc;
+    background: #fff;
+}
+
+.ads-table-body {
+    min-width: 100%;
+    max-width: 100.6%;
+    border-top: unset !important;
+    margin-top: -1px;
+}
+
+.ads-right {
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
+}
+
+.ads-left {
+    display: flex;
+}
+
+.ads-table-header .ads-freeze, .ads-table-header .ads-cell-header, .ads-cell-header-total {
+    text-align: center !important;
+    font-weight: bold;
+}
+
+.ads-cell-header, .ads-cell-header-total {
+    padding: 0.5rem 0.1rem;
+    border: 1px solid #ccc;
+    text-align: center;
+    height: 3.6rem;
+    min-width: 7.3rem;
+}
+
+.ads-table-footer .ads-right {
+    overflow: hidden;
+    overflow-x: auto;
+    padding: unset !important;
+    height: 18px;
+}
+
+.ads-cell, .ads-cell-total {
+    min-width: 7.3rem;
+    border: 1px solid #ccc;
+    padding-left: 0.5rem;
+    cursor: default;
+    user-select: none;
+    outline: unset !important;
+    height: 2rem;
+}
+
+.ads-cell-total {
+    text-align: center;
+}
+
+.ads-table-body .ads-cell {
+    line-height: 2rem;
+    text-align: center;
+}
+
+.ads-row {
+    display: block;
+}
+
+    .ads-row.hide {
+        -webkit-transition: height 0.5s;
+        -moz-transition: height 0.5s;
+        -ms-transition: height 0.5s;
+        -o-transition: height 0.5s;
+        transition: height 0.5s;
+        overflow: hidden;
+        overflow: hidden;
+        height: 0;
+    }
+
+.ads-search-row {
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    padding: 1.5rem;
+}
+
+.ads-col-auto {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: none;
+    margin: 0 0.315rem;
+}
+
+
+.ads-freeze {
+    position: relative;
+    border: 1px solid #ccc;
+    line-height: 40px;
+    text-align: left !important;
+}
+
+    .ads-freeze[data-name='ads-serial'], .ads-icon-group {
+        width: 3.6rem;
+        text-align: center !important;
+        padding: unset !important;
+        min-width: unset;
+        line-height: 2rem;
+        position: relative;
+        display: block;
+    }
+
+    .ads-freeze[data-name='ads-code'] {
+        width: 8rem;
+    }
+
+    .ads-freeze[data-name='ads-no-cost'] {
+        white-space: unset;
+    }
+
+    .ads-freeze[data-name='ads-name'] {
+        width: 15rem !important;
+    }
+
+    .ads-freeze[data-name='ads-department'] {
+        width: 15rem;
+    }
+
+    .ads-freeze[data-name='ads-daysoff'] {
+        width: 5rem;
+        text-align: center !important;
+    }
+
+.ads-table-footer .ads-left {
+    border-top: 1px solid #ccc;
+    height: 1px;
+}
+
+.ads-table-footer .ads-freeze {
+    border: unset !important;
+}
+
+.ads-table-footer .ads-table-footer-right {
+    float: right !important;
+}
+
+.ads-clear-fix {
+    width: 100%;
+    margin: 0.325rem 0;
+}
+
+.ads-table-footer .ads-table-footer-button {
+    display: inline-block;
+    font-weight: 400;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    user-select: none;
+    font-size: 0.8125rem;
+    line-height: 1.5385;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+    border-image: initial;
+    padding: 0.4375rem 0.875rem;
+    border-radius: 0.1875rem;
+    outline: none;
+    transition: color 0.15s ease-in-out 0s, background-color 0.15s ease-in-out 0s, border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+}
+
+.ads-table-footer-button:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+
+.ads-table-footer-button-success {
+    color: #fff;
+    background-color: #4caf50;
+}
+
+    .ads-table-footer-button-success:hover {
+        color: rgb(255, 255, 255);
+        background-color: rgb(76, 175, 80);
+        box-shadow: 0 0 0 62.5rem rgba(0,0,0,.075) inset;
+    }
+
+.ads-table-footer-button-light {
+    color: #333;
+    background-color: #fafafa;
+}
+
+    .ads-table-footer-button-light:hover {
+        color: #333;
+        background-color: #f5f5f5;
+    }
+
+.ads-fa fa-check:before {
+    content: "\f00c"
+}
+
+.ads-ml-1 {
+    margin-left: .3125rem !important;
+}
+
+.ads-table-footer-button:focus, .ads-table-footer-button:hover {
+    text-decoration: none;
+}
+
+.ads-table-footer-button {
+    position: relative;
+}
+
+.ads-search-details {
+    -webkit-transition: max-height 0.5s;
+    -moz-transition: max-height 0.5s;
+    -ms-transition: max-height 0.5s;
+    -o-transition: max-height 0.5s;
+    transition: max-height 0.5s;
+    overflow: hidden;
+    overflow: hidden;
+    max-height: 0;
+}
+
+    .ads-search-details.show {
+        max-height: 16rem;
+        border-bottom-left-radius: 3px !important;
+        border-bottom-right-radius: 3px !important;
+        -webkit-transition: max-height 0.5s ease-in;
+        -moz-transition: max-height 0.5s ease-in;
+        -ms-transition: max-height 0.5s ease-in;
+        -o-transition: max-height 0.5s ease-in;
+        transition: max-height 0.5s ease-in;
+    }
+
+.ads-search span.ads-title {
+    line-height: 2.4rem;
+    font-size: 14px;
+    border-bottom: 1px solid #ccc;
+    display: block;
+    padding: 0 1.5rem 0;
+    text-decoration: none;
+    position: relative;
+    font-weight: bold;
+}
+
+.ads-table-title {
+    line-height: 2.5rem;
+    text-align: center;
+    font-size: 25px;
+    background: #687981;
+    border: 2px solid #ccc;
+    border-bottom: unset !important;
+    color: #fff;
+    position: relative;
+}
+
+.ads-cell-input {
+    outline: unset !important;
+    border: unset !important;
+    width: 80%;
+    height: 3.4rem;
+}
+
+.ads-row-group {
+    width: 100%;
+    line-height: 2rem;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: capitalize;
+    position: relative;
+    display: flex;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid #ccc;
+    border-right: unset;
+    line-height: 2rem;
+}
+
+.ads-div-form-check {
+    max-height: 6rem;
+    overflow: hidden;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+
+    .ads-div-form-check .ads-form-check {
+        margin: 0.625rem;
+        width: 33.33333333%;
+    }
+
+.ads-cell-header {
+    background: #728f72; /*#72868f;*/
+    color: #fff
+}
+
+.ads-cell-header-active {
+    background: #d69a3e;
+}

@@ -1,0 +1,80 @@
+﻿@model AdwardSoft.Web.Inside.Models.SupplierContactViewModel
+@{ 
+    bool isNew = (Model.Idx == 0) ? true : false;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+}
+
+<form class="form-validate-jquery form-content" asp-action="@action" asp-controller="SupplierContact" callbackfn="SupplierContactSuccess()" method="@methodAction" id="form-create">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description() </h5>
+        }
+        else
+        {
+            <h5 class="modal-title">@EText.Update.Description() </h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <input asp-for="@Model.SupplierId" type="hidden" value="@Model.SupplierId">
+        <input asp-for="@Model.Idx" type="hidden" value="@Model.Idx">
+        <div class="col-md-12">
+            <label asp-for="@Model.Name" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.Name" type="text" class="form-control">
+            <span asp-validation-for="@Model.Name" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Phone" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.Phone" type="text" class="form-control">
+            <span asp-validation-for="@Model.Phone" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Position" class="clear-fix font-weight-semibold"></label>
+            <input asp-for="@Model.Position" type="text" class="form-control">
+            <span asp-validation-for="@Model.Position" class="validation-invalid-label"></span>
+        </div>
+        <div class="col-md-12">
+            <label asp-for="@Model.Note" class="clear-fix font-weight-semibold"></label>
+            <textarea rows="4" asp-for="@Model.Note" type="text" class="form-control"></textarea>
+            <span asp-validation-for="@Model.Note" class="validation-invalid-label"></span>
+        </div>
+        <div class=" col-md-12">
+            <label asp-for="IsDefault" class="clear-fix font-weight-semibold"></label>
+            <div class="form-check form-check-switch form-check-switch-left">
+                <label class="form-check-label d-flex align-items-center">
+                    <input asp-for="@Model.IsDefault" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery-contract form-control">
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" onclick="ReadContractById(0)" class="btn btn-light ml-1 btn-sm">Cancel <i class="fas fa-times mr-1"></i></a>
+        @if (isNew)
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Create.Description() <i class="fa fa-check ml-1"></i></button>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+        }
+    </div>
+</form>
+<script>
+    var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery-contract'))
+
+    elems.forEach(function (html) {
+        var switchery = new Switchery(html)
+    })
+</script>
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.form-check-input-switch').bootstrapSwitch();
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+</script>
+

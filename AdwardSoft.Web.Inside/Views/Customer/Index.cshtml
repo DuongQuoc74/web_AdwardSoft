@@ -1,0 +1,289 @@
+﻿@model CustomerDatatableViewModel
+
+@{
+    var customerGroups = ViewBag.CustomerGroups;
+    var membershipClasses = ViewBag.MembershipClasses;
+    ViewData["Title"] = "Customer";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Danh sách nhà phân phối</h5>
+                <div class="card-header header-elements-md-inline">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <a href="@Url.Action("_Form","Customer")" checkvalidate="true" modal-size="modal-lg" class="btn btn-medium btn-primary modal-link" callbackfn="CustomerSuccess()">
+                                <i class="icon-plus22 mr-1"></i><span class="hidden-xs">Thêm mới</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <label asp-for="CustomerGroupId" class="clear-fix font-weight-semibold"></label>
+                            <select id="customer_group-select" class="form-control select" asp-items="customerGroups">
+                                <option value="0" selected>Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="col-md-auto float-right">
+                            <label asp-for="Type" class="clear-fix font-weight-semibold"></label>
+                            <select id="type-select" class="form-control select" asp-items="@Html.GetEnumSelectList<ECustomerType>()">
+                                <option value="-1" selected>Tất cả</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table id="CustomerTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label>Ảnh đại diện</label>
+                            </th>
+                            <th>
+                                <label asp-for="Name"></label>
+                            </th>
+                            <th>
+                                <label>NIN</label>
+                            </th>
+                            <th>
+                                <label asp-for="Phone"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Address"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Type"></label>
+                            </th>
+                            <th>
+                                <label asp-for="CustomerGroupName"></label>
+                            </th>
+                            <th>
+                                <label asp-for="IsInvoice"></label>
+                            </th>
+                            <th>
+                                <label asp-for="Status"></label>
+                            </th>
+                            <th>
+                                <label>Mặc định</label>
+                            </th>
+                            <th class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script id="CustomerAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @* -- Edit -- *@
+                    <a href="@Url.Action("_Form","Customer")" checkvalidate="true" class="dropdown-item modal-link"  modal-size="modal-lg" data-params='{"id":"{{:id}}"}' callbackfn="CustomerSuccess()" >
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.GetDescription()" ></i>
+                        @EText.Edit.GetDescription()
+                    </a>
+                    @* -- Remove -- *@
+                    <a data-action="/Customer/Delete" callbackfn="CustomerSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+                        @EText.Remove.GetDescription()
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script>
+        var $CustomerTable
+        var CustomerAction = $.templates("#CustomerAction")
+
+        var $customerGroupSelect = $('#customer_group-select')
+        var $membershipClassSelect = $('#membership_class-select')
+        var $typeSelect = $('#type-select')
+
+        $(document).ready(function () {
+            $('.select').select2();
+            setTimeout(rebindValidation, 500)
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+            $('.select-search').select2()
+            $('.daterange').daterangepicker({
+                singleDatePicker: true,
+                timePicker: false,
+                minDate: '01-01-1910',
+                maxDate: new Date(),
+                locale: {
+                    format: 'DD/MM/YYYY'
+                },
+                yearPicker: true
+            })
+        }
+
+        $CustomerTable = $("#CustomerTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "customerGroupId": $customerGroupSelect.val(),
+                        "type": $typeSelect.val()
+                    },
+                    url: "@Url.Action("Read", "Customer")",
+                    method: "POST",
+                    success: function (response) {
+                        callback({ data: response.data, draw: response.draw, recordsFiltered: response.recordsFiltered, recordsTotal: response.recordsTotal });
+                        $('.popup-over').popover()
+                    },
+                    error: function (error) {
+                        console.log(error)
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            order: false,
+            columns: [
+                {
+                    data: "name",
+                    "render": function (data, type, row) {
+
+                        var output = data.trim().split(' ');
+
+                        if (output.length == 1)
+                        {
+                            data = output[0].substring(0, 2)
+                        }
+                        else
+                        {
+                            data = output[0].substring(0, 1) + output[output.length - 1].substring(0, 1);
+                        }
+                        data = _removeAccents(data.toUpperCase())
+
+                        var randColor = _getRandomColor()
+
+                        return `<a href="#" class="btn bg-primary-400 rounded-round btn-icon btn-md" style="background-color: ${randColor}"><span class="letter-icon">${data}</span></a>`
+                    }
+                },
+                { data: "name" },
+                { data: "identityCode" },
+                { data: "phone" },
+                {
+                    data: "address",
+                    render: (data, type, row) => {
+                        var strSkiped = data
+
+                        if (data.length > 20)
+                            strSkiped = data.substring(0, 20) + "...";
+
+                        return `<span class="popup-over cursor-pointer" data-placement="bottom" data-content="${data}">${strSkiped}</span>`
+                    }
+                },
+                {
+                    data: "type",
+                    render: (data, type, row) => data == 0 ? "<span class='text-info'>@ECustomerType.Personal.Description()</span>" : "<span class='text-info'>@ECustomerType.Organization.Description()</span>"
+                },
+                { data: "customerGroupName" },
+                {
+                    data: "isInvoice",
+                    render: (data, type, row) => data === true ? '<p class="text-info"><i class="icon-checkmark3"></i></p>' : ""
+                },
+                {
+                    data: "status",
+                    render: (data, type, row) => data === 0 ? '<span class="text-danger">@EStatus.Unavailable.Description()</span>' : '<span class="text-success">@EStatus.Available.Description()</span>'
+                },
+                {
+                    data: "isDefault",
+                    render: (data, type, row) => data === false ? '' : "<p class='text-info'>@Html.Raw(EText.IsDefault.Description())</p>"
+                },
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return (CustomerAction.render({ id: data }))
+                    }
+                },
+            ],
+            language: {
+                search: '<div class="row">_INPUT_</div>',
+                searchPlaceholder: 'Search...',
+                info: "<span style='padding-left:2%;'>Page _PAGE_ / _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        });
+
+        function _getRandomColor() {
+            var letters = '0123456787654321';
+            var color = '#';
+            for (var i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+
+        function _removeAccents(str) {
+            var AccentsMap = [
+                "aàảãáạăằẳẵắặâầẩẫấậ",
+                "AÀẢÃÁẠĂẰẲẴẮẶÂẦẨẪẤẬ",
+                "dđ", "DĐ",
+                "eèẻẽéẹêềểễếệ",
+                "EÈẺẼÉẸÊỀỂỄẾỆ",
+                "iìỉĩíị",
+                "IÌỈĨÍỊ",
+                "oòỏõóọôồổỗốộơờởỡớợ",
+                "OÒỎÕÓỌÔỒỔỖỐỘƠỜỞỠỚỢ",
+                "uùủũúụưừửữứự",
+                "UÙỦŨÚỤƯỪỬỮỨỰ",
+                "yỳỷỹýỵ",
+                "YỲỶỸÝỴ"
+            ];
+            for (var i = 0; i < AccentsMap.length; i++) {
+                var re = new RegExp('[' + AccentsMap[i].substr(1) + ']', 'g');
+                var char = AccentsMap[i][0];
+                str = str.replace(re, char);
+            }
+            return str;
+        }
+
+        var CustomerSuccess = function () {
+            $CustomerTable.ajax.reload()
+        };
+    </script>
+    @* --- Events --- *@
+    <script>
+        $customerGroupSelect.on('change', function (e) {
+            $CustomerTable.ajax.reload()
+        })
+
+        $typeSelect.on('change', function (e) {
+            $CustomerTable.ajax.reload()
+        })
+
+        $membershipClassSelect.on('change', function (e) {
+            $CustomerTable.ajax.reload()
+        })
+
+    </script>
+}

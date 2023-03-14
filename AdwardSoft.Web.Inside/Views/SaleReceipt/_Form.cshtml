@@ -1,0 +1,602 @@
+﻿@model AdwardSoft.Web.Inside.Models.SaleReceiptAllViewModel
+@{ bool isNew = String.IsNullOrEmpty(Model.Infor.Id) ? true : false;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+    ViewData["Title"] = "Sale Receipt";
+    Layout = "~/Views/Shared/_LayoutVoucher.cshtml";
+}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Sale Receipt</h5>
+                <div class="right">
+                    <a href="#" class="btn btn-sm btn-dark"><i class="fa fa-random mr-1"></i>Change Shift</a>
+                    <a href="/SaleReceipt/Index" class="btn btn-sm btn-primary"><i class="fa fa-bars mr-1"></i>History</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <input type="hidden" id="methodAction" value="@methodAction" />
+                <input type="hidden" id="action" value="@action" />
+                <form class="form-validate-jquery" asp-action="@action" asp-controller="SaleReceipt" method="@methodAction" id="form-sale-recepit">
+                    @*<div class="modal-header">
+                        @if (isNew)
+                        {
+                            <h5 class="modal-title">@EText.Create.Description()</h5> 
+                        }
+                        else
+                        {
+                            <h5 class="modal-title">@EText.Update.Description()</h5>
+                        }
+                    </div>*@
+                    <div class="modal-body row">
+                        <div class="col-8">
+                            <div class="card"  style="background-color:#ffffff">
+                                <div class="card-body">
+                                    <fieldset class="clear-fix">
+                                        <legend class="font-weight-semibold text-uppercase font-size-sm">
+                                            <i class="icon-search4 mr-2"></i>
+                                            BARCODE
+                                        </legend>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <input type="text" id="productCode" oninput="checkCodeProduct()" class="form-control" />
+                                            </div>                                
+                                            <div id="tabErrorCode" class="col-12">
+                                                <div class="alert bg-warning text-white alert-dismissible">
+                                                    <button type="button" class="close" onclick="clearTextcheckCode()"><span>×</span></button>
+                                                    <span class="font-weight-semibold">Warning!</span> Code product not exists!
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <fieldset class="clear-fix">
+                                        <legend class="font-weight-semibold text-uppercase font-size-sm">
+                                            <i class="icon-stack3 mr-2"></i>
+                                            Products
+                                        </legend>
+                                        <table id="adsTableAdd" class="table datatable-save-state dataTable no-footer adsTable" style="width: 100%;" role="grid">
+                                            <thead>
+                                                <tr role="row">
+                                                    <th rowspan="1" colspan="1" style="width: 15%">Product Code</th>
+                                                    <th rowspan="1" colspan="1" style="width: 25%">Product Name</th>
+                                                    <th rowspan="1" colspan="1" style="width: 15%">Price</th>
+                                                    <th rowspan="1" colspan="1" style="width: 10%">Discount</th>
+                                                    <th rowspan="1" colspan="1" style="width: 10%">Quantity</th>
+                                                    <th rowspan="1" colspan="1" style="width: 15%">Amount</th>
+                                                    <th rowspan="1" colspan="1" style="width: 5%">Promotion</th>
+                                                    <th rowspan="1" colspan="1" aria-label="" style="width: 5%"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="MiscList">
+                                                @if (!String.IsNullOrEmpty(Model.Infor.Id))
+                                                {
+                                                    for (int i = 0; i < Model.Detail.Count; i++)
+                                                    {
+                                                        var amountShow = "Detail_"+ i + "__Amount_Show";
+                                                        var discountShow = "Detail_"+ i + "__Discount_Show";
+                                                <tr id="miscContent_@i" role="row">
+
+                                                    <input type="hidden" asp-for="@Model.Detail[i].ProductId" value="@Model.Detail[i].ProductId" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].UnitId" value="@Model.Detail[i].UnitId" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].Price" value="@Model.Detail[i].Price" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].PromotionId" value="@Model.Detail[i].PromotionId" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].Discount" value="@Model.Detail[i].Discount" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].Amount" value="@Model.Detail[i].Amount" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].IsPromo" value="@Model.Detail[i].IsPromo" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].ProductCode" value="@Model.Detail[i].ProductCode" />
+                                                    <input type="hidden" asp-for="@Model.Detail[i].RetailPrice" value="@Model.Detail[i].RetailPrice" />
+                                                    <td style="width: 15%">@Model.Detail[i].ProductCode</td>
+                                                    <td style="width: 25%">@Model.Detail[i].ProductName</td>
+                                                    <td style="width: 15%">@String.Format("{0:#,##0.##}", Model.Detail[i].Price)</td>
+                                                    <td style="width: 10%" id="@discountShow">@String.Format("{0:#,##0.##}", Model.Detail[i].Discount)</td>
+                                                    <td style="width: 10%"><input oninput="caculatorPrice()" style="text-align: right;" type="text" asp-for="@Model.Detail[i].Quantity" value="@Convert.ToInt32(Model.Detail[i].Quantity)" class="form-control format-number" /></td>
+                                                    <td style="width: 15%" id="@amountShow">@String.Format("{0:#,##0.##}", Model.Detail[i].Amount)</td>
+                                                    <td style="width: 5%"></td>
+                                                    <td style="width: 5%"><div class="list-icons"><a href="#" id="DeleteButton" class="list-icons-item" data-toggle="tooltip" title="Xóa"><i class="icon-trash"></i></a></div></td>
+                                                </tr>
+                                                    }
+
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <fieldset class="clear-fix">
+                                        <legend class="font-weight-semibold text-uppercase font-size-sm">
+                                            <i class="icon-user-check mr-2"></i>
+                                            Sale recepipt information
+                                        </legend>
+                                        <div class="row">
+                                            <input type="hidden" asp-for="@Model.Infor.Id" value="@Model.Infor.Id" />
+                                            <input type="hidden" asp-for="@Model.Infor.Date" value="@Model.Infor.Date" />
+                                            <input type="hidden" asp-for="@Model.Infor.CreateDate" value="@Model.Infor.CreateDate" />
+                                            <input type="hidden" asp-for="@Model.Infor.ModifiedDate" value="@Model.Infor.ModifiedDate" />
+                                            <input type="hidden" asp-for="@Model.Infor.CreatedUser" value="@Model.Infor.CreatedUser" />
+                                            <input type="hidden" asp-for="@Model.Infor.ModifiedUser" value="@Model.Infor.ModifiedUser" />
+                                            <input type="hidden" asp-for="@Model.Infor.BranchId" value="@Model.Infor.BranchId" />
+                                            <input type="hidden" asp-for="@Model.Infor.EmployeeId" value="@Model.Infor.EmployeeId" />
+                                            <input type="hidden" asp-for="@Model.Infor.ShiftId" value="@Model.Infor.ShiftId" />
+                                            <input type="hidden" asp-for="@Model.Infor.CheckoutCounterId" value="@Model.Infor.CheckoutCounterId" />
+                                            <div class="col-md-6">
+                                                <label asp-for="@Model.Infor.Date" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" value="@Model.Infor.Date.ToString("dd/MM/yyyy")" class="form-control" readonly />
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="@Model.Infor.PriceType" class="clear-fix font-weight-bold"></label>
+                                                <select class="form-control select" asp-items="@(new SelectList(ViewBag.PriceTypes, "Value", "Text"))" asp-for="@Model.Infor.PriceType">
+                                                </select>
+                                                <span asp-validation-for="@Model.Infor.PriceType" class="validation-invalid-label"></span>
+                                                <input asp-for="@Model.Infor.IsCustomerOrder" type="hidden" />
+                                                <input asp-for="@Model.Infor.IsShipping" type="hidden" />
+                                            </div>
+                                            @if (!isNew)
+                                            {
+                                        <div class="col-md-6">
+                                            <label asp-for="@Model.Infor.No" class="clear-fix font-weight-bold"></label>
+                                            <input type="text" asp-for="@Model.Infor.No" class="form-control" readonly />
+                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label asp-for="@Model.Infor.Status" class="clear-fix font-weight-bold"></label>
+                                                            <select class="form-control select" asp-items="Html.GetEnumSelectList<ESaleReceiptStatus>()" asp-for="@Model.Infor.Status">
+                                                            </select>
+                                                        </div>}
+
+                                            <div class="col-md-6">
+                                                <label asp-for="@Model.Infor.CustomerId" class="clear-fix font-weight-bold"></label>
+                                                <select class="form-control" asp-for="@Model.Infor.CustomerId">
+                                                    <option value="@ViewBag.CustomerDefault.Id">@ViewBag.CustomerDefault.Name</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="@Model.Infor.PaymentMethodId" class="clear-fix font-weight-bold"></label>
+                                                <select class="form-control select" asp-items="@(new SelectList(ViewBag.PaymentMethods, "Id", "Text"))" asp-for="@Model.Infor.PaymentMethodId">
+                                                </select>
+                                                <span asp-validation-for="@Model.Infor.PaymentMethodId" class="validation-invalid-label"></span>
+                                            </div>
+                                            @*<div class="col-md-6">
+                                                <label asp-for="@Model.Infor.IsShipping" class="clear-fix font-weight-bold"></label>
+                                                <div class="form-check form-check-switch form-check-switch-left">
+                                                    <input asp-for="@Model.Infor.IsShipping" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                                                </div>
+                                            </div>*@
+                                            @*<div class="col-md-6">
+                                                <label asp-for="@Model.Infor.IsCustomerOrder" class="clear-fix font-weight-bold"></label>
+                                                <div class="form-check form-check-switch form-check-switch-left">
+                                                    <input asp-for="@Model.Infor.IsCustomerOrder" type="checkbox" data-off-color="danger" data-on-text="True" data-off-text="False" class="form-check-input-switchery form-control">
+                                                </div>
+                                            </div>*@
+                                            <div class="col-md-12">
+                                                <label asp-for="@Model.Infor.Description" class="clear-fix font-weight-bold"></label>
+                                                <textarea rows="2" type="text" asp-for="@Model.Infor.Description" class="form-control"></textarea>
+                                                <span asp-validation-for="@Model.Infor.Description" class="validation-invalid-label"></span>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                    <fieldset class="clear-fix">
+                                        <legend class="font-weight-semibold text-uppercase font-size-sm">
+                                            <i class="icon-cash3 mr-2"></i>
+                                            Payment information
+                                        </legend>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label asp-for="@Model.Infor.TotalQuantity" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" asp-for="@Model.Infor.TotalQuantity" value="@String.Format("{0:#,##0.##}", Model.Infor.TotalQuantity)" class="form-control" format-Currency readonly />
+                                                <span asp-validation-for="@Model.Infor.TotalQuantity" class="validation-invalid-label"></span>
+
+                                                <input type="hidden" asp-for="@Model.Infor.TotalDiscount" />
+                                                <input type="hidden" asp-for="@Model.Infor.TaxRate" />
+                                                <input type="hidden" asp-for="@Model.Infor.TaxFee" />
+                                                <input type="hidden" asp-for="@Model.Infor.SubTotal" />
+                                            </div>
+                                            @*<div class="col-md-6">
+                                                <label asp-for="@Model.Infor.ShippingFee" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" asp-for="@Model.Infor.ShippingFee" value="@String.Format("{0:#,##0.##}", Model.Infor.ShippingFee)" class="form-control" format-Currency readonly />
+                                                <span asp-validation-for="@Model.Infor.ShippingFee" class="validation-invalid-label"></span>
+                                            </div>*@
+                                            @*<div class="col-md-6">
+                                                <label asp-for="@Model.Infor.SubTotal" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" asp-for="@Model.Infor.SubTotal" value="@String.Format("{0:#,##0.##}", Model.Infor.SubTotal)" class="form-control" format-Currency readonly />
+                                                <span asp-validation-for="@Model.Infor.SubTotal" class="validation-invalid-label"></span>
+                                            </div>*@
+                                            @*<div class="col-md-6">
+                                                <label asp-for="@Model.Infor.TotalDiscount" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" asp-for="@Model.Infor.TotalDiscount" value="@String.Format("{0:#,##0.##}", Model.Infor.TotalDiscount)" class="form-control" format-Currency readonly />
+                                                <span asp-validation-for="@Model.Infor.TotalDiscount" class="validation-invalid-label"></span>
+                                            </div>*@
+                                            @*<div class="col-md-6">
+                                                <label asp-for="@Model.Infor.TaxRate" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" asp-for="@Model.Infor.TaxRate" value="@String.Format("{0:#,##0.##}", Model.Infor.TaxRate)" class="form-control" format-Currency readonly />
+                                                <span asp-validation-for="@Model.Infor.TaxRate" class="validation-invalid-label"></span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label asp-for="@Model.Infor.TaxFee" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" asp-for="@Model.Infor.TaxFee" value="@String.Format("{0:#,##0.##}", Model.Infor.TaxFee)" class="form-control" format-Currency readonly />
+                                                <span asp-validation-for="@Model.Infor.TaxFee" class="validation-invalid-label"></span>
+                                            </div>*@
+                                            <div class="col-md-6">
+                                                <label asp-for="@Model.Infor.TotalAmount" class="clear-fix font-weight-bold"></label>
+                                                <input type="text" asp-for="@Model.Infor.TotalAmount" value="@String.Format("{0:#,##0.##}", Model.Infor.TotalAmount)" class="form-control" format-Currency readonly />
+                                                <span asp-validation-for="@Model.Infor.TotalAmount" class="validation-invalid-label"></span>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="clear-fix font-weight-bold">Cash</label>
+                                                <input type="text" id="CustomerCash" oninput="caculatorChange()" class="form-control format-Currency"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="clear-fix font-weight-bold">Change</label>
+                                                <input type="text" id="ChangeCash" class="form-control" format-Currency readonly/>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" data-dismiss="modal" class="btn btn-light ml-1 btn-sm">Cancel <i class="fas fa-times mr-1"></i></a>
+                        @if (isNew)
+                        {
+                            <button id="btnUpset" type="button" onclick="Upset()" class="btn btn-success ml-1 btn-sm">Create<i class="fa fa-check ml-1"></i></button>
+                        }
+                        else
+                        {
+                            <button id="btnUpset" type="button" onclick="Upset()" class="btn btn-success ml-1 btn-sm">Update<i class="fa fa-check ml-1"></i></button>
+                        }
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            });
+            $('.form-check-input-switch').bootstrapSwitch();
+            $('.select-search').select2();
+            setTimeout(rebindValidation, 500);
+
+            $('.daterange').daterangepicker({
+                applyClass: 'bg-slate-600',
+                cancelClass: 'btn-light',
+                singleDatePicker: true,
+                timePicker: false,
+                autoclose: true,
+                opens: 'right',
+                locale: {
+                    format: 'DD/MM/YYYY'
+                }
+            });
+            $("#tabErrorCode").hide();
+        });
+
+        function Upset() {
+            $("#btnUpset").hide();
+            var countMisc = $("#MiscList > tr").length;
+            if (Number(countMisc) == 0) {
+                new PNotify({
+                    title: 'Warning',
+                    text: "Not have product",
+                    addclass: 'bg-warning border-warning'
+                });
+            } else {
+                if ($("#form-sale-recepit").valid()) {
+                    $.ajax({
+                        url: "/SaleReceipt/" + $("#action").val(),
+                        method: $("#methodAction").val(),
+                        data: new FormData($('#form-sale-recepit').get(0)),
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            if (Number(response) == 1) {
+                                if ($("#Infor_Id").val()) {
+                                    new PNotify({
+                                        title: 'Update',
+                                        text: "Update success",
+                                        addclass: 'bg-success border-success'
+                                    });
+                                } else {
+                                    new PNotify({
+                                        title: 'Create',
+                                        text: "Create success",
+                                        addclass: 'bg-success border-success'
+                                    });
+                                }
+                            } else {
+                                if ($("#Infor_Id").val()) {
+                                    swal({
+                                        title: "Error",
+                                        text: "Update error",
+                                        type: "warning"
+                                    });
+                                } else {
+                                    swal({
+                                        title: "Error",
+                                        text: "Create error",
+                                        type: "warning"
+                                    });
+                                }
+                            }
+                            setTimeout(location.reload(true), 4000);
+                        }
+                    });
+                }
+            }
+            $("#btnUpset").show();
+        };
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+
+            //var elems = Array.prototype.slice.call(document.querySelectorAll('.form-check-input-switchery'))
+            //elems.forEach(function (html) {
+            //    var switchery = new Switchery(html)
+            //})
+        }
+
+        $(document).keypress(
+            function (event) {
+                if (event.which == '13') {
+                    event.preventDefault();
+                }
+            });
+                String.prototype.compose = (function () {
+                    var re = /\{{(.+?)\}}/g;
+                    return function (o) {
+                        return this.replace(re, function (_, k) {
+                            return typeof o[k] != 'undefined' ? o[k] : '';
+                        });
+                    }
+                }());
+
+
+        var row = '<tr id="miscContent_{{count}}" role="row">' +
+            '<input type="hidden" id="Detail_{{count}}__ProductId" name="Detail[{{count}}].ProductId" value="{{ProductId}}">' +
+            '<input type="hidden" id="Detail_{{count}}__UnitId" name="Detail[{{count}}].UnitId" value="{{UnitId}}">' +
+            '<input type="hidden" id="Detail_{{count}}__Price" name="Detail[{{count}}].Price" value="{{Price}}">' +
+            '<input type="hidden" id="Detail_{{count}}__PromotionId" name="Detail[{{count}}].PromotionId" value="{{PromotionId}}">' +
+            '<input type="hidden" id="Detail_{{count}}__Discount" name="Detail[{{count}}].Discount" value="{{Discount}}">' +
+            '<input type="hidden" id="Detail_{{count}}__Amount" name="Detail[{{count}}].Amount" value="{{Amount}}">' +
+            '<input type="hidden" id="Detail_{{count}}__IsPromo" name="Detail[{{count}}].IsPromo" value="{{IsPromo}}">' +
+            '<input type="hidden" id="Detail_{{count}}__ProductCode" name="Detail[{{count}}].ProductCode" value="{{ProductCode}}">' +
+            '<input type="hidden" id="Detail_{{count}}__RetailPrice" name="Detail[{{count}}].RetailPrice" value="{{RetailPrice}}">' +
+            '<td style="width: 15%">{{ProductCode}}</td>' +
+            '<td style="width: 25%">{{ProductName}}</td>' +
+            '<td style="width: 15%">{{Price_Show}}</td>' +
+            '<td style="width: 10%" id=Detail_{{count}}__Discount_Show>{{Discount}}</td>' +
+            '<td style="width: 10%"><input style="text-align: right;" oninput="caculatorPrice()" type="text" class="form-control format-number" id="Detail_{{count}}__Quantity" name="Detail[{{count}}].Quantity" value="{{Quantity}}" aria-describedby="Detail_{{count}}__Quantity-error" aria-invalid="false"></td>' +
+            '<td style="width: 15%" id=Detail_{{count}}__Amount_Show>{{Amount_Show}}</td>' +
+            '<td style="width: 5%">{{Promotion_Icon}}</td>' +
+            '<td style="width: 5%"><div class="list-icons"><a href="#" id="DeleteButton" class="list-icons-item" data-toggle="tooltip" title="Delete"><i class="icon-trash"></i></a></div></td>' +
+            '</tr>';
+
+        $("#adsTableAdd").on("click", "#DeleteButton", function () {
+            $(this).closest("tr").remove();
+            var count = 0;
+            $.each($("#MiscList > tr"), function (i, item) {
+                var id = item.id;
+                var oldId = id.charAt(12)
+                var newId = i;
+                $.each($("#" + id).find("*[name]"), function (i, item) {
+                    var nameOld = $(item).attr("name");
+                    var nameNew = nameOld.replace("[" + oldId + "]", "[" + newId + "]");
+                    $(item).attr("name", nameNew);
+                });
+                $.each($("#" + id).find("*[class]"), function (i, item) {
+                    var nameOld = $(item).attr("class");
+                    var nameNew = nameOld.replace("[" + oldId + "]", "[" + newId + "]");
+                    $(item).attr("class", nameNew);
+                });
+                $.each($("#" + id).find("*[id]"), function (i, item) {
+                    var nameOld = $(item).attr("id");
+                    var nameNew = nameOld.replace("_" + oldId + "__", "_" + newId + "__");
+                    $(item).attr("id", nameNew);
+                });
+                $.each($("#" + id).find("*[data-valmsg-for]"), function (i, item) {
+                    var nameOld = $(item).attr("data-valmsg-for");
+                    var nameNew = nameOld.replace("[" + oldId + "]", "[" + newId + "]");
+                    $(item).attr("data-valmsg-for", nameNew);
+                });
+                document.getElementById(id).setAttribute("id", "miscContent_" + newId);
+                count++;
+            });
+            caculatorPrice();
+        });
+
+        var checkCodeProduct = function () {
+            var countMisc = $("#MiscList > tr").length;
+            var code = $("#productCode").val();
+            if (code.length === 13 || code.length > 0) {
+                var flag = true;
+                $.each($("#MiscList > tr"), function (i, item) {
+                    var id = item.id;
+                    var saleDetailId = id.charAt(12)
+                    var ProductCode = $("#Detail_" + saleDetailId + "__ProductCode").val();
+                    if (code == ProductCode && flag) {
+                        var idQuantity = "#Detail_" + saleDetailId + "__Quantity";
+                        var quantity = $(idQuantity).val();
+                        var newQuantity = Number(quantity) + 1;
+                        $(idQuantity).val(newQuantity);
+                        flag = false;
+                    }
+                });
+                if (flag) {
+                    $.ajax({
+                        data: {
+                            "code": code,
+                        },
+                        url: "@Url.Action("Search", "Product")",
+                        method: "GET",
+                        success: function (response) {
+
+                            if (Number(response.id) != 0) {
+                                var priceType = $("#Infor_PriceType option:selected" ).val();
+                                //console.log(priceType);
+                                var price = (priceType === '0' ? response.wholesalePrice : (priceType === '1' ? response.wholesalePrice2 : (priceType === '2' ? response.retailPrice : response.retailPrice2)))
+
+                                $('#MiscList').append(row.compose({
+                                    'ProductId': response.id,
+                                    'UnitId': response.unitId,
+                                    'Price': price,
+                                    'RetailPrice': response.retailPrice2,
+                                    'Price_Show': FormatCurrency(price),
+                                    'PromotionId': 0,
+                                    'Discount': 0,
+                                    'Amount': response.retailPrice,
+                                    'Amount_Show': FormatCurrency(price ),
+                                    'IsPromo': 0,
+                                    'Quantity': 1,
+                                    'ProductCode': response.code,
+                                    'ProductName': response.name,
+                                    'count': countMisc
+                                }));
+                                clearTextcheckCode();
+                                caculatorPrice();
+                            } else {
+                                $("#tabErrorCode").show();
+                            }
+                        },
+                        error: function (error) {
+                        }
+                    });
+                } else {
+                    clearTextcheckCode();
+                }
+                caculatorPrice();
+
+            }
+        }
+
+        var caculatorPrice = function () {
+            var totalQuantity = 0;
+            var subTotal = 0;
+            var shippingFee = 0;
+            var taxRate = $("#Infor_TaxFee").val();
+            var taxFee = 0;
+            var totalDiscount = 0;
+            var totalAmount = 0;
+            $.each($("#MiscList > tr"), function (i, item) {
+                var id = item.id;
+                var saleDetailId = id.charAt(12)
+                var ProductCode = $("#Detail_" + saleDetailId + "__ProductCode").val();
+
+                //Số lượng
+                var idQuantity = "#Detail_" + saleDetailId + "__Quantity";
+                var quantity = $(idQuantity).val();
+                //Total quantity
+                totalQuantity = Number(totalQuantity) + Number(quantity);
+
+                //Discount
+                var discount = $("#Detail_" + saleDetailId + "__Discount").val()
+                //Total Discount
+                totalDiscount = Number(totalDiscount) + Number(discount);
+
+                //Amount
+                var price = $("#Detail_" + saleDetailId + "__Price").val()
+                var newAmout = quantity * Number(price) - Number(discount);
+                //Total SubAmount
+                subTotal = Number(subTotal) + Number(newAmout);
+
+
+                $("#Detail_" + saleDetailId + "__Amount").val(newAmout);
+                $("#Detail_" + saleDetailId + "__Amount_Show").text(FormatCurrency(newAmout));
+            });
+
+            //Tax fee
+            taxFee = (subTotal / 100) * Number(taxRate)
+
+            //Total Amount
+            totalAmount = subTotal - totalDiscount - taxFee - shippingFee;
+
+            $("#Infor_TotalQuantity").val(FormatCurrency(totalQuantity));
+            $("#Infor_SubTotal").val(FormatCurrency(subTotal));
+            $("#Infor_ShippingFee").val();
+            $("#Infor_TaxFee").val(FormatCurrency(taxFee));
+            $("#Infor_TotalDiscount").val(FormatCurrency(totalDiscount));
+            $("#Infor_TotalAmount").val(FormatCurrency(totalAmount));
+        }
+
+        var caculatorChange = function () {
+            var totalAmount = $("#Infor_TotalAmount").val().replace(',', '');
+            var cashCustomer = $("#CustomerCash").val().replace(',', '');
+            var changeCash = Number(cashCustomer) - (totalAmount);
+            if (changeCash < 0) {
+                changeCash = changeCash.toString().replace('-', '')
+                $("#ChangeCash").val('-' + FormatCurrency(changeCash));
+            } else {
+                $("#ChangeCash").val(FormatCurrency(changeCash));
+            }
+
+        }
+
+        var clearTextcheckCode = function () {
+            $("#productCode").val('');
+            $("#tabErrorCode").hide();
+        }
+
+        $('#Infor_CustomerId').select2(
+            {
+                ajax: {
+                    delay: 150,
+                    url: '@Url.Action("Search", "Customer")',
+                    dataType: 'json',
+                    data: function (params) {
+                        params.page = params.page || 1;
+                        return {
+                            searchTerm: params.term,
+                            pageSize: 10,
+                            pageNumber: params.page,
+                        };
+                    },
+                    processResults: function (data, params) {
+                        params.page = params.page || 1;
+                        return {
+                            results: $.map(data.items, function (obj) {
+                                return {
+                                    id: obj.id,
+                                    text: obj.text,
+                                    paymentMethod: obj.paymentMethodId
+                                };
+                            }),
+                            pagination: {
+                                more: (params.page * 10) < data.total
+                            }
+                        };
+                    },
+                    cache: true
+                },
+                placeholder: "-- Chọn vật tư màu --",
+                minimumInputLength: 0,
+                allowClear: true,
+            }
+        );
+
+
+        $('#Infor_CustomerId').on('select2:select', function (e) {
+            // Set selected
+            var data = e.params.data;
+            $('#Infor_PaymentMethodId').val(data.paymentMethod);
+            $('#Infor_PaymentMethodId').select2().trigger('change');
+        });
+    </script>
+}
+
+

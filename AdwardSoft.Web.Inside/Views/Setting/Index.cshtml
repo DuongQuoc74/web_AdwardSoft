@@ -1,0 +1,60 @@
+﻿@model SettingViewModel
+@{ ViewData["Title"] = "Setting"; }
+
+<div class="row">
+    <div class="col-12">
+        <div class="card" id="_Form">
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500);
+            ReadById(0)
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+
+            $('.select-search').select2();
+            $('.form-check-input-switch').bootstrapSwitch();
+            $('.daterange-single').daterangepicker({
+                singleDatePicker: true,
+                timePicker: false,
+                locale: {
+                    format: 'MM-DD-YYYY'
+                },
+                autoclose: true,
+                yearPicker: true,
+            });
+
+        };
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "Setting")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#_Form").empty();
+                    $("#_Form").html(data);
+                    rebindValidation()
+                }
+            });
+        };
+
+        var SettingSuccess = function () {
+            ReadById(0)
+        };
+    </script>
+}
+

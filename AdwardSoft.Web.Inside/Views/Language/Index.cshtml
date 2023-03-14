@@ -1,0 +1,131 @@
+﻿
+@{
+    ViewData["Title"] = "Ngôn ngữ";
+}
+
+<div class="row">
+    <div class="col-5">
+        <div class="card" id="_Form">
+        </div>
+    </div>
+    <div class="col-7">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Danh sách ngôn ngữ</h5>
+            </div>
+            <div class="card-body">
+                <table id="LanguageTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>Mã ngôn ngữ</th>
+                            <th>Tên ngôn ngữ</th>
+                            <th>Mặc định</th>
+                            <th width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script id="LanguageAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <a onclick="ReadByCode('{{:code}}')" class="list-icons-item"><i class="icon-pencil7" data-toggle="tooltip" title="Điều chỉnh"></i></a>
+            <a href="#" class="list-icons-item"><i data-action="/Language/Delete" callbackfn="LanguageSuccess()" class="icon-trash remove-item" data-params='{"code":"{{:code}}"}' data-toggle="tooltip" title="Xóa"></i></a>
+        </div>
+    </script>
+
+    <script>
+        var rebindValidation = () => {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            });
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.select-search').select2()
+            $('.form-check-input-switch').bootstrapSwitch()
+        }
+
+        // Render Table
+        let $LanguageTable
+        let LanguageAction = $.templates("#LanguageAction")
+        $LanguageTable = $("#LanguageTable").DataTable({
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    url: "@Url.Action("Read", "Language")",
+                    method: "GET",
+                    success: function (response) {
+                        callback({ data: response });
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: false,
+            search: false,
+            columns: [
+                { "data": "code"},
+                { "data": "name" },
+                {
+                    "data": "isDefault",
+                    "render": (data, type, row) => {
+                        if (data) {
+                            return '<i class="icon-checkmark3"></i>'
+                        } else {
+                            return ""
+                        }
+                    }
+                },
+                {
+                    "data": "code",
+                    "render": function (data, type, row) {
+                        return (LanguageAction.render({ code: data }))
+                    }
+                },
+                
+            ],
+            language: {
+                info: "<span style='padding-left:2%;'>Trang _PAGE_ của _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "không có dữ liệu"
+            }
+        })
+
+
+        // Read by code
+        let ReadByCode = (code) => {
+            $.ajax({
+                url: "@Url.Action("_Form", "Language")",
+                method: "GET",
+                data: { "code": code },
+                success: function (data) {
+                    $("#_Form").empty();
+                    $("#_Form").html(data)
+                    setTimeout(rebindValidation, 500)
+                }
+            })
+        }
+
+        let LanguageSuccess = () => {
+            $LanguageTable.ajax.reload()
+            ReadByCode("")
+        }
+
+        // $(document).ready() short type
+        $(() => {
+            setTimeout(rebindValidation, 500)
+            ReadByCode("")
+        })
+    </script>
+}

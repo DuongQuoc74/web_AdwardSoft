@@ -1,0 +1,192 @@
+﻿@model DeliveryVehicleDatatableViewModel
+
+@{
+	ViewData["Title"] = "DeliveryVehicle";
+	var Customers = ViewBag.Customers;
+	var VehicleTypes = ViewBag.VehicleTypes;
+}
+
+<div class="row">
+	<div class="col-12">
+		<div class="card">
+			<div class="card-header">
+				<h5 class="card-title">Danh sách phương tiện giao hàng</h5>
+				<div class="card-header header-elements-md-inline">
+					<div class="row">
+						<div class="col-md-auto float-right">
+							<label class="clear-fix font-weight-semibold">Biển số</label>
+							<div class="form-group-feedback">
+								<input type="text" id="license-plate-filter" class="form-control">
+							</div>
+						</div>
+						<div class="col-md-auto float-right">
+							<label class="clear-fix font-weight-semibold">Nhà phân phối</label>
+							<select id="customer-filter" class="form-control select-search" asp-items="Customers">
+								<option value="0" selected>Tất cả</option>
+							</select>
+						</div>
+						<div class="col-md-auto float-right">
+							<label class="clear-fix font-weight-semibold">Loại phương tiện</label>
+							<select id="vehicle-type-filter" class="form-control select-search" asp-items="VehicleTypes">
+								<option value="0" selected>Tất cả</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card-header header-elements-md-inline">
+				<div class="row">
+					<div class="col-md-auto">
+						<a href="@Url.Action("_Form","DeliveryVehicle")" checkvalidate="true" modal-size="modal-lg" class="btn btn-medium btn-primary modal-link" callbackfn="DeliveryVehicleSuccess()">
+							<i class="icon-plus22 mr-1"></i><span class="hidden-xs">Thêm mới</span>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
+				<table id="DeliveryVehicleTable" class="table datatable-save-state w-100">
+					<thead>
+						<tr>
+							<th>
+								<label asp-for="Name"></label>
+							</th>
+							<th>
+								<label asp-for="LicensePlate"></label>
+							</th>
+							<th>
+								<label asp-for="DriverName"></label>
+							</th>
+							<th>
+								<label asp-for="DriverPhone"></label>
+							</th>
+							<th>
+								<label asp-for="Load"></label>
+							</th>
+							<th>
+								<label asp-for="CustomerId"></label>
+							</th>
+							<th>
+								<label asp-for="VehicleTypeId"></label>
+							</th>
+							<th>
+								<label asp-for="Status"></label>
+							</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script id="DeliveryVehicleAction" type="text/x-jsrender">
+		<div class="list-icons">
+			<div class="list-icons-item dropdown">
+				<a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+				<div class="dropdown-menu dropdown-menu-right">
+		@* -- Edit -- *@
+					<a href='@Url.Action("_Form","DeliveryVehicle")' checkvalidate="true" class="dropdown-item modal-link" modal-size="modal-lg" data-params='{"id":"{{:id}}"}' callbackfn="DeliveryVehicleSuccess()">
+						<i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.GetDescription()" ></i>
+		@EText.Edit.GetDescription()
+					</a>
+		@* -- Remove -- *@
+					<a data-action="/DeliveryVehicle/Delete" callbackfn="DeliveryVehicleSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+						<i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+		@EText.Remove.GetDescription()
+					</a>
+				</div>
+			</div>
+		</div>
+	</script>
+	<script>
+		$(document).ready(function () {
+			setTimeout(rebindValidation, 500);
+		})
+		var rebindValidation = function () {
+			$('form').each(function (i, f) {
+				$form = $(f);
+				$form.removeData('validator');
+				$form.removeData('unobtrusiveValidation');
+				$.validator.unobtrusive.parse($form);
+			});
+
+			$('.select-search').select2();
+			$('.form-check-input-switch').bootstrapSwitch();
+		};
+		var $CustomerFilter = $('#customer-filter');
+		var $VehicleTypeFilter = $('#vehicle-type-filter');
+		var $LicensePlateFilter = $('#license-plate-filter');
+
+		var $DeliveryVehicleTable
+		var DeliveryVehicleAction = $.templates("#DeliveryVehicleAction");
+		$DeliveryVehicleTable = $("#DeliveryVehicleTable").DataTable({
+			ajax: function (data, callback, settings) {
+				$.ajax({
+					url: "@Url.Action("Read", "DeliveryVehicle")",
+					data: {
+						"licensePlate": $LicensePlateFilter.val(),
+						"customerId": $CustomerFilter.val(),
+						"vehicleTypeId": $VehicleTypeFilter.val()
+					},
+					method: "GET",
+					success: function (response) {
+						callback({ data: response })
+					},
+					error: function (error) {
+						console.log(error)
+					}
+				})
+			},
+			pageLength: 10,
+			paging: true,
+			cache: false,
+			lengthChange: false,
+			filter: false,
+			search: false,
+			columns: [
+				{ data: "name" },
+				{ data: "licensePlate" },
+				{ data: "driverName" },
+				{ data: "driverPhone" },
+				{
+					data: "load",
+					render: (data, type, row) => FormatCurrency(data)
+				},
+				{ data: "customerName" },
+				{ data: "vehicleTypeName" },
+				{
+					data: "status",
+					render: (data, type, row) => data === 0 ? '<p class="text-danger">@EStatus.Unavailable.Description()</p>' : '<p class="text-danger">@EStatus.Available.Description()</p>'
+				},
+				{
+					data: "id",
+					render: function (data, type, row) {
+						return (DeliveryVehicleAction.render({ id: data }));
+					}
+				},
+			],
+			language: {
+				info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+				paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+				processing: "",
+				infoEmpty: "",
+				emptyTable: "Không có dữ liệu ..."
+			}
+		});
+
+		var DeliveryVehicleSuccess = function () {
+			$DeliveryVehicleTable.ajax.reload();
+		};
+		$LicensePlateFilter.on('change input', function (e) {
+			$DeliveryVehicleTable.ajax.reload()
+		})
+		$CustomerFilter.on('change', function (e) {
+			$DeliveryVehicleTable.ajax.reload()
+		})
+		$VehicleTypeFilter.on('change', function (e) {
+			$DeliveryVehicleTable.ajax.reload()
+		})
+	</script>
+}

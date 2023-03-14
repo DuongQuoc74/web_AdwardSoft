@@ -1,0 +1,46 @@
+﻿@page {
+    size: A4 landscape;
+    margin: 3px;
+    
+}
+
+body {
+    font-family: 'Lato';
+}
+
+.ads-row {
+    display: block;
+}
+
+.ads-cell {
+    border: 1px solid #ccc;
+    min-width: 1.5rem;
+    text-align: center;
+    line-height: 2rem;
+}
+
+.ads-freeze {
+    width: 9rem;
+    text-align: left;
+}
+
+.ads-freeze:last-child {
+    width:3rem;
+    text-align: center;
+}
+
+.ads-row-group {
+    line-height: 1.5rem;
+    font-weight: bold;
+    text-transform: capitalize;
+    text-align: left;
+    padding-left: 1.5rem;
+}
+
+.ads-table-title {
+    line-height: 2.5rem;
+    text-align: center;
+    font-size: 25px;
+    position: relative;
+    border: 1px solid #ccc;
+}

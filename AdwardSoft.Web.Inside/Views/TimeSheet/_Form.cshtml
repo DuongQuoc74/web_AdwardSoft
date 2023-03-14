@@ -1,0 +1,51 @@
+﻿@model TimeSheetViewModel
+
+@{ 
+    var isNew = true;
+    var methodAction = isNew ? "Post" : "Put";
+    var action = isNew ? "Create" : "Update";
+}
+
+<form asp-controller="Gender" asp-action="@action" class="form-validate-jquery form-content" id="_FormView" callbackfn="TimeSheetSuccess()" method="@methodAction">
+    <div class="modal-header">
+        @if (isNew)
+        {
+            <h5 class="modal-title">@EText.Create.Description()</h5>
+        }
+    </div>
+    <div class="modal-body row">
+        <div class="col-md-12">
+            <label asp-for="Date" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Date" value="@Model.Date" class="form-control" />
+        </div>
+        <div class="col-md-12">
+            <label asp-for="Date" class="clear-fix font-weight-semibold ads-control"></label>
+            <input type="text" asp-for="@Model.Date" value="@Model.Date" class="form-control" />
+        </div>
+    </div>
+    <div class="modal-footer row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-end align-items-center clear-fix">
+                <a href="#" onclick="ReadById(0)" class="btn btn-light ml-1 btn-sm">@EText.Cancel.Description() <i class="fas fa-times mr-1"></i></a>
+                @if (isNew)
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">Create <i class="fa fa-check ml-1"></i></button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-success ml-1 btn-sm mr-0">@EText.Update.Description() <i class="fa fa-check ml-1"></i></button>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('.select').select2({
+            minimumResultsForSearch: Infinity
+        });
+        $('.select-search').select2();
+        setTimeout(rebindValidation, 500);
+    });
+</script>

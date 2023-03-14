@@ -1,0 +1,632 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>AdwardSoft.Db.POS</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{f486da30-84d9-439f-8558-665d0b76993c}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath />
+    <RootNamespace>AdwardSoft.Db.POS</RootNamespace>
+    <AssemblyName>AdwardSoft.Db.POS</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo" />
+    <Folder Include="dbo\DataType" />
+    <Folder Include="dbo\Funtions" />
+    <Folder Include="dbo\Scripts" />
+    <Folder Include="dbo\StoreProcedures" />
+    <Folder Include="dbo\Tables" />
+    <Folder Include="dbo\Tables\Supplier" />
+    <Folder Include="dbo\Tables\Product" />
+    <Folder Include="dbo\Tables\Branch" />
+    <Folder Include="dbo\StoreProcedures\Branch" />
+    <Folder Include="dbo\Tables\User" />
+    <Folder Include="dbo\StoreProcedures\Product" />
+    <Folder Include="dbo\StoreProcedures\ProductUnitConverter" />
+    <Folder Include="dbo\StoreProcedures\Unit" />
+    <Folder Include="dbo\Tables\Stock" />
+    <Folder Include="dbo\StoreProcedures\Stock" />
+    <Folder Include="dbo\Tables\Stock" />
+    <Folder Include="dbo\Tables\Customer" />
+    <Folder Include="dbo\Tables\System" />
+    <Folder Include="dbo\Tables\Promotions" />
+    <Folder Include="dbo\StoreProcedures\SellingPrice" />
+    <Folder Include="dbo\StoreProcedures\UserBranch" />
+    <Folder Include="dbo\StoreProcedures\Supplier" />
+    <Folder Include="dbo\StoreProcedures\CustomerGroup" />
+    <Folder Include="dbo\StoreProcedures\Customer" />
+    <Folder Include="dbo\StoreProcedures\Category" />
+    <Folder Include="dbo\StoreProcedures\MembershipClass" />
+    <Folder Include="dbo\StoreProcedures\ScoreConfiguration" />
+    <Folder Include="dbo\StoreProcedures\PaymentMethod" />
+    <Folder Include="dbo\StoreProcedures\Promotion" />
+    <Folder Include="dbo\StoreProcedures\StockTaking" />
+    <Folder Include="dbo\Tables\Order" />
+    <Folder Include="dbo\StoreProcedures\CustomerClass" />
+    <Folder Include="dbo\Tables\SaleReceipt" />
+    <Folder Include="dbo\StoreProcedures\SaleReceipt" />
+    <Folder Include="dbo\Tables\Shift" />
+    <Folder Include="dbo\Tables\CheckoutCounter" />
+    <Folder Include="dbo\StoreProcedures\CheckoutCounter" />
+    <Folder Include="dbo\StoreProcedures\Shift" />
+    <Folder Include="dbo\StoreProcedures\BeginingStock" />
+    <Folder Include="dbo\StoreProcedures\Employee" />
+    <Folder Include="dbo\Tables\Employee" />
+    <Folder Include="dbo\Tables\Other" />
+    <Folder Include="dbo\StoreProcedures\Gender" />
+    <Folder Include="dbo\StoreProcedures\Position" />
+    <Folder Include="dbo\StoreProcedures\Department" />
+    <Folder Include="dbo\Tables\Timesheet" />
+    <Folder Include="dbo\StoreProcedures\Setting" />
+    <Folder Include="dbo\StoreProcedures\Timesheet" />
+    <Folder Include="dbo\Tables\Report" />
+    <Folder Include="dbo\StoreProcedures\Report" />
+    <Folder Include="dbo\StoreProcedures\ReceivingReport" />
+    <Folder Include="dbo\StoreProcedures\ServiceDisplay" />
+    <Folder Include="dbo\StoreProcedures\MembershipScore" />
+    <Folder Include="dbo\Tables\DeliveryPoint" />
+    <Folder Include="dbo\StoreProcedures\DeliveryPoint" />
+    <Folder Include="dbo\Tables\BankAccount" />
+    <Folder Include="dbo\StoreProcedures\BankAccount" />
+    <Folder Include="dbo\Tables\DeliveryVehicle" />
+    <Folder Include="dbo\StoreProcedures\DeliveryVehicle" />
+    <Folder Include="dbo\StoreProcedures\Location" />
+    <Folder Include="dbo\Tables\Location" />
+    <Folder Include="dbo\StoreProcedures\PriceList\" />
+    <Folder Include="dbo\Tables\VehicleType\" />
+    <Folder Include="dbo\StoreProcedures\VehicleType\" />
+    <Folder Include="dbo\StoreProcedures\PriceDetail" />
+    <Folder Include="dbo\Tables\CustomerLocation" />
+    <Folder Include="dbo\StoreProcedures\CustomerWallet" />
+    <Folder Include="dbo\Tables\ReceiptSetting" />
+    <Folder Include="dbo\StoreProcedures\CustomerOrder" />
+    <Folder Include="dbo\StoreProcedures\CustomerOrderDetail" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\Supplier\Supplier.sql" />
+    <Build Include="dbo\Tables\Supplier\SupplierContact.sql" />
+    <Build Include="dbo\Tables\Product\Category.sql" />
+    <Build Include="dbo\Tables\Product\Product.sql" />
+    <Build Include="dbo\Tables\Product\Unit.sql" />
+    <Build Include="dbo\Tables\Product\ProductCategory.sql" />
+    <Build Include="dbo\Tables\Branch\Branch.sql" />
+    <Build Include="dbo\Tables\Product\ProductUnitConverter.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverter_Create.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverterDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverter_Update.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverter_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverterRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_Branch_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_Branch_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_Branch_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_Branch_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_BranchJson_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_SelectLevels_ReadBranch.sql" />
+    <Build Include="dbo\Tables\User\UserBranch.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_Read.sql" />
+    <Build Include="dbo\Tables\Stock\Stock.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_StockRedis_ReadDefault.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_ReadDefault.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_StockDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_StockRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_UnitRedis_Read.sql" />
+    <Build Include="dbo\Tables\Stock\Stock.sql" />
+    <Build Include="dbo\Tables\Stock\BeginingStock.sql" />
+    <Build Include="dbo\Tables\Stock\Stocktaking.sql" />
+    <Build Include="dbo\Tables\Product\SellingPrice.sql" />
+    <Build Include="dbo\Tables\Customer\CustomerGroup.sql" />
+    <Build Include="dbo\Tables\Customer\Customer.sql" />
+    <Build Include="dbo\Tables\System\PaymentMethod.sql" />
+    <Build Include="dbo\Tables\Customer\MembershipClass.sql" />
+    <Build Include="dbo\Tables\Customer\ScoreConfiguration.sql" />
+    <Build Include="dbo\Tables\Promotions\Promotion.sql" />
+    <Build Include="dbo\StoreProcedures\SellingPrice\usp_SellingPrice_Create.sql" />
+    <Build Include="dbo\StoreProcedures\SellingPrice\usp_SellingPrice_Update.sql" />
+    <Build Include="dbo\StoreProcedures\SellingPrice\usp_SellingPrice_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\SellingPrice\usp_SellingPrice_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_Branch_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_ReadCheckCodeIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_ReadCheckUnitIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductData_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_ReadDefault.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_ReadPhoneIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_CategoryDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_ReadCategoryIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_CategoryRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroup_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroup_Create.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroup_Update.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroup_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroup_ReadCheckIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_CustomerDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_Create.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClassRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_Create.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_ReadCheckIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_ReadDefault.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_Update.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_ReadCheckInRange.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClassSort_Update.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClassDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClassRedis_ReadDefault.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductData_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductData_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Product_ReadCodeIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductData_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfiguration_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductData_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductData_ReadByCategoryId.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_ReadSelect.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadIdentityIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadPhoneIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_CustomerElastic_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_CustomerRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroup_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroupDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroupRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Product_ReadByCategory.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\UserBranch\usp_UserBranch_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\UserBranch\usp_UserBranch_ReadByUserId.sql" />
+    <Build Include="dbo\StoreProcedures\UserBranch\usp_UserBranch_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfigurationRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfigurationDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfiguration_Create.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfiguration_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfiguration_Update.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfiguration_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Category_ReadSelect.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroup_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroupDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_CustomerGroupRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipClass\usp_MembershipClass_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Product_ReadByCategory.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadIdentityIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadPhoneIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_CustomerElastic_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_CustomerRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Unit_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\UserBranch\usp_UserBranch_Create.sql" />
+    <Build Include="dbo\StoreProcedures\UserBranch\usp_UserBranch_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\UserBranch\usp_UserBranch_ReadByUserId.sql" />
+    <Build Include="dbo\Tables\Promotions\PromotionAmount.sql" />
+    <Build Include="dbo\Tables\Promotions\PromotionCombo.sql" />
+    <Build Include="dbo\Tables\Promotions\PromotionDirect.sql" />
+    <Build Include="dbo\Tables\Promotions\PromotionGift.sql" />
+    <Build Include="dbo\Tables\Customer\MembershipScore.sql" />
+    <Build Include="dbo\StoreProcedures\PaymentMethod\usp_PaymentMethod_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_ReadEmailIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_ReadCheckSupplierIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierElastic_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_Promotion_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_Promotion_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_Promotion_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_Promotion_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_Promotion_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionAmount_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionAmount_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionCombo_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionCombo_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionDirect_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionDirect_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionGift_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionGift_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionAmount_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionComboDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionGiftDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionDirectDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionGift_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionDirect_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionCombo_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionAmount_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionGift_ReadIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionDirect_ReadIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionCombo_ReadIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionGift_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionDirect_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionCombo_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_PromotionAmount_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Promotion\usp_Promotion_ReadCheckDate.sql" />
+    <Build Include="dbo\StoreProcedures\ScoreConfiguration\usp_ScoreConfiguration_ReadDateIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_SelectMultiCategory_ReadByCategoryIds.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Product_ReadCodeIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTakingDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Product_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_ReadStockByDate.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_Create.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockProduct_ReadByBarcode.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverter_DeleteByProductId.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Select_ReadProduct.sql" />
+    <Build Include="dbo\Tables\Order\CustomerOrder.sql" />
+    <Build Include="dbo\Tables\Order\CustomerOrderDetails.sql" />
+    <Build Include="dbo\Tables\Order\CustomerOrderScore.sql" />
+    <Build Include="dbo\Tables\Order\PurchaseOrder.sql" />
+    <Build Include="dbo\Tables\Order\PurchaseOrderDetail.sql" />
+    <Build Include="dbo\Tables\SaleReceipt\SaleReceipt.sql" />
+    <Build Include="dbo\Tables\SaleReceipt\SaleReceiptDetail.sql" />
+    <Build Include="dbo\Tables\SaleReceipt\SaleReceiptOrder.sql" />
+    <Build Include="dbo\Tables\SaleReceipt\SaleReceiptScore.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceipt_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceipt_Create.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceipt_Update.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceipt_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDetailDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDetail_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDetail_Create.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptOrder_Create.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptOrder_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptScore_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptScore_Create.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptScore_Update.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDetail_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Select_ReadStock.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Select_ReadUnit.sql" />
+    <Build Include="dbo\StoreProcedures\Category\usp_Select_ReadCategory.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerGroup\usp_Select_ReadCustomerGroup.sql" />
+    <Build Include="dbo\Tables\Customer\CustomerClass.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_Supplier_ReadSelect.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerClass\usp_CustomerClass_Create.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerClass\usp_CustomerClassDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerClass\usp_CustomerClassRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadDefaulting.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_CustomerRedis_ReadDefaulting.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptScore_Read.sql" />
+    <Build Include="dbo\Tables\Shift\Shift.sql" />
+    <Build Include="dbo\Tables\CheckoutCounter\CheckoutCounter.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_Select_ReadCheckoutCounter.sql" />
+    <Build Include="dbo\StoreProcedures\Shift\usp_Select_ReadShift.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadDefault.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_ReadProductIdByCode.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_DeleteByDate.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTakingDatatable_ReadByDate.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_CheckoutCounterDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Shift\usp_ShiftDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\SellingPrice\usp_SellingPriceDatatable_ReadByProduct.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_Create.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_DeleteByYear.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStockDataTable_ReadByYear.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_ReadHaveData.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_ReadIsLock.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_UpdateLock.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_UpdateQuantity.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStock_UpdateUnlock.sql" />
+    <Build Include="dbo\StoreProcedures\BeginingStock\usp_BeginingStockDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_CheckoutCounter_Update.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_CheckoutCounter_Create.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_CheckoutCounter_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_CheckoutCounter_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_CheckoutCounterRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Product_ReadProductIdByCode.sql" />
+    <Build Include="dbo\StoreProcedures\Shift\usp_Shift_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Shift\usp_Shift_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Shift\usp_Shift_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Shift\usp_Shift_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Select_ReadStockByBranch.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_ReadHaveData.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_ReadIsLock.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_ReadIsForward.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_UpdateLock.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_UpdateQuantity.sql" />
+    <Build Include="dbo\StoreProcedures\StockTaking\usp_StockTaking_UpdateUnlock.sql" />
+    <Build Include="dbo\StoreProcedures\Shift\usp_ShiftRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductElastic_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CheckoutCounter\usp_CheckoutCounter_ReadById.sql" />
+    <Build Include="dbo\Tables\Employee\Employee.sql" />
+    <Build Include="dbo\Tables\Employee\EmployeeSalary.sql" />
+    <Build Include="dbo\Tables\Other\Gender.sql" />
+    <Build Include="dbo\Tables\Other\Position.sql" />
+    <Build Include="dbo\Tables\Employee\EmployeeUser.sql" />
+    <Build Include="dbo\Tables\Other\Department.sql" />
+    <Build Include="dbo\StoreProcedures\Gender\usp_Gender_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Gender\usp_Select_ReadGender.sql" />
+    <Build Include="dbo\StoreProcedures\Gender\usp_Gender_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Gender\usp_Gender_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Gender\usp_Gender_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Gender\usp_Gender_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Gender\usp_GenderRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Position_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_PositionRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Position\usp_Select_ReadPosition.sql" />
+    <Build Include="dbo\StoreProcedures\PaymentMethod\usp_PaymentMethod_Create.sql" />
+    <Build Include="dbo\StoreProcedures\PaymentMethod\usp_PaymentMethod_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\PaymentMethod\usp_PaymentMethod_Update.sql" />
+    <Build Include="dbo\StoreProcedures\PaymentMethod\usp_PaymentMethod_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\PaymentMethod\usp_PaymentMethodRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\PaymentMethod\usp_Select_ReadPaymentMethod.sql" />
+    <Build Include="dbo\StoreProcedures\Department\usp_Department_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Department\usp_Department_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Department\usp_Department_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Department\usp_Department_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Department\usp_Department_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Department\usp_DepartmentJson_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Department\usp_SelectLevels_ReadDepartment.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_Employee_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_Employee_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_Employee_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_Employee_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeElastic_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeUser_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeUser_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeSalary_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeSalary_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeSalary_Read.sql" />
+    <Build Include="dbo\Tables\Employee\EmployeeCheckoutCounter.sql" />
+    <Build Include="dbo\Tables\Employee\EmployeeShift.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeSalary_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeSalary_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDisplay_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeSalary_ReadTop.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeUser_ReadIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeUser_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeShift_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeShift_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeShift_ReadById.sql" />
+    <Build Include="dbo\Funtions\fn_ConcatCategory.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductPrint_Read.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverter_ReadIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\ProductUnitConverter\usp_ProductUnitConverter_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Select_ReadUnitByProduct.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeShiftDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductVoucher_ReadByCode.sql" />
+    <Build Include="dbo\StoreProcedures\Unit\usp_Select_ReadUnitByExcludeProduct.sql" />
+    <Build Include="dbo\StoreProcedures\SellingPrice\usp_SellingPrice_ReadByProduct.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeShift_ReadIsExist.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_EmployeeShift_ReadByUserId.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDataTable_ReadMobile.sql" />
+    <Build Include="dbo\Tables\Other\Setting.sql" />
+    <Build Include="dbo\Tables\Timesheet\TimesheetLog.sql" />
+    <Build Include="dbo\StoreProcedures\Setting\usp_Setting_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Setting\usp_Setting_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Setting\usp_Setting_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Setting\usp_Setting_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Setting\usp_Setting_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Timesheet\usp_TimesheetLog_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Timesheet\usp_TimesheetLog_ReadByUserId.sql" />
+    <Build Include="dbo\Tables\SaleReceipt\SaleReceiptPromotion.sql" />
+    <Build Include="dbo\Tables\Report\ReceivingReport.sql" />
+    <Build Include="dbo\Tables\Report\ReceivingReportDetail.sql" />
+    <Build Include="dbo\Tables\Report\ReceivingReportOrder.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierContact_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierContact_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierContact_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierContact_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierContact_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierElastic_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductVoucher_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_BranchStock_ReadByUserId.sql" />
+    <Build Include="dbo\StoreProcedures\Stock\usp_Stock_ReadByBranchId.sql" />
+    <Build Include="dbo\StoreProcedures\Branch\usp_SelectLevels_ReadBranchByUser.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptHistory_ReadBak.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptDetailHistory_Read.sql" />
+    <Build Include="dbo\Tables\Report\SaleReturn.sql" />
+    <Build Include="dbo\Tables\Report\SaleReturnDetail.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_ReportStock_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_ReportReceiving_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_ReportSellingPrice_Read.sql" />
+    <Build Include="dbo\Funtions\fn_BeginingStock.sql" />
+    <Build Include="dbo\Funtions\fn_ImportStock.sql" />
+    <Build Include="dbo\Funtions\fn_ExportStock.sql" />
+    <Build Include="dbo\Funtions\fn_AvgPrice.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReportView_Read.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReport_Create.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReportDetail_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_SellingPriceUnit_Create.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReport_Update.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReport_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReportDetail_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReportStatus_Update.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReportDetail_ReadByReceivingReportId.sql" />
+    <Build Include="dbo\StoreProcedures\ReceivingReport\usp_ReceivingReport_ReadById.sql" />
+    <Build Include="dbo\Tables\Other\ServiceDisplay.sql" />
+    <Build Include="dbo\StoreProcedures\ServiceDisplay\usp_ServiceDisplayData_Read.sql" />
+    <Build Include="dbo\StoreProcedures\ServiceDisplay\usp_ServiceDisplay_Create.sql" />
+    <Build Include="dbo\StoreProcedures\ServiceDisplay\usp_ServiceDisplay_Update.sql" />
+    <Build Include="dbo\StoreProcedures\ServiceDisplay\usp_ServiceDisplay_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\ServiceDisplay\usp_ServiceDisplay_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\ServiceDisplay\usp_ServiceDisplayRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_Select_ReadEmployee.sql" />
+    <Build Include="dbo\StoreProcedures\Employee\usp_Select_ReadEmployeeUser.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_ReportServiceDisplay_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_CustomerDatatable_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipScore\usp_MembershipScore_Create.sql" />
+    <Build Include="dbo\StoreProcedures\MembershipScore\usp_MembershipScore_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_DashboardPie_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_DashboardBar_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_DashboardSumary_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductPrintUnit_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Report\usp_CustomerReport_Read.sql" />
+    <Build Include="dbo\StoreProcedures\SaleReceipt\usp_SaleReceiptHistory_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Timesheet\usp_TimeSheet_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Timesheet\usp_TimeSheet_Delete.sql" />
+    <Build Include="dbo\Tables\Timesheet\TimeSheet.sql" />
+    <Build Include="dbo\StoreProcedures\Timesheet\usp_Timesheet_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Supplier\usp_SupplierPOS_Read.sql" />
+    <Build Include="dbo\Tables\Product\PriceList.sql" />
+    <Build Include="dbo\Tables\Product\PriceDetail.sql" />
+    <Build Include="dbo\Tables\DeliveryPoint\DeliveryPoint.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_DeliveryPoint_Create.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_DeliveryPoint_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_DeliveryPoint_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Location_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Location_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Location_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Location_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Location_Update.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_LocationRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Select_ReadLocation.sql" />
+    <Build Include="dbo\Tables\Location\Location.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_LocationDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_LocationDatatable_ReadByParentId.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Location_ReadCheckIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceList_Create.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceList_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceList_Read.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceList_ReadByDate.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceList_Update.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceListRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_Select_ReadPriceList.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceList_ReadCheckIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_DeliveryPointDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_DeliveryPointDatatable_ReadByLocationId.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_DeliveryPointRedis_Read.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_Select_ReadDeliveryPoint.sql" />
+    <Build Include="dbo\StoreProcedures\PriceList\usp_PriceList_ReadDateIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\PriceDetail\usp_PriceDetailDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\PriceDetail\usp_PriceDetail_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\PriceDetail\usp_PriceDetail_ReadIsExisting.sql" />
+    <Build Include="dbo\StoreProcedures\PriceDetail\usp_PriceDetail_Update.sql" />
+    <Build Include="dbo\StoreProcedures\PriceDetail\usp_PriceDetail_Create.sql" />
+    <Build Include="dbo\StoreProcedures\Location\usp_Select_ReadChildLocation.sql" />
+    <Build Include="dbo\Tables\VehicleType\VehicleType.sql" />
+    <Build Include="dbo\StoreProcedures\VehicleType\usp_VehicleType_Create.sql" />
+    <Build Include="dbo\StoreProcedures\VehicleType\usp_VehicleType_Read.sql" />
+    <Build Include="dbo\StoreProcedures\VehicleType\usp_VehicleType_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\VehicleType\usp_Select_ReadVehicleType.sql" />
+    <Build Include="dbo\StoreProcedures\VehicleType\usp_VehicleType_Update.sql" />
+    <Build Include="dbo\StoreProcedures\VehicleType\usp_VehicleType_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Customer_ReadByUserId.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWalletDatatable_ReadRecharge.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWallet_Create.sql" />
+    <Build Include="dbo\StoreProcedures\BankAccount\usp_Select_ReadBankAccount.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWallet_Update.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWallet_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWallet_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWalletDatatable_ReadTopupCredit.sql" />
+    <Build Include="dbo\StoreProcedures\Customer\usp_Select_ReadCustomer.sql" />
+    <Build Include="dbo\Funtions\fn_CheckTopupCredit.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWalletDatatable_ReadCreditApproval.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWallet_UpdateStatus.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWalletDatatable_ReadRechargeApproval.sql" />
+    <Build Include="dbo\Tables\DeliveryVehicle\DeliveryVehicle.sql" />
+    <Build Include="dbo\Tables\CustomerLocation\CustomerLocation.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWalletDatatable_ReadInternalRecharge.sql" />
+    <Build Include="dbo\Tables\ReceiptSetting\ReceiptSetting.sql" />
+    <Build Include="dbo\StoreProcedures\BankAccount\usp_BankAccount_ReadByBankNo.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryVehicle\usp_DeliveryVehicle_ReadByLicensePlate.sql" />
+    <Build Include="dbo\Tables\Promotions\PromotionCustomer.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_Select_ReadDeliveryPointByLocationId.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrder_Create.sql" />
+    <Build Include="dbo\Funtions\fn_ReceiptCalc.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrderDetail\usp_CustomerOrderDetailDatatable_ReadProductList.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrderDetail\usp_CustomerOrderDetail_Create.sql" />
+    <Build Include="dbo\Tables\Customer\CustomerWallet.sql" />
+    <Build Include="dbo\Tables\Promotions\PromotionCode.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrder_Update.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrder_ReadByPaymentStatus.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrderDataTable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrder_ReadByOrderIds.sql" />
+    <Build Include="dbo\Funtions\fn_AccountBalance.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerWallet\usp_CustomerWallet_ReadAccountBalance.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrderDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrderDatatable_ReadPagination.sql" />
+    <Build Include="dbo\StoreProcedures\CustomerOrder\usp_CustomerOrder_ReadById.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="AdwardSoft.Db.POS.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AdwardSoft.Db.POS.publish.xml" />
+    <Build Include="dbo\Tables\BankAccount\BankAccount.sql" />
+    <Build Include="dbo\StoreProcedures\BankAccount\usp_BankAccount_Create.sql" />
+    <Build Include="dbo\StoreProcedures\BankAccount\usp_BankAccount_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\BankAccount\usp_BankAccount_Read.sql" />
+    <Build Include="dbo\StoreProcedures\BankAccount\usp_BankAccount_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\BankAccount\usp_BankAccount_Update.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryVehicle\usp_DeliveryVehicle_Create.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryVehicle\usp_DeliveryVehicle_Delete.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryVehicle\usp_DeliveryVehicleDatatable_Read.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryVehicle\usp_DeliveryVehicle_Update.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryVehicle\usp_DeliveryVehicle_ReadById.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryVehicle\usp_Select_ReadDeliveryVehicle.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_ProductDatatable_ReadByUnitId.sql" />
+    <Build Include="dbo\StoreProcedures\Product\usp_Product_ReadCheckIsUsing.sql" />
+    <Build Include="dbo\StoreProcedures\DeliveryPoint\usp_DeliveryPoint_Delete.sql" />
+  </ItemGroup>
+</Project>

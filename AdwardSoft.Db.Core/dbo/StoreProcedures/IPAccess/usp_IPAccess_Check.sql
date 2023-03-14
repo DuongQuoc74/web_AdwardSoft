@@ -1,0 +1,51 @@
+﻿CREATE PROCEDURE [dbo].[usp_IPAccess_Check]
+	@Id INT,
+	@Type TINYINT,
+	@Filter TINYINT,
+	@IP1 VARCHAR(15),
+	@IP2 VARCHAR(15)
+AS
+BEGIN
+	SET NOCOUNT OFF;
+	SET TRANSACTION ISOLATION LEVEL READ COMMITTED
+	DECLARE @Return INT = 0
+	----------------------------------------------
+	BEGIN TRY
+		BEGIN TRAN
+			--SELECT @Return = 1 
+			--FROM [IPAccess]				   
+			--WHERE [Id] <> @Id AND
+			--(
+			--	(CAST (PARSENAME(@IP1,4) AS INT)>=CAST(PARSENAME([IP1],4) AS INT) 
+			--	AND CAST(PARSENAME(@IP1,3) AS INT)>=CAST(PARSENAME([IP1],3) AS INT) 
+			--	AND CAST(PARSENAME(@IP1,2) AS INT)>=CAST(PARSENAME([IP1],2) AS INT) 
+			--	AND CAST(PARSENAME(@IP1,1) AS INT)>=CAST(PARSENAME([IP1],1) AS INT))
+			--	OR
+			--	(
+			--		(CAST(@IP1RL AS BIGINT) >= CAST(SUBSTRING(REPLACE([IP1], '.', ''), 1, @LEN) AS BIGINT))
+			--		AND
+			--		(CAST(@IP1RL AS BIGINT) <= CAST(SUBSTRING(REPLACE([IP2], '.', ''), 1, @LEN) AS BIGINT))
+			--	)
+			--	OR
+			--	(
+			--		(CAST(@IP2RL AS BIGINT) >= CAST(SUBSTRING(REPLACE([IP1], '.', ''), 1, @LEN) AS BIGINT))
+			--		AND
+			--		(CAST(@IP2RL AS BIGINT) <= CAST(SUBSTRING(REPLACE([IP2], '.', ''), 1, @LEN) AS BIGINT))
+			--	)
+			--	OR
+			--	(
+			--		(CAST(@IP1RL AS BIGINT) < CAST(SUBSTRING(REPLACE([IP1], '.', ''), 1, @LEN) AS BIGINT))
+			--		AND
+			--		(CAST(@IP2RL AS BIGINT) > CAST(SUBSTRING(REPLACE([IP2], '.', ''), 1, @LEN) AS BIGINT))
+			--	)
+			--)			
+		COMMIT
+	END TRY
+	BEGIN CATCH
+		ROLLBACK;
+		RETURN @Return;
+		THROW;
+	END CATCH
+	SELECT @Return
+	RETURN @Return
+END

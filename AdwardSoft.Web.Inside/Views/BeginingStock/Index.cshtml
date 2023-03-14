@@ -1,0 +1,730 @@
+﻿@model BeginingStockDataTableViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Tồn kho đầu kỳ";
+
+    var Stocks = @ViewBag.Stocks;
+    var Products = @ViewBag.Products;
+}
+
+@section StyleSheet {
+    <link rel="stylesheet" href="/css/yearpicker.css" />
+}
+
+<div class="row" id="StockContainer">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Danh sách tồn kho đầu kỳ</h5>
+
+                <div class="card-header header-elements-md-inline">
+                    <div class="row mr-2">
+                        @*Import from Barcode (Not Use)*@
+                        @*<div class="col-md-auto mb-3">
+                            <a href="@Url.Action("_Form","BeginingStock")" checkvalidate="true" modal-size="modal-lg" class="btn btn-medium btn-primary modal-link">
+                                <i class="icon-plus22 mr-1"></i><span class="hidden-xs">Import from Barcode</span>
+                            </a>
+                        </div>*@
+                        <div class="col-md-auto">
+                            <a 
+                                onclick="popUpModal(event);"
+                                href="#"
+                                action="@Url.Action("_FormExcel", "BeginingStock")"
+                                @*checkvalidate="true" *@
+                                modal-size="modal-sm" 
+                                class="btn btn-medium btn-primary modal-link" 
+                                @*callbackfn="BeginingStockSuccess()"*@
+                            >
+                                <i class="icon-plus22 mr-1"></i><span class="hidden-xs">Nhập từ Excel</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-auto float-right">
+                            <label for="date-filter" class="clear-fix font-weight-semibold">Năm</label>
+                            <div class="form-group-feedback form-group-feedback-left ">
+                                <input 
+                                    id="date-filter" 
+                                    name="date-filter" 
+                                    type="text" 
+                                    class="yearpicker form-control" 
+                                    value=""
+                                >
+
+                                <div class="form-control-feedback">
+                                    <label for="date-filter">
+                                        <i class="icon-calendar22"></i>
+                                    </label>                                 
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Kho</label>
+                            <select id="stock-select" class="form-control select-search" asp-items="Stocks">
+                                <option value="0" selected>Tất cả</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Sản phẩm</label>
+                            <select id="product-select" class="form-control select-search" asp-items="Products">
+                                <option value="0" selected>Tất cả</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Khóa</label>
+                            <a id="btn-lock" checkvalidate="true" modal-size="modal-sm" class="btn btn-danger disabled" style="width: 100%">
+                                <i class="fas fa-lock text-white" data-toggle="tooltip" title="Khóa"></i>
+                            </a>
+                            <a id="btn-unlock" checkvalidate="true" modal-size="modal-sm" class="btn btn-info disabled" style="display: none; width: 100%">
+                                <i class="fas fa-unlock text-white" data-toggle="tooltip" title="Mở khóa"></i>
+                            </a>
+                        </div>
+
+                        <div class="col-md-auto float-right">
+                            <label class="clear-fix font-weight-semibold">Xóa tất cả</label>
+                            <a id="btn-delete-all" checkvalidate="true" modal-size="modal-sm" class="btn btn-danger disabled" style="width: 100%">
+                                <i class="fas fa-trash-alt text-white" data-toggle="tooltip" title="Xóa tất cả"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <table id="BeginingStockTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th width="10%">Mã sản phẩm</th>
+                            <th width="20%">Hình ảnh</th>
+                            <th width="20%">Tên sản phẩm</th>
+                            <th width="15%">Đơn vị tính</th>
+                            <th width="15%">Kho</th>
+                            <th width="15%">Số lượng tồn</th>
+                            <th class="text-center text-muted" width="5%"><i class="icon-checkmark3"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalCenter" tabindex="-1" role="dialog" aria-labelledby="modalCenter" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+    @* ------ Custom Year Picker  ------ *@
+    <script src="/js/yearpicker.js"></script>
+
+    <script>
+        $('.yearpicker').yearpicker({
+            // Set Current Value Is Current Year
+            year: new Date().getFullYear(),
+            startYear: 1910,
+            endYear: new Date().getFullYear(),
+            itemTag: 'li',
+            selectedClass: 'selected',
+            disabledClass: 'disabled',
+            hideClass: 'hide',
+            template: `<div class="yearpicker-container">    
+                      <div class="yearpicker-header">    
+                          <div class="yearpicker-prev" data-view="yearpicker-prev">&lsaquo;</div>      
+                          <div class="yearpicker-current" data-view="yearpicker-current">SelectedYear</div>     
+                          <div class="yearpicker-next" data-view="yearpicker-next">&rsaquo;</div>
+                      </div>       
+                      <div class="yearpicker-body">        
+                          <ul class="yearpicker-year" data-view="years">    
+                          </ul>      
+                      </div>
+                  </div>`,
+        });
+    </script>
+
+    @* ------ text/x-jsrender ---- *@
+
+    <script id="BeginingStockAction" type="text/x-jsrender">
+        {{if !data.isLock}}
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a
+                        onclick="popUpModal(event);"
+                        href="#"
+                        action="/BeginingStock/_FormEditQuantity?productId={{:data.productId}}&stockId={{:data.stockId}}&year={{:data.year}}&unitId={{:data.unitId}}" 
+                        callbackfn="BeginingStockSuccess()" 
+                        checkvalidate="true" 
+                        modal-size="modal-sm" 
+                        class="dropdown-item modal-link"
+                    >
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.Description() Quantity"></i>
+                        @EText.Edit.Description() Quantity
+                    </a>
+
+                    <a 
+                        href="#" 
+                        onclick="popUpConfirm(event); return false;"
+                        class="dropdown-item remove-item" 
+                        data-action="/BeginingStock/Delete" 
+                        callbackfn="BeginingStockSuccess()" 
+                        data-params='{"productId":"{{:data.productId}}", "stockId":"{{:data.stockId}}", "year":"{{:data.year}}", "unitId":"{{:data.unitId}}"}'
+                    >
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.Description()"></i>
+                        @EText.Remove.Description()
+                    </a>
+                </div>
+            </div>
+        </div>
+        {{/if}}
+    </script>
+
+    @* ------ Handle AJAX load && Filter, Search ---- *@
+
+    <script>
+        var $StockSelect = $('#stock-select');
+        var $ProductSelect = $('#product-select');
+        var $DateFilter = $('#date-filter');
+
+        var BeginingStockAction = $.templates("#BeginingStockAction");
+        var $BeginingStockTable;
+
+        @* Load Data By AJAX And Render To Table *@
+        $BeginingStockTable = $("#BeginingStockTable").DataTable({
+            processing: true,
+            responsive: true,
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    data: {
+                        "model": data,
+                        "year": $DateFilter.val(),
+                        "stockId": $StockSelect.val(),
+                        "productId": $ProductSelect.val()
+                    },
+                    url: "@Url.Action("Read", "BeginingStock")",
+                    method: "POST",
+                    success: function (response) {
+                        console.log(response);
+                        callback(
+                            { 
+                                data: response.data, 
+                                draw: response.draw, 
+                                recordsFiltered: response.recordsFiltered, 
+                                recordsTotal: response.recordsTotal 
+                            }
+                        );
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            serverSide: true,
+            cache: false,
+            lengthChange: false,
+            filter: true,
+            search: true,
+            order: false,
+            @* Render Data To Columns *@
+            columns: [
+                { data: "productCode" },
+                { 
+                    data: null,
+                    render: function (data, type, row) {
+                        return `<div class="product-image-wrapper" style="width: 150px; height: 150px;">
+                                    <img 
+                                        src="${data.productImage}" 
+                                        alt="${data.productName}" 
+                                        class=" img-responsive img-thumbnail"
+                                    />
+                                </div>`
+                    },
+                },
+                { data: "productName" },
+                { data: "unitName" },
+                { data: "stockName" },
+                { data: "quantity" },
+                {
+                    data: null,
+                    render: function (data, type, row) {
+                        return (BeginingStockAction.render({ data: data }));
+                    }
+                },
+            ],
+            language: {
+                search: '<div class="row">_INPUT_</div>',
+                searchPlaceholder: 'Tìm kiếm...',
+                info: "<span style='padding-left:2%;'>Trang _PAGE_ / _PAGES_</span>",
+                paginate: { 
+                    'first': 'Đầu', 
+                    'last': 'Cuối', 
+                    'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 
+                    'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' 
+                },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: "@EText.EmptyTable.Description()",
+                zeroRecords: "@EText.EmptyTable.Description()",
+                infoFiltered: "",
+                processing: "@EText.Processing.Description()",
+            }
+        });
+
+        $(document).ready(function () {
+            $('.select').select2({
+                minimumResultsForSearch: Infinity
+            })
+            $('.form-check-input-switch').bootstrapSwitch();
+            $('.select-search').select2();
+            $('.daterange').daterangepicker({
+                applyClass: 'bg-slate-600',
+                cancelClass: 'btn-light',
+                singleDatePicker: false,
+                timePicker: false,
+                autoclose: true,
+                opens: 'right',
+                locale: {
+                    format: 'DD/MM/YYYY'
+                }
+            });
+            setTimeout(rebindValidation, 500);
+        });
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f);
+                $form.removeData('validator');
+                $form.removeData('unobtrusiveValidation');
+                $.validator.unobtrusive.parse($form);
+            });
+        }
+
+        var BeginingStockSuccess = function () {
+            $BeginingStockTable.ajax.reload()
+            _handlerLockEvent()
+            _handlerDeleteEvent()
+        }
+
+        function _checkIsLock() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: '@Url.Action("CheckIsLock", "BeginingStock")',
+                    method: "GET",
+                    data: {
+                        "stockId": $StockSelect.val(),
+                        "year": $DateFilter.val().trim()
+                    },
+                    success: function (data) {
+                        resolve(data)
+                    },
+                    error: function (error) {
+                        reject(error)
+                    },
+                })
+            })
+        }
+
+        function _checkHaveData() {
+            return new Promise((resolve, reject) => {
+                $.ajax({
+                    url: '@Url.Action("CheckHaveData", "BeginingStock")',
+                    method: "GET",
+                    data: {
+                        "stockId": $StockSelect.val(),
+                        "year": $DateFilter.val().trim()
+                    },
+                    success: function (data) {
+                        resolve(data)
+                    },
+                    error: function (error) {
+                        reject(error)
+                    },
+                })
+            })
+        }
+
+        function _checkStock() {
+            return $StockSelect.val() > 0
+        }
+
+    </script>
+
+    @* ------ Events On Change ------ *@
+
+    <script>
+        @* ------ If any input in this region change => Reload AJAX ------ *@
+        $DateFilter.on('change', function (e) {
+            $BeginingStockTable.ajax.reload()
+        })
+
+        $StockSelect.on('change', function (e) {
+            $BeginingStockTable.ajax.reload()
+        })
+
+        $ProductSelect.on('change', function (e) {
+            $BeginingStockTable.ajax.reload()
+        })
+
+    </script>
+
+    @* ------ Lock Events ------ *@
+
+    <script>
+
+        var ButtonUnlock = {
+            $BtnUnlock: $('#btn-unlock'),
+            _ShowButtonUnlock: function () {
+                this.$BtnUnlock.show()
+            },
+            _HideButtonUnlock: function () {
+                this.$BtnUnlock.hide()
+            },
+            _DisableButtonUnlock: function () {
+                this.$BtnUnlock.addClass("disabled")
+                this.$BtnUnlock.attr('disabled', true)
+            },
+            _AbleButtonUnlock: function () {
+                this.$BtnUnlock.removeClass("disabled")
+                this.$BtnUnlock.removeAttr('disabled')
+            }
+        }
+
+        var ButtonLock = {
+            $BtnLock: $('#btn-lock'),
+            _ShowButtonLock: function () {
+                this.$BtnLock.show()
+            },
+            _HideButtonLock: function () {
+                this.$BtnLock.hide()
+            },
+            _DisableButtonLock: function () {
+                this.$BtnLock.addClass("disabled")
+                this.$BtnLock.attr('disabled', true)
+            },
+            _AbleButtonLock: function () {
+                this.$BtnLock.removeClass("disabled")
+                this.$BtnLock.removeAttr('disabled')
+            }
+        }
+
+        $(document).ready(function () {
+            _handlerLockEvent()
+        })
+
+        async function _handlerLockEvent() {
+            var isOneStock = _checkStock()
+            var haveData = await _checkHaveData()
+
+            // => Check is one
+            if (isOneStock && (haveData > 0)) {
+                // Check is lock
+                var isLock = await _checkIsLock()
+                if (isLock > 0) {
+                    // => is lock
+                    ButtonLock._HideButtonLock()
+                    ButtonUnlock._ShowButtonUnlock()
+                    ButtonUnlock._AbleButtonUnlock()
+                }
+                else {
+                    // => is unlock
+                    ButtonUnlock._HideButtonUnlock()
+                    ButtonLock._ShowButtonLock()
+                    ButtonLock._AbleButtonLock()
+                }
+            } else {
+                ButtonLock._DisableButtonLock()
+                ButtonUnlock._DisableButtonUnlock()
+            }
+        }
+
+        ButtonLock.$BtnLock.on('click', function (e) {
+            e.preventDefault()
+
+            swal({
+                title: 'Bạn có chắc chắn ?',
+                text: 'Bạn chắc chắn khóa nội dung này.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận!',
+                cancelButtonText: 'Trở lại'
+            }).then(function (check) {
+                if (check.value) {
+                    $.ajax({
+                        url: '@Url.Action("Lock", "BeginingStock")',
+                        method: "PUT",
+                        data: {
+                            "stockId": $StockSelect.val(),
+                            "year": $DateFilter.val().trim()
+                        },
+                        success: function (data) {
+                            if (data > 0)
+                                BeginingStockSuccess()
+                        }
+                    })
+                }
+            })
+        })
+
+        ButtonUnlock.$BtnUnlock.on('click', function (e) {
+            e.preventDefault()
+
+            swal({
+                title: 'Bạn có chắc chắn ?',
+                text: 'Bạn chắc chắn mở khóa nội dung này.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận!',
+                cancelButtonText: 'Trở lại'
+            }).then(function (check) {
+                if (check.value) {
+                    $.ajax({
+                        url: '@Url.Action("Unlock", "BeginingStock")',
+                        method: "PUT",
+                        data: {
+                            "stockId": $StockSelect.val(),
+                            "year": $DateFilter.val().trim()
+                        },
+                        success: function (data) {
+                            if (data > 0)
+                                BeginingStockSuccess()
+                        }
+                    })
+                }
+            })
+        })
+
+        $DateFilter.on('change', function (e) {
+            _handlerLockEvent()
+        })
+
+        $StockSelect.on('change', function (e) {
+            _handlerLockEvent()
+        })
+
+    </script>
+
+    @* ------ Delete Events ------ *@
+
+    <script>
+
+        var DeleteButton = {
+            obj: $('#btn-delete-all'),
+            _disable: function () {
+                this.obj.addClass("disabled")
+                this.obj.attr('disabled', true)
+            },
+            _able: function () {
+                this.obj.removeClass("disabled")
+                this.obj.removeAttr('disabled')
+            }
+        }
+
+        $(document).ready(function () {
+            _handlerDeleteEvent()
+        })
+
+        async function _handlerDeleteEvent() {
+            var isOneStock = _checkStock()
+            var haveData = await _checkHaveData()
+
+            // => Check is one
+            if (isOneStock && (haveData > 0)) {
+                // Check is lock
+                var isLock = await _checkIsLock()
+
+                if (isLock <= 0) {
+                    DeleteButton._able()
+                }
+                else {
+                    DeleteButton._disable()
+                }
+            } else {
+                DeleteButton._disable()
+            }
+        }
+
+        $DateFilter.on('change', function (e) {
+            _handlerDeleteEvent()
+        })
+
+        $StockSelect.on('change', function (e) {
+            _handlerDeleteEvent()
+        })
+
+        DeleteButton.obj.on('click', function (e) {
+            e.preventDefault()
+
+            swal({
+                title: 'Bạn có chắc chắn ?',
+                text: 'Bạn chắc chắn xóa tất cả nội dung này.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận!',
+                cancelButtonText: 'Trở lại'
+            }).then(function (check) {
+                if (check.value) {
+                    $.ajax({
+                        url: '@Url.Action("DeleteAll", "BeginingStock")',
+                        method: "POST",
+                        data: {
+                            "stockId": $StockSelect.val(),
+                            "year": $DateFilter.val().trim()
+                        },
+                        success: function (data) {
+                            BeginingStockSuccess()
+                        }
+                    })
+                }
+            })
+        })
+
+    </script>
+
+    @* ------ Modal Patials View Events ------ *@
+
+    <script>
+        const $ModalCenter = $("#modalCenter");
+
+        const $ModalContent = $ModalCenter.find(".modal-content");
+        const $ModalDialog = $ModalCenter.find(".modal-dialog");
+
+        // This function will remove all modal size class by passing an modal object into it
+        function updateModalSize(modalCenter, modalSize="modal-sm") {
+            $ModalDialog.removeClass("modal-lg");
+            $ModalDialog.removeClass("modal-sm");
+
+            $ModalDialog.addClass(modalSize);
+        }
+
+        // Popup Update Quantity Modal
+        function popUpModal(event) {
+            event.preventDefault();
+            
+            // Get href attribute that contain URL to update partial
+            const url = event.currentTarget.getAttribute("action");
+            const modalSize = event.currentTarget.getAttribute("modal-size");
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                dataType: "html",
+                success: function(response) {
+                    // Apply modal size if exists
+                    if (modalSize) {
+                        updateModalSize($ModalCenter, modalSize);
+                    };
+
+                    updateModalSize($ModalCenter);
+
+                    $ModalContent.html(response);
+                    $ModalCenter.modal('show');
+                },
+                failure: function (response) {
+                    console.log(response.responseText);
+                    new PNotify({
+                        title: 'Thông báo',
+                        text: 'Không thể sử dụng tính năng này vui lòng thử lại sau!',
+                        addclass: 'bg-danger border-danger'
+                    });
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                    new PNotify({
+                        title: 'Thông báo',
+                        text: 'Không thể sử dụng tính năng này vui lòng thử lại sau!',
+                        addclass: 'bg-danger border-danger'
+                    });
+                }
+            });
+        }
+
+        // Popup Confirm Modal for User to confirm their action before delete
+        function popUpConfirm(event) {
+            event.preventDefault();
+
+            swal({
+                title: 'Bạn có chắc chắn ?',
+                text: 'Bạn chắc chắn xóa nội dung này.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Xác nhận!',
+                cancelButtonText: 'Trở lại'
+            }).then(function (check) {
+                if (check.value) {
+                    // Data in format JSON.stringtify
+                    let data = event.target.getAttribute("data-params");
+
+                    try {
+                        data = JSON.parse(data);
+                    } catch(error) {
+                        new PNotify({
+                            title: 'Thông báo',
+                            text: 'Không thể xóa vui lòng thử lại sau!',
+                            addclass: 'bg-danger border-danger'
+                        });
+                        return;
+                    };
+
+                    $.ajax({
+                        url: '@Url.Action("Delete", "BeginingStock")',
+                        method: "POST",
+                        data: data,
+                        success: function (response) {
+                            console.log(response);
+                            let displayClass = 'bg-danger border-danger';
+                            
+                            if (response.succeeded) {
+                                displayClass = 'bg-success border-success';
+                                BeginingStockSuccess();
+                            }
+
+                            new PNotify({
+                                title: 'Thông báo',
+                                text: response.customMessage,
+                                addclass: displayClass,
+                            });
+                        },
+                        failure: function (response) {
+                            console.log(response.responseText);
+                            new PNotify({
+                                title: 'Thông báo',
+                                text: 'Không thể xóa vui lòng thử lại sau!',
+                                addclass: 'bg-danger border-danger'
+                            });
+                        },
+                        error: function (response) {
+                            console.log(response.responseText);
+                            new PNotify({
+                            title: 'Thông báo',
+                            text: 'Không thể xóa vui lòng thử lại sau!',
+                            addclass: 'bg-danger border-danger'
+                        });
+                        }
+                    })
+                }
+            })
+        }     
+    </script>
+}

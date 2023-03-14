@@ -1,0 +1,67 @@
+﻿
+
+.dataTables_processing {
+    position: absolute;
+    top: 80%;
+    left: 50%;
+    width: 100%;
+    height: 40px;
+    margin-left: -50%;
+    margin-top: -25px;
+    padding-top: 20px;
+    text-align: center;
+    font-size: 1.2em;
+    background-color: white;
+}
+.modal-lg {
+    max-width: 80%;
+}
+
+#inputImage {
+    display: inline-block;
+    position: relative;
+    width: calc(100% - 200px);
+    padding-left: 50px;
+}
+
+.icon-input-image{
+    width: 42px;
+    height: 34px;
+    position: absolute;
+    top: 21px;
+    left: 22px;
+    color: #808080bf;
+    border-right: 1px #80808070 solid;
+    padding-top: 9px;
+}
+
+#library-image {
+    max-height: 450px;
+    overflow: auto;
+}
+
+#input_imgPath{
+    width: calc(100% - 148px);
+}
+
+/*.item-image {
+    transition-duration: 1s;
+}
+
+.hidden-image {
+    transform: translateY(100px);
+    opacity: 0;
+}
+
+.visible-image {
+    transition-duration: 1s;
+    transform: translateY(0px);
+    opacity: 1;
+}*/
+
+label.error {
+    color: Red;
+}
+
+
+

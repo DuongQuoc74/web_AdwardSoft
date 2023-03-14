@@ -1,0 +1,185 @@
+﻿@model MembershipClassViewModel
+
+@{
+    ViewData["Title"] = "Membership class";
+}
+
+<div class="row">
+    <div class="col-3">
+        <div class="card" id="_Form">
+
+        </div>
+    </div>
+    <div class="col-9">
+        <div class="card">
+            <div class="card-header header-elements-inline">
+                <h5 class="card-title">Membership class list</h5>
+            </div>
+            <div class="card-body">
+                <table id="MembershipClassTable" class="table datatable-save-state w-100">
+                    <thead>
+                        <tr>
+                            <th>
+                                <label asp-for="Name"></label>
+                            </th>
+                            <th>
+                                <label>Total Amount</label>
+                            </th>
+                            <th>
+                                <label>Default</label>
+                            </th>
+                            <th style="width: 10%"></th>
+                            <th class="text-center text-muted" style="width: 30px;"><i class="icon-checkmark3"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script id="MembershipClassAction" type="text/x-jsrender">
+        <div class="list-icons">
+            <div class="list-icons-item dropdown">
+                <a href="#" class="list-icons-item dropdown-toggle caret-0" data-toggle="dropdown"><i class="icon-menu9"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    @* -- Edit -- *@
+                    <a onclick="ReadById('{{:id}}')" class="dropdown-item">
+                        <i class="icon-pencil7" data-toggle="tooltip" title="@EText.TooltipEdit.GetDescription()"></i>
+                        @EText.Edit.GetDescription()
+                    </a>
+                    @* -- Remove -- *@
+                    <a data-action="/MembershipClass/Delete" callbackfn="MembershipClassSuccess()" data-params='{"id":"{{:id}}"}' href="#" class="dropdown-item remove-item">
+                        <i class="icon-trash" data-toggle="tooltip" title="@EText.TooltipRemove.GetDescription()"></i>
+                        @EText.Remove.GetDescription()
+                    </a>
+                    <div class="dropdown-divider opacity-75"></div>
+                    @* -- Show Customer -- *@
+                    <a href="/Customer/Index?MembershipClass={{:id}}" class="dropdown-item">
+                        <i class="icon-user-tie" data-toggle="tooltip" title="Customers"></i>
+                        Customers
+                    </a>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script id="MembershipClassUpDown" type="text/x-jsrender">
+        <div class="list-icons w-100 text-center">
+            <a href="#" data-toggle="tooltip" title="@EText.TooltipDown.Description()" class="list-icons-item test-center w-50">
+                <i onclick="_UpdateLevel('{{:id}}', false)" style="width:2%" class="fa fa-caret-down text-danger"></i>
+            </a>
+            <a href="#" data-toggle="tooltip" title="@EText.TooltipUp.Description()" class="list-icons-item test-center">
+                <i onclick="_UpdateLevel('{{:id}}', true)" style="width:2%" class="fa fa-caret-up text-success"></i>
+            </a>
+        </div>
+    </script>
+    <script>
+        $(document).ready(function () {
+            setTimeout(rebindValidation, 500)
+            ReadById(0)
+        })
+
+        var rebindValidation = function () {
+            $('form').each(function (i, f) {
+                $form = $(f)
+                $form.removeData('validator')
+                $form.removeData('unobtrusiveValidation')
+                $.validator.unobtrusive.parse($form)
+            })
+
+            $('.select-search').select2()
+        }
+
+        var $MembershipClassTable
+        let MembershipClassUpDown = $.templates("#MembershipClassUpDown")
+        var MembershipClassAction = $.templates("#MembershipClassAction")
+
+        $MembershipClassTable = $("#MembershipClassTable").DataTable({
+            ajax: function (data, callback, settings) {
+                $.ajax({
+                    url: "@Url.Action("Read", "MembershipClass")",
+                    method: "GET",
+                    success: function (response) {
+                        callback({ data: response })
+                    }
+                })
+            },
+            pageLength: 10,
+            paging: true,
+            cache: false,
+            lengthChange: false,
+            filter: false,
+            search: true,
+            order: false,
+            columns: [
+                { data: "name" },
+                {
+                    data: {},
+                    render: (data, type, row) => {
+                        if (data.highestValue == 0) {
+                            return `Starting from ${FormatCurrency(data.lowestValue)} @EText.Currency.Description()`
+                        } else {
+                            return `${FormatCurrency(data.lowestValue)} @EText.Currency.Description() - ${FormatCurrency(data.highestValue)} @EText.Currency.Description()`
+                        }
+                    }
+                },
+                {
+                    data: "isDefault",
+                    render: (data, type, row) => data === false ? '' : "<p class='text-info'>@Html.Raw(EText.IsDefault.Description())</p>"
+                },
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return (MembershipClassUpDown.render({ id: data }))
+                    }
+                },
+                {
+                    data: "id",
+                    render: function (data, type, row) {
+                        return (MembershipClassAction.render({ id: data }))
+                    }
+                },
+            ],
+            language: {
+                info: "<span style='padding-left:2%;'>Page _PAGE_ of _PAGES_</span>",
+                paginate: { 'first': 'First', 'last': 'Last', 'next': $('html').attr('dir') == 'rtl' ? '&larr;' : '&rarr;', 'previous': $('html').attr('dir') == 'rtl' ? '&rarr;' : '&larr;' },
+                processing: "",
+                infoEmpty: "",
+                emptyTable: '@EText.EmptyTable.GetDescription()'
+            }
+        });
+
+        function ReadById(id) {
+            $.ajax({
+                url: "@Url.Action("_Form", "MembershipClass")",
+                method: "GET",
+                data: { "id": id },
+                success: function (data) {
+                    $("#_Form").empty()
+                    $("#_Form").html(data)
+                    rebindValidation()
+                }
+            });
+        };
+
+        var _UpdateLevel = function (selectId, isUp) {
+            if (selectId > 0) {
+                $.ajax({
+                    url: "@Url.Action("UpdateLevel", "MembershipClass")",
+                    method: "PUT",
+                    data: { selectId, isUp },
+                    success: function (data) {
+                        // notification
+                        $MembershipClassTable.ajax.reload()
+                    }
+                })
+            }
+        }
+
+        var MembershipClassSuccess = function () {
+            $MembershipClassTable.ajax.reload()
+            ReadById(0)
+        };
+    </script>
+}
